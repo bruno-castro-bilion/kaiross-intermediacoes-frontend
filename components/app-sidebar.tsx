@@ -81,10 +81,12 @@ const menusByRole = {
   vendedor: {
     principal: [
       { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
-      { title: "Produtos Disponíveis", url: "/produtos", icon: ShoppingBag },
+      { title: "Meus Produtos", url: "/meus-produtos", icon: ShoppingBag },
     ],
     relatorios: [
-      { title: "Minhas Vendas", url: "/relatorios/vendas", icon: TrendingUp },
+      { title: "Vendas", url: "/relatorios/vendas", icon: TrendingUp },
+      { title: "Abandono de Carrinho", url: "/relatorios/abandono", icon: ShoppingCart },
+      { title: "Estornos", url: "/relatorios/estornos", icon: RefreshCcw },
     ],
     financeiro: [
       { title: "Financeiro", url: "/financeiro", icon: Wallet },
