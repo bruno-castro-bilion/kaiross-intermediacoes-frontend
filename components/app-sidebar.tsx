@@ -56,9 +56,9 @@ export default function AppSidebar() {
   const isLightTheme = theme === "light";
 
   const darkGradient =
-    "radial-gradient(171.69% 126.86% at 6.05% 0%, rgba(99,102,241,0.4) 0%, rgba(12, 14, 21, 0.00) 100%), rgba(12, 14, 21, 0.70)";
+    "radial-gradient(171.69% 126.86% at 6.05% 0%, rgba(242,106,0,0.4) 0%, rgba(12, 14, 21, 0.00) 100%), rgba(12, 14, 21, 0.70)";
   const lightGradient =
-    "radial-gradient(171.69% 126.86% at 6.05% 0%, rgba(99,102,241,0.15) 0%, rgba(255, 255, 255, 0) 100%), rgba(248, 250, 252, 0.80)";
+    "radial-gradient(171.69% 126.86% at 6.05% 0%, rgba(242,106,0,0.15) 0%, rgba(255, 255, 255, 0) 100%), rgba(248, 250, 252, 0.80)";
 
   const handleLogout = () => {
     logout();
