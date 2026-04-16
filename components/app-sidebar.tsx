@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import {
   ChevronRight,
   ChevronLeft,
@@ -12,7 +13,11 @@ import {
   Wallet,
   ShoppingBag,
   UserCheck,
+  ShoppingCart,
+  RefreshCcw,
+  TrendingUp,
 } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
@@ -31,6 +36,7 @@ import {
   SidebarContent,
   SidebarGroup,
   SidebarGroupContent,
+  SidebarGroupLabel,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
@@ -44,10 +50,80 @@ const menuItems = [
   { title: "Fornecedores", url: "/fornecedores", icon: Store },
   { title: "Vendedores", url: "/vendedores", icon: UserCheck },
   { title: "Produtos", url: "/produtos", icon: ShoppingBag },
-  { title: "Relatórios", url: "/relatorios", icon: BarChart3 },
-  { title: "Financeiro", url: "/financeiro", icon: Wallet },
   { title: "Usuários", url: "/usuarios", icon: Users },
 ];
+
+const relatoriosItems = [
+  { title: "Vendas", url: "/relatorios/vendas", icon: TrendingUp },
+  { title: "Abandono de Carrinho", url: "/relatorios/abandono", icon: ShoppingCart },
+  { title: "Estornos", url: "/relatorios/estornos", icon: RefreshCcw },
+];
+
+const financeiroItems = [
+  { title: "Financeiro", url: "/financeiro", icon: Wallet },
+];
+
+type MenuItem = { title: string; url: string; icon: React.ElementType };
+
+function renderMenuItem(item: MenuItem, pathname: string, isCollapsed: boolean, isMobile: boolean) {
+  const isActive = pathname === item.url || pathname.startsWith(item.url + "/");
+  return (
+    <div key={item.title}>
+      <SidebarMenuItem style={isCollapsed && !isMobile ? { padding: 0, margin: 0 } : {}} className={isMobile ? "px-4" : ""}>
+        {isMobile ? (
+          <Link
+            href={item.url}
+            className={`flex items-center gap-4 rounded-xl px-4 py-3 transition-all duration-200 ${
+              isActive ? "bg-primary text-white shadow-sm" : "hover:bg-muted/50"
+            }`}
+          >
+            <div className={`flex h-9 w-9 items-center justify-center rounded-lg ${isActive ? "bg-white/20" : "bg-muted"}`}>
+              <item.icon className="size-4 shrink-0" />
+            </div>
+            <span className="font-medium">{item.title}</span>
+          </Link>
+        ) : isCollapsed ? (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Link
+                href={item.url}
+                className={`mx-auto flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg transition-all duration-200 outline-none ${
+                  isActive
+                    ? "bg-primary text-white shadow-sm"
+                    : "hover:bg-muted text-sidebar-foreground/70 hover:text-sidebar-foreground"
+                }`}
+                style={{ padding: 0, margin: "0 auto" }}
+              >
+                <motion.div whileHover={{ scale: 1.1 }} transition={{ duration: 0.2 }}>
+                  <item.icon className="size-4 shrink-0" />
+                </motion.div>
+              </Link>
+            </TooltipTrigger>
+            <TooltipContent side="right" className="bg-card text-card-foreground border-border border font-medium shadow-xl" sideOffset={12}>
+              {item.title}
+            </TooltipContent>
+          </Tooltip>
+        ) : (
+          <SidebarMenuButton
+            asChild
+            className={`h-auto! min-h-10 w-full text-sm transition-all duration-200 rounded-lg ${
+              isActive
+                ? "bg-primary! text-white! hover:bg-primary/90! shadow-sm"
+                : "text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-muted"
+            }`}
+          >
+            <Link href={item.url} className="flex items-center gap-3 px-3 py-2.5">
+              <motion.div whileHover={{ scale: 1.1 }} transition={{ duration: 0.2 }} className="shrink-0">
+                <item.icon className="size-4 shrink-0" />
+              </motion.div>
+              <span className="overflow-hidden whitespace-normal font-medium">{item.title}</span>
+            </Link>
+          </SidebarMenuButton>
+        )}
+      </SidebarMenuItem>
+    </div>
+  );
+}
 
 export default function AppSidebar() {
   const { state, isMobile, toggleSidebar } = useSidebar();
@@ -79,24 +155,26 @@ export default function AppSidebar() {
         {isMobile ? (
           <SidebarHeader className="p-6" suppressHydrationWarning>
             <div className="flex items-center gap-3">
-              <div className="bg-primary flex h-8 w-8 items-center justify-center rounded-lg">
-                <span className="text-white text-xs font-bold">K</span>
-              </div>
+              <Image src="/logo.png" alt="Kaiross" width={36} height={36} className="object-contain" />
               <h2 className="text-sidebar-foreground text-lg font-bold">Kaiross</h2>
             </div>
           </SidebarHeader>
         ) : (
           <SidebarHeader
-            className={`transition-all duration-300 ${isCollapsed ? "px-3 pt-4 pb-3" : "p-6"}`}
+            className={`transition-all duration-300 ${isCollapsed ? "px-3 pt-4 pb-3" : "p-5"}`}
           >
             <motion.div
               className="relative flex items-center justify-center"
               animate={{ scale: isCollapsed && !isMobile ? 0.9 : 1 }}
               transition={{ duration: 0.3, ease: "easeInOut" }}
             >
-              <div className="bg-primary flex h-10 w-10 items-center justify-center rounded-xl shadow-lg">
-                <span className="text-white text-lg font-bold">K</span>
-              </div>
+              <Image
+                src="/logo.png"
+                alt="Kaiross"
+                width={isCollapsed ? 36 : 48}
+                height={isCollapsed ? 36 : 48}
+                className="object-contain drop-shadow-sm"
+              />
             </motion.div>
 
             <AnimatePresence>
@@ -108,7 +186,7 @@ export default function AppSidebar() {
                   transition={{ duration: 0.2 }}
                   className="mt-2 text-center"
                 >
-                  <p className="text-sidebar-foreground text-sm font-semibold tracking-wide">
+                  <p className="text-sidebar-foreground text-sm font-bold tracking-wide">
                     Kaiross
                   </p>
                   <p className="text-sidebar-foreground/50 text-xs">Intermediações</p>
@@ -116,9 +194,9 @@ export default function AppSidebar() {
               )}
             </AnimatePresence>
 
-            <div className={`flex justify-center py-4 ${isCollapsed ? "px-0" : "px-2"}`}>
+            <div className={`flex justify-center py-3 ${isCollapsed ? "px-0" : "px-2"}`}>
               <div
-                className="via-primary/30 h-0.5 bg-linear-to-r from-transparent to-transparent"
+                className="via-primary/30 h-px bg-linear-to-r from-transparent to-transparent"
                 style={{ width: isCollapsed ? "100%" : "80%" }}
               />
             </div>
@@ -149,95 +227,41 @@ export default function AppSidebar() {
         <SidebarContent
           className={`flex flex-col justify-between ${isMobile ? "overflow-y-auto" : ""}`}
         >
+          {/* Grupo principal */}
           <SidebarGroup
-            className={`flex-1 ${isMobile ? "px-5 py-4" : "py-2"} ${isCollapsed ? "px-0" : ""}`}
+            className={`${isMobile ? "px-5 py-4" : "py-2"} ${isCollapsed ? "px-0" : ""}`}
           >
             <SidebarGroupContent className={isCollapsed ? "px-0" : ""}>
-              <SidebarMenu
-                className={`${isMobile ? "space-y-1" : "space-y-1"} ${isCollapsed ? "space-y-2" : ""}`}
-              >
-                {menuItems.map((item) => {
-                  const isActive =
-                    pathname === item.url || pathname.startsWith(item.url + "/");
-                  return (
-                    <div key={item.title}>
-                      <SidebarMenuItem
-                        style={isCollapsed && !isMobile ? { padding: 0, margin: 0 } : {}}
-                        className={isMobile ? "px-4" : ""}
-                      >
-                        {isMobile ? (
-                          <Link
-                            href={item.url}
-                            className={`flex items-center gap-4 rounded-xl px-4 py-3 transition-all duration-200 ${
-                              isActive
-                                ? "bg-primary text-white shadow-sm"
-                                : "hover:bg-muted/50"
-                            }`}
-                          >
-                            <div
-                              className={`flex h-9 w-9 items-center justify-center rounded-lg ${
-                                isActive ? "bg-white/20" : "bg-muted"
-                              }`}
-                            >
-                              <item.icon className="size-4 shrink-0" />
-                            </div>
-                            <span className="font-medium">{item.title}</span>
-                          </Link>
-                        ) : isCollapsed ? (
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <Link
-                                href={item.url}
-                                className={`mx-auto flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg transition-all duration-200 outline-none ${
-                                  isActive
-                                    ? "bg-primary text-white shadow-sm"
-                                    : "hover:bg-muted text-sidebar-foreground/70 hover:text-sidebar-foreground"
-                                }`}
-                                style={{ padding: 0, margin: "0 auto" }}
-                              >
-                                <motion.div
-                                  whileHover={{ scale: 1.1 }}
-                                  transition={{ duration: 0.2 }}
-                                >
-                                  <item.icon className="size-4 shrink-0" />
-                                </motion.div>
-                              </Link>
-                            </TooltipTrigger>
-                            <TooltipContent
-                              side="right"
-                              className="bg-card text-card-foreground border-border border font-medium shadow-xl"
-                              sideOffset={12}
-                            >
-                              {item.title}
-                            </TooltipContent>
-                          </Tooltip>
-                        ) : (
-                          <SidebarMenuButton
-                            asChild
-                            className={`h-auto! min-h-10 w-full text-sm transition-all duration-200 rounded-lg ${
-                              isActive
-                                ? "bg-primary! text-white! hover:bg-primary/90! shadow-sm"
-                                : "text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-muted"
-                            }`}
-                          >
-                            <Link href={item.url} className="flex items-center gap-3 px-3 py-2.5">
-                              <motion.div
-                                whileHover={{ scale: 1.1 }}
-                                transition={{ duration: 0.2 }}
-                                className="shrink-0"
-                              >
-                                <item.icon className="size-4 shrink-0" />
-                              </motion.div>
-                              <span className="overflow-hidden whitespace-normal font-medium">
-                                {item.title}
-                              </span>
-                            </Link>
-                          </SidebarMenuButton>
-                        )}
-                      </SidebarMenuItem>
-                    </div>
-                  );
-                })}
+              <SidebarMenu className={`space-y-1 ${isCollapsed ? "space-y-2" : ""}`}>
+                {menuItems.map((item) => renderMenuItem(item, pathname, isCollapsed, isMobile))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+
+          {/* Relatórios */}
+          <SidebarGroup className={`${isMobile ? "px-5 py-2" : "py-2"} ${isCollapsed ? "px-0" : ""}`}>
+            {!isCollapsed && (
+              <SidebarGroupLabel className="text-sidebar-foreground/40 px-3 text-[10px] font-semibold uppercase tracking-widest">
+                Relatórios
+              </SidebarGroupLabel>
+            )}
+            <SidebarGroupContent className={isCollapsed ? "px-0" : ""}>
+              <SidebarMenu className={`space-y-1 ${isCollapsed ? "space-y-2" : ""}`}>
+                {relatoriosItems.map((item) => renderMenuItem(item, pathname, isCollapsed, isMobile))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+
+          {/* Financeiro */}
+          <SidebarGroup className={`${isMobile ? "px-5 py-2" : "py-2"} ${isCollapsed ? "px-0" : ""}`}>
+            {!isCollapsed && (
+              <SidebarGroupLabel className="text-sidebar-foreground/40 px-3 text-[10px] font-semibold uppercase tracking-widest">
+                Financeiro
+              </SidebarGroupLabel>
+            )}
+            <SidebarGroupContent className={isCollapsed ? "px-0" : ""}>
+              <SidebarMenu className={`space-y-1 ${isCollapsed ? "space-y-2" : ""}`}>
+                {financeiroItems.map((item) => renderMenuItem(item, pathname, isCollapsed, isMobile))}
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
