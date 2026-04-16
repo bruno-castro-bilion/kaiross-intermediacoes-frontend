@@ -245,7 +245,7 @@ export default function AppSidebar() {
           className={`flex flex-col justify-between ${isMobile ? "overflow-y-auto" : ""}`}
         >
           {/* Grupo principal */}
-          <SidebarGroup className={`${isMobile ? "px-5 py-4" : "py-2"} ${isCollapsed ? "px-0" : ""}`}>
+          <SidebarGroup className={`${isMobile ? "px-5 py-2" : "py-1"} ${isCollapsed ? "px-0" : ""}`}>
             <SidebarGroupContent className={isCollapsed ? "px-0" : ""}>
               <SidebarMenu className={`space-y-1 ${isCollapsed ? "space-y-2" : ""}`}>
                 {menus.principal.map((item) => renderMenuItem(item, pathname, isCollapsed, isMobile))}
@@ -254,7 +254,7 @@ export default function AppSidebar() {
           </SidebarGroup>
 
           {/* Relatórios */}
-          <SidebarGroup className={`${isMobile ? "px-5 py-2" : "py-2"} ${isCollapsed ? "px-0" : ""}`}>
+          <SidebarGroup className={`${isMobile ? "px-5 py-1" : "py-1"} ${isCollapsed ? "px-0" : ""}`}>
             {!isCollapsed && (
               <SidebarGroupLabel className="text-sidebar-foreground/40 px-3 text-[10px] font-semibold uppercase tracking-widest">
                 Relatórios
@@ -268,7 +268,7 @@ export default function AppSidebar() {
           </SidebarGroup>
 
           {/* Financeiro */}
-          <SidebarGroup className={`${isMobile ? "px-5 py-2" : "py-2"} ${isCollapsed ? "px-0" : ""}`}>
+          <SidebarGroup className={`${isMobile ? "px-5 py-1" : "py-1"} ${isCollapsed ? "px-0" : ""}`}>
             {!isCollapsed && (
               <SidebarGroupLabel className="text-sidebar-foreground/40 px-3 text-[10px] font-semibold uppercase tracking-widest">
                 Financeiro
@@ -290,90 +290,39 @@ export default function AppSidebar() {
         </div>
 
         <SidebarFooter
-          className={`transition-all duration-300 ${isCollapsed ? "p-0 pt-6 pb-6" : "p-4"}`}
+          className={`transition-all duration-300 ${isCollapsed ? "p-0 pt-4 pb-4" : "p-3"}`}
         >
           <SidebarMenu>
             <SidebarMenuItem style={isCollapsed ? { padding: 0, margin: 0 } : {}}>
-              {isMobile ? (
-                <div className="flex items-center gap-3 px-4 py-3">
-                  <Avatar className="size-10 shrink-0">
-                    <AvatarImage src={user?.fotoPerfil ?? undefined} />
-                    <AvatarFallback className="bg-primary text-white text-xs font-bold">
-                      {initials}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="flex min-w-0 flex-1 flex-col">
-                    <span className="text-sidebar-foreground truncate text-sm font-semibold">
-                      {user?.nomeCompleto ?? "Usuário"}
-                    </span>
-                    <span className="text-muted-foreground truncate text-xs">
-                      {user?.email ?? "usuario@kaiross.com.br"}
-                    </span>
-                  </div>
-                </div>
-              ) : isCollapsed ? (
+              {isCollapsed ? (
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <button
-                      onClick={handleLogout}
+                    <Link
+                      href="/configuracoes"
                       className="flex h-9 w-full cursor-pointer items-center justify-center rounded-lg transition-all duration-200 hover:bg-muted"
                       style={{ padding: 0, margin: 0 }}
                     >
-                      <motion.div
-                        whileHover={{ scale: 1.1 }}
-                        transition={{ duration: 0.3 }}
-                      >
+                      <motion.div whileHover={{ scale: 1.1, rotate: 90 }} transition={{ duration: 0.3 }}>
                         <Settings className="size-4 shrink-0 text-sidebar-foreground/70" />
                       </motion.div>
-                    </button>
+                    </Link>
                   </TooltipTrigger>
-                  <TooltipContent
-                    side="right"
-                    className="bg-card text-card-foreground border-border border font-medium shadow-xl"
-                    sideOffset={12}
-                  >
+                  <TooltipContent side="right" className="bg-card text-card-foreground border-border border font-medium shadow-xl" sideOffset={12}>
                     Configurações
                   </TooltipContent>
                 </Tooltip>
               ) : (
-                <div className="flex flex-col gap-1">
-                  <div className="flex items-center gap-2 px-2 py-2 rounded-lg">
-                    <Avatar className="size-7 shrink-0">
-                      <AvatarImage src={user?.fotoPerfil ?? undefined} />
-                      <AvatarFallback className="bg-primary text-white text-xs font-bold">
-                        {initials}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="flex min-w-0 flex-1 flex-col">
-                      <span className="text-sidebar-foreground truncate text-xs font-semibold">
-                        {user?.nomeCompleto ?? "Usuário"}
-                      </span>
-                      <span className="text-muted-foreground truncate text-[10px]">
-                        {user?.email ?? "usuario@kaiross.com.br"}
-                      </span>
-                    </div>
-                  </div>
-                  <SidebarMenuButton
-                    asChild
-                    className="h-10 w-full text-sm text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-muted rounded-lg transition-all duration-200"
-                  >
-                    <Link href="/configuracoes" className="flex items-center gap-3 px-3">
-                      <motion.div whileHover={{ scale: 1.1, rotate: 90 }} transition={{ duration: 0.3 }}>
-                        <Settings className="size-4 shrink-0" />
-                      </motion.div>
-                      <span>Configurações</span>
-                    </Link>
-                  </SidebarMenuButton>
-                  <button
-                    onClick={handleLogout}
-                    className="flex h-10 w-full items-center gap-3 rounded-lg px-3 text-sm text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-muted transition-all duration-200"
-                  >
-                    <motion.div whileHover={{ scale: 1.1 }} transition={{ duration: 0.3 }}>
-                      <LogOut className="size-4 shrink-0" />
+                <SidebarMenuButton
+                  asChild
+                  className="h-10 w-full text-sm text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-muted rounded-lg transition-all duration-200"
+                >
+                  <Link href="/configuracoes" className="flex items-center gap-3 px-3">
+                    <motion.div whileHover={{ scale: 1.1, rotate: 90 }} transition={{ duration: 0.3 }}>
+                      <Settings className="size-4 shrink-0" />
                     </motion.div>
-                    <span>Sair</span>
-                  </button>
-                </div>
+                    <span>Configurações</span>
+                  </Link>
+                </SidebarMenuButton>
               )}
             </SidebarMenuItem>
           </SidebarMenu>
