@@ -191,7 +191,6 @@ export default function AppSidebar() {
           <SidebarHeader className="p-6" suppressHydrationWarning>
             <div className="flex items-center gap-3">
               <Image src="/logo.png" alt="Kaiross" width={44} height={44} className="object-contain mix-blend-multiply dark:mix-blend-normal" />
-              <h2 className="text-sidebar-foreground text-lg font-bold">Kaiross</h2>
             </div>
           </SidebarHeader>
         ) : (
@@ -211,23 +210,6 @@ export default function AppSidebar() {
                 className="object-contain mix-blend-multiply dark:mix-blend-normal"
               />
             </motion.div>
-
-            <AnimatePresence>
-              {!isCollapsed && (
-                <motion.div
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: "auto" }}
-                  exit={{ opacity: 0, height: 0 }}
-                  transition={{ duration: 0.2 }}
-                  className="mt-2 text-center"
-                >
-                  <p className="text-sidebar-foreground text-sm font-bold tracking-wide">
-                    Kaiross
-                  </p>
-                  <p className="text-sidebar-foreground/50 text-xs">Intermediações</p>
-                </motion.div>
-              )}
-            </AnimatePresence>
 
             <div className={`flex justify-center py-3 ${isCollapsed ? "px-0" : "px-2"}`}>
               <div
