@@ -45,23 +45,52 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 
-const menuItems = [
-  { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
-  { title: "Fornecedores", url: "/fornecedores", icon: Store },
-  { title: "Vendedores", url: "/vendedores", icon: UserCheck },
-  { title: "Produtos", url: "/produtos", icon: ShoppingBag },
-  { title: "Usuários", url: "/usuarios", icon: Users },
-];
-
-const relatoriosItems = [
-  { title: "Vendas", url: "/relatorios/vendas", icon: TrendingUp },
-  { title: "Abandono de Carrinho", url: "/relatorios/abandono", icon: ShoppingCart },
-  { title: "Estornos", url: "/relatorios/estornos", icon: RefreshCcw },
-];
-
-const financeiroItems = [
-  { title: "Financeiro", url: "/financeiro", icon: Wallet },
-];
+// Menu por role
+const menusByRole = {
+  admin: {
+    principal: [
+      { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
+      { title: "Fornecedores", url: "/fornecedores", icon: Store },
+      { title: "Vendedores", url: "/vendedores", icon: UserCheck },
+      { title: "Produtos", url: "/produtos", icon: ShoppingBag },
+      { title: "Usuários", url: "/usuarios", icon: Users },
+    ],
+    relatorios: [
+      { title: "Vendas", url: "/relatorios/vendas", icon: TrendingUp },
+      { title: "Abandono de Carrinho", url: "/relatorios/abandono", icon: ShoppingCart },
+      { title: "Estornos", url: "/relatorios/estornos", icon: RefreshCcw },
+    ],
+    financeiro: [
+      { title: "Financeiro", url: "/financeiro", icon: Wallet },
+    ],
+  },
+  fornecedor: {
+    principal: [
+      { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
+      { title: "Meus Produtos", url: "/meus-produtos", icon: ShoppingBag },
+    ],
+    relatorios: [
+      { title: "Vendas", url: "/relatorios/vendas", icon: TrendingUp },
+      { title: "Abandono de Carrinho", url: "/relatorios/abandono", icon: ShoppingCart },
+      { title: "Estornos", url: "/relatorios/estornos", icon: RefreshCcw },
+    ],
+    financeiro: [
+      { title: "Financeiro", url: "/financeiro", icon: Wallet },
+    ],
+  },
+  vendedor: {
+    principal: [
+      { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
+      { title: "Produtos Disponíveis", url: "/produtos", icon: ShoppingBag },
+    ],
+    relatorios: [
+      { title: "Minhas Vendas", url: "/relatorios/vendas", icon: TrendingUp },
+    ],
+    financeiro: [
+      { title: "Financeiro", url: "/financeiro", icon: Wallet },
+    ],
+  },
+};
 
 type MenuItem = { title: string; url: string; icon: React.ElementType };
 
@@ -131,6 +160,10 @@ export default function AppSidebar() {
   const { user, logout } = useAuthStore();
   const pathname = usePathname();
   const router = useRouter();
+
+  // TODO: pegar role do usuário autenticado (admin | fornecedor | vendedor)
+  const role: keyof typeof menusByRole = "vendedor";
+  const menus = menusByRole[role];
 
   const handleLogout = () => {
     logout();
@@ -228,12 +261,10 @@ export default function AppSidebar() {
           className={`flex flex-col justify-between ${isMobile ? "overflow-y-auto" : ""}`}
         >
           {/* Grupo principal */}
-          <SidebarGroup
-            className={`${isMobile ? "px-5 py-4" : "py-2"} ${isCollapsed ? "px-0" : ""}`}
-          >
+          <SidebarGroup className={`${isMobile ? "px-5 py-4" : "py-2"} ${isCollapsed ? "px-0" : ""}`}>
             <SidebarGroupContent className={isCollapsed ? "px-0" : ""}>
               <SidebarMenu className={`space-y-1 ${isCollapsed ? "space-y-2" : ""}`}>
-                {menuItems.map((item) => renderMenuItem(item, pathname, isCollapsed, isMobile))}
+                {menus.principal.map((item) => renderMenuItem(item, pathname, isCollapsed, isMobile))}
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
@@ -247,7 +278,7 @@ export default function AppSidebar() {
             )}
             <SidebarGroupContent className={isCollapsed ? "px-0" : ""}>
               <SidebarMenu className={`space-y-1 ${isCollapsed ? "space-y-2" : ""}`}>
-                {relatoriosItems.map((item) => renderMenuItem(item, pathname, isCollapsed, isMobile))}
+                {menus.relatorios.map((item) => renderMenuItem(item, pathname, isCollapsed, isMobile))}
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
@@ -261,7 +292,7 @@ export default function AppSidebar() {
             )}
             <SidebarGroupContent className={isCollapsed ? "px-0" : ""}>
               <SidebarMenu className={`space-y-1 ${isCollapsed ? "space-y-2" : ""}`}>
-                {financeiroItems.map((item) => renderMenuItem(item, pathname, isCollapsed, isMobile))}
+                {menus.financeiro.map((item) => renderMenuItem(item, pathname, isCollapsed, isMobile))}
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
