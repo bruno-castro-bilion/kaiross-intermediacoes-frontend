@@ -7,13 +7,14 @@ import {
   Settings,
   LogOut,
   Users,
-  FileText,
   BarChart3,
-  Briefcase,
+  Store,
+  Wallet,
+  ShoppingBag,
+  UserCheck,
 } from "lucide-react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { useTheme } from "next-themes";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -40,10 +41,12 @@ import {
 
 const menuItems = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
-  { title: "Negociações", url: "/negociacoes", icon: Briefcase },
-  { title: "Clientes", url: "/clientes", icon: Users },
+  { title: "Fornecedores", url: "/fornecedores", icon: Store },
+  { title: "Vendedores", url: "/vendedores", icon: UserCheck },
+  { title: "Produtos", url: "/produtos", icon: ShoppingBag },
   { title: "Relatórios", url: "/relatorios", icon: BarChart3 },
-  { title: "Documentos", url: "/documentos", icon: FileText },
+  { title: "Financeiro", url: "/financeiro", icon: Wallet },
+  { title: "Usuários", url: "/usuarios", icon: Users },
 ];
 
 export default function AppSidebar() {
@@ -52,13 +55,6 @@ export default function AppSidebar() {
   const { user, logout } = useAuthStore();
   const pathname = usePathname();
   const router = useRouter();
-  const { theme } = useTheme();
-  const isLightTheme = theme === "light";
-
-  const darkGradient =
-    "radial-gradient(171.69% 126.86% at 6.05% 0%, rgba(242,106,0,0.4) 0%, rgba(12, 14, 21, 0.00) 100%), rgba(12, 14, 21, 0.70)";
-  const lightGradient =
-    "radial-gradient(171.69% 126.86% at 6.05% 0%, rgba(242,106,0,0.15) 0%, rgba(255, 255, 255, 0) 100%), rgba(248, 250, 252, 0.80)";
 
   const handleLogout = () => {
     logout();
@@ -84,7 +80,7 @@ export default function AppSidebar() {
           <SidebarHeader className="p-6" suppressHydrationWarning>
             <div className="flex items-center gap-3">
               <div className="bg-primary flex h-8 w-8 items-center justify-center rounded-lg">
-                <span className="text-primary-foreground text-xs font-bold">K</span>
+                <span className="text-white text-xs font-bold">K</span>
               </div>
               <h2 className="text-sidebar-foreground text-lg font-bold">Kaiross</h2>
             </div>
@@ -99,7 +95,7 @@ export default function AppSidebar() {
               transition={{ duration: 0.3, ease: "easeInOut" }}
             >
               <div className="bg-primary flex h-10 w-10 items-center justify-center rounded-xl shadow-lg">
-                <span className="text-primary-foreground text-lg font-bold">K</span>
+                <span className="text-white text-lg font-bold">K</span>
               </div>
             </motion.div>
 
@@ -154,11 +150,11 @@ export default function AppSidebar() {
           className={`flex flex-col justify-between ${isMobile ? "overflow-y-auto" : ""}`}
         >
           <SidebarGroup
-            className={`flex-1 ${isMobile ? "px-5 py-4" : "py-6"} ${isCollapsed ? "px-0" : ""}`}
+            className={`flex-1 ${isMobile ? "px-5 py-4" : "py-2"} ${isCollapsed ? "px-0" : ""}`}
           >
             <SidebarGroupContent className={isCollapsed ? "px-0" : ""}>
               <SidebarMenu
-                className={`${isMobile ? "space-y-2" : "space-y-3"} ${isCollapsed ? "space-y-2" : ""}`}
+                className={`${isMobile ? "space-y-1" : "space-y-1"} ${isCollapsed ? "space-y-2" : ""}`}
               >
                 {menuItems.map((item) => {
                   const isActive =
@@ -172,16 +168,18 @@ export default function AppSidebar() {
                         {isMobile ? (
                           <Link
                             href={item.url}
-                            className={`flex items-center gap-4 rounded-xl px-4 py-4 transition-all duration-200 ${
-                              isActive ? "text-primary shadow-sm" : "hover:bg-muted/50"
+                            className={`flex items-center gap-4 rounded-xl px-4 py-3 transition-all duration-200 ${
+                              isActive
+                                ? "bg-primary text-white shadow-sm"
+                                : "hover:bg-muted/50"
                             }`}
                           >
                             <div
-                              className={`flex h-10 w-10 items-center justify-center rounded-lg ${
-                                isActive ? "bg-primary/20" : "bg-muted"
+                              className={`flex h-9 w-9 items-center justify-center rounded-lg ${
+                                isActive ? "bg-white/20" : "bg-muted"
                               }`}
                             >
-                              <item.icon className="size-5 shrink-0" />
+                              <item.icon className="size-4 shrink-0" />
                             </div>
                             <span className="font-medium">{item.title}</span>
                           </Link>
@@ -190,20 +188,15 @@ export default function AppSidebar() {
                             <TooltipTrigger asChild>
                               <Link
                                 href={item.url}
-                                className={`mx-auto flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg transition-all duration-300 outline-none ${
+                                className={`mx-auto flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg transition-all duration-200 outline-none ${
                                   isActive
-                                    ? "bg-primary/10 text-primary hover:bg-primary/15"
-                                    : "hover:bg-muted/50"
+                                    ? "bg-primary text-white shadow-sm"
+                                    : "hover:bg-muted text-sidebar-foreground/70 hover:text-sidebar-foreground"
                                 }`}
-                                style={{
-                                  padding: 0,
-                                  margin: "0 auto",
-                                  ...(isActive && !isLightTheme ? { background: darkGradient } : {}),
-                                  ...(isActive && isLightTheme ? { background: lightGradient } : {}),
-                                }}
+                                style={{ padding: 0, margin: "0 auto" }}
                               >
                                 <motion.div
-                                  whileHover={{ scale: 1.1, rotate: 5 }}
+                                  whileHover={{ scale: 1.1 }}
                                   transition={{ duration: 0.2 }}
                                 >
                                   <item.icon className="size-4 shrink-0" />
@@ -221,26 +214,21 @@ export default function AppSidebar() {
                         ) : (
                           <SidebarMenuButton
                             asChild
-                            style={
-                              isActive && !isLightTheme
-                                ? { background: darkGradient }
-                                : isActive && isLightTheme
-                                  ? { background: lightGradient }
-                                  : undefined
-                            }
-                            className={`h-auto! min-h-10 w-full text-sm transition-all duration-300 ${
-                              isActive ? "text-primary hover:bg-primary/15 rounded-lg" : ""
+                            className={`h-auto! min-h-10 w-full text-sm transition-all duration-200 rounded-lg ${
+                              isActive
+                                ? "bg-primary! text-white! hover:bg-primary/90! shadow-sm"
+                                : "text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-muted"
                             }`}
                           >
-                            <Link href={item.url} className="flex items-start gap-3 pl-4">
+                            <Link href={item.url} className="flex items-center gap-3 px-3 py-2.5">
                               <motion.div
-                                whileHover={{ scale: 1.1, rotate: 5 }}
+                                whileHover={{ scale: 1.1 }}
                                 transition={{ duration: 0.2 }}
-                                className="mt-0.5 shrink-0"
+                                className="shrink-0"
                               >
                                 <item.icon className="size-4 shrink-0" />
                               </motion.div>
-                              <span className="overflow-hidden whitespace-normal">
+                              <span className="overflow-hidden whitespace-normal font-medium">
                                 {item.title}
                               </span>
                             </Link>
@@ -263,7 +251,7 @@ export default function AppSidebar() {
         </div>
 
         <SidebarFooter
-          className={`transition-all duration-300 ${isCollapsed ? "p-0 pt-6 pb-6" : "p-6"}`}
+          className={`transition-all duration-300 ${isCollapsed ? "p-0 pt-6 pb-6" : "p-4"}`}
         >
           <SidebarMenu>
             <SidebarMenuItem style={isCollapsed ? { padding: 0, margin: 0 } : {}}>
@@ -271,7 +259,7 @@ export default function AppSidebar() {
                 <div className="flex items-center gap-3 px-4 py-3">
                   <Avatar className="size-10 shrink-0">
                     <AvatarImage src={user?.fotoPerfil ?? undefined} />
-                    <AvatarFallback className="bg-primary text-primary-foreground">
+                    <AvatarFallback className="bg-primary text-white text-xs font-bold">
                       {initials}
                     </AvatarFallback>
                   </Avatar>
@@ -289,14 +277,14 @@ export default function AppSidebar() {
                   <TooltipTrigger asChild>
                     <button
                       onClick={handleLogout}
-                      className="flex h-10 w-full cursor-pointer items-center justify-center rounded-lg transition-all duration-300"
+                      className="flex h-9 w-full cursor-pointer items-center justify-center rounded-lg transition-all duration-200 hover:bg-muted"
                       style={{ padding: 0, margin: 0 }}
                     >
                       <motion.div
                         whileHover={{ scale: 1.1 }}
                         transition={{ duration: 0.3 }}
                       >
-                        <Settings className="size-4 shrink-0" />
+                        <Settings className="size-4 shrink-0 text-sidebar-foreground/70" />
                       </motion.div>
                     </button>
                   </TooltipTrigger>
@@ -309,11 +297,11 @@ export default function AppSidebar() {
                   </TooltipContent>
                 </Tooltip>
               ) : (
-                <div className="flex flex-col gap-2">
-                  <div className="flex items-center gap-2 px-2">
+                <div className="flex flex-col gap-1">
+                  <div className="flex items-center gap-2 px-2 py-2 rounded-lg">
                     <Avatar className="size-7 shrink-0">
                       <AvatarImage src={user?.fotoPerfil ?? undefined} />
-                      <AvatarFallback className="bg-primary text-primary-foreground text-xs">
+                      <AvatarFallback className="bg-primary text-white text-xs font-bold">
                         {initials}
                       </AvatarFallback>
                     </Avatar>
@@ -328,28 +316,18 @@ export default function AppSidebar() {
                   </div>
                   <SidebarMenuButton
                     asChild
-                    className="h-10 w-full text-sm transition-all duration-300"
+                    className="h-10 w-full text-sm text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-muted rounded-lg transition-all duration-200"
                   >
-                    <Link href="/configuracoes" className="flex items-center gap-3 pl-4">
+                    <Link href="/configuracoes" className="flex items-center gap-3 px-3">
                       <motion.div whileHover={{ scale: 1.1, rotate: 90 }} transition={{ duration: 0.3 }}>
                         <Settings className="size-4 shrink-0" />
                       </motion.div>
-                      <AnimatePresence>
-                        <motion.span
-                          initial={{ opacity: 0, width: 0 }}
-                          animate={{ opacity: 1, width: "auto" }}
-                          exit={{ opacity: 0, width: 0 }}
-                          transition={{ duration: 0.2, ease: "easeInOut" }}
-                          className="overflow-hidden whitespace-nowrap"
-                        >
-                          Configurações
-                        </motion.span>
-                      </AnimatePresence>
+                      <span>Configurações</span>
                     </Link>
                   </SidebarMenuButton>
                   <button
                     onClick={handleLogout}
-                    className="hover:bg-accent flex h-10 w-full items-center gap-3 rounded-lg pl-4 text-sm transition-all duration-300"
+                    className="flex h-10 w-full items-center gap-3 rounded-lg px-3 text-sm text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-muted transition-all duration-200"
                   >
                     <motion.div whileHover={{ scale: 1.1 }} transition={{ duration: 0.3 }}>
                       <LogOut className="size-4 shrink-0" />
