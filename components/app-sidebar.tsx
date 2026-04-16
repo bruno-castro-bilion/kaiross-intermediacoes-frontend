@@ -82,6 +82,7 @@ const menusByRole = {
     principal: [
       { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
       { title: "Meus Produtos", url: "/meus-produtos", icon: ShoppingBag },
+      { title: "Vitrine de Produtos", url: "/vitrine", icon: Store },
     ],
     relatorios: [
       { title: "Vendas", url: "/relatorios/vendas", icon: TrendingUp },
@@ -190,7 +191,7 @@ export default function AppSidebar() {
         {isMobile ? (
           <SidebarHeader className="p-6" suppressHydrationWarning>
             <div className="flex items-center gap-3">
-              <Image src="/logo.png" alt="Kaiross" width={44} height={44} className="object-contain mix-blend-multiply dark:mix-blend-normal" />
+              <Image src="/logo-full.png" alt="Kaiross" width={140} height={40} className="object-contain mix-blend-multiply dark:mix-blend-normal" />
             </div>
           </SidebarHeader>
         ) : (
@@ -199,16 +200,26 @@ export default function AppSidebar() {
           >
             <motion.div
               className="relative flex items-center justify-center"
-              animate={{ scale: isCollapsed && !isMobile ? 0.9 : 1 }}
+              animate={{ scale: isCollapsed && !isMobile ? 1 : 1 }}
               transition={{ duration: 0.3, ease: "easeInOut" }}
             >
-              <Image
-                src="/logo.png"
-                alt="Kaiross"
-                width={isCollapsed ? 40 : 80}
-                height={isCollapsed ? 40 : 80}
-                className="object-contain mix-blend-multiply dark:mix-blend-normal"
-              />
+              {isCollapsed ? (
+                <Image
+                  src="/logo.png"
+                  alt="Kaiross"
+                  width={52}
+                  height={52}
+                  className="object-contain mix-blend-multiply dark:mix-blend-normal"
+                />
+              ) : (
+                <Image
+                  src="/logo-full.png"
+                  alt="Kaiross"
+                  width={160}
+                  height={48}
+                  className="object-contain mix-blend-multiply dark:mix-blend-normal"
+                />
+              )}
             </motion.div>
 
             <div className={`flex justify-center py-3 ${isCollapsed ? "px-0" : "px-2"}`}>
