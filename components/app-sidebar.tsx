@@ -190,7 +190,7 @@ export default function AppSidebar() {
         {isMobile ? (
           <SidebarHeader className="p-6" suppressHydrationWarning>
             <div className="flex items-center gap-3">
-              <Image src="/logo.png" alt="Kaiross" width={36} height={36} className="object-contain" />
+              <Image src="/logo.png" alt="Kaiross" width={44} height={44} className="object-contain mix-blend-multiply dark:mix-blend-normal" />
               <h2 className="text-sidebar-foreground text-lg font-bold">Kaiross</h2>
             </div>
           </SidebarHeader>
@@ -206,9 +206,9 @@ export default function AppSidebar() {
               <Image
                 src="/logo.png"
                 alt="Kaiross"
-                width={isCollapsed ? 36 : 48}
-                height={isCollapsed ? 36 : 48}
-                className="object-contain drop-shadow-sm"
+                width={isCollapsed ? 40 : 80}
+                height={isCollapsed ? 40 : 80}
+                className="object-contain mix-blend-multiply dark:mix-blend-normal"
               />
             </motion.div>
 
