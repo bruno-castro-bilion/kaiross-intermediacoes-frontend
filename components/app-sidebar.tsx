@@ -242,7 +242,7 @@ export default function AppSidebar() {
         )}
 
         <SidebarContent
-          className={`flex flex-col justify-between ${isMobile ? "overflow-y-auto" : ""}`}
+          className={`flex flex-col justify-start ${isMobile ? "overflow-y-auto" : ""}`}
         >
           {/* Grupo principal */}
           <SidebarGroup className={`${isMobile ? "px-5 py-2" : "py-1"} ${isCollapsed ? "px-0" : ""}`}>
@@ -254,7 +254,7 @@ export default function AppSidebar() {
           </SidebarGroup>
 
           {/* Relatórios */}
-          <SidebarGroup className={`${isMobile ? "px-5 py-1" : "py-1"} ${isCollapsed ? "px-0" : ""}`}>
+          <SidebarGroup className={`${isMobile ? "px-5 py-0" : "py-0"} ${isCollapsed ? "px-0" : ""}`}>
             {!isCollapsed && (
               <SidebarGroupLabel className="text-sidebar-foreground/40 px-3 text-[10px] font-semibold uppercase tracking-widest">
                 Relatórios
@@ -268,7 +268,7 @@ export default function AppSidebar() {
           </SidebarGroup>
 
           {/* Financeiro */}
-          <SidebarGroup className={`${isMobile ? "px-5 py-1" : "py-1"} ${isCollapsed ? "px-0" : ""}`}>
+          <SidebarGroup className={`${isMobile ? "px-5 py-0" : "py-0"} ${isCollapsed ? "px-0" : ""}`}>
             {!isCollapsed && (
               <SidebarGroupLabel className="text-sidebar-foreground/40 px-3 text-[10px] font-semibold uppercase tracking-widest">
                 Financeiro
