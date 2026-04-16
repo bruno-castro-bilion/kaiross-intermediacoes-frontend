@@ -207,8 +207,8 @@ export default function AppSidebar() {
                 <Image
                   src="/logo.png"
                   alt="Kaiross"
-                  width={52}
-                  height={52}
+                  width={72}
+                  height={72}
                   className="object-contain mix-blend-multiply dark:mix-blend-normal"
                 />
               ) : (
