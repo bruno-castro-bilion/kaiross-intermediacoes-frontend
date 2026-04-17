@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import {
   ChevronRight,
   ChevronLeft,
@@ -16,6 +16,10 @@ import {
   ShoppingCart,
   RefreshCcw,
   TrendingUp,
+  Tag,
+  Layers,
+  Radio,
+  Megaphone,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -82,7 +86,7 @@ const menusByRole = {
     principal: [
       { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
       { title: "Meus Produtos", url: "/meus-produtos", icon: ShoppingBag },
-      { title: "Vitrine de Produtos", url: "/vitrine", icon: Store },
+      { title: "Vitrine de Produtos", url: "/vitrine-de-produtos", icon: Store },
     ],
     relatorios: [
       { title: "Vendas", url: "/relatorios/vendas", icon: TrendingUp },
@@ -91,6 +95,11 @@ const menusByRole = {
     ],
     financeiro: [
       { title: "Financeiro", url: "/financeiro", icon: Wallet },
+    ],
+    marketing: [
+      { title: "Cupom", url: "/marketing/cupom", icon: Tag },
+      { title: "Orderbump", url: "/marketing/orderbump", icon: Layers },
+      { title: "Pixel", url: "/marketing/pixel", icon: Radio },
     ],
   },
 };
@@ -148,12 +157,119 @@ function renderMenuItem(item: MenuItem, pathname: string, isCollapsed: boolean, 
               <motion.div whileHover={{ scale: 1.1 }} transition={{ duration: 0.2 }} className="shrink-0">
                 <item.icon className="size-4 shrink-0" />
               </motion.div>
-              <span className="overflow-hidden whitespace-normal font-medium">{item.title}</span>
+              <span className="whitespace-normal leading-tight font-medium">{item.title}</span>
             </Link>
           </SidebarMenuButton>
         )}
       </SidebarMenuItem>
     </div>
+  );
+}
+
+function CollapsibleMenuGroup({
+  label,
+  icon: Icon,
+  items,
+  pathname,
+  isCollapsed,
+  isMobile,
+}: {
+  label: string;
+  icon: React.ElementType;
+  items: MenuItem[];
+  pathname: string;
+  isCollapsed: boolean;
+  isMobile: boolean;
+}) {
+  const hasActiveChild = items.some(
+    (item) => pathname === item.url || pathname.startsWith(item.url + "/"),
+  );
+  const [open, setOpen] = useState(hasActiveChild);
+
+  if (isCollapsed && !isMobile) {
+    return (
+      <SidebarGroup className="py-0 px-0">
+        <SidebarGroupContent className="px-0">
+          <SidebarMenu className="space-y-2">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  onClick={() => setOpen((v) => !v)}
+                  className="mx-auto flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg transition-all duration-200 text-sidebar-foreground/70 hover:bg-muted hover:text-sidebar-foreground"
+                  style={{ padding: 0, margin: "0 auto" }}
+                >
+                  <Icon className="size-4 shrink-0" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="right" className="bg-card text-card-foreground border-border border font-medium shadow-xl" sideOffset={12}>
+                {label}
+              </TooltipContent>
+            </Tooltip>
+          </SidebarMenu>
+        </SidebarGroupContent>
+      </SidebarGroup>
+    );
+  }
+
+  return (
+    <SidebarGroup className={`${isMobile ? "px-5 py-0" : "py-0"}`}>
+      <SidebarGroupContent>
+        <SidebarMenu className="space-y-1">
+          <SidebarMenuItem>
+            <button
+              onClick={() => setOpen((v) => !v)}
+              className={`flex w-full cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200 ${
+                hasActiveChild
+                  ? "text-primary"
+                  : "text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-muted"
+              }`}
+            >
+              <Icon className="size-4 shrink-0" />
+              <span className="flex-1 text-left">{label}</span>
+              <motion.div animate={{ rotate: open ? 90 : 0 }} transition={{ duration: 0.2 }}>
+                <ChevronRight className="size-3.5" />
+              </motion.div>
+            </button>
+          </SidebarMenuItem>
+
+          <AnimatePresence initial={false}>
+            {open && (
+              <motion.div
+                key={`${label}-sub`}
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: "auto", opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.25, ease: "easeInOut" }}
+                className="overflow-hidden"
+              >
+                <div className="ml-4 border-l border-sidebar-border pl-2 space-y-1">
+                  {items.map((item) => {
+                    const isActive = pathname === item.url || pathname.startsWith(item.url + "/");
+                    return (
+                      <SidebarMenuItem key={item.title}>
+                        <SidebarMenuButton
+                          asChild
+                          className={`h-auto! min-h-9 w-full text-sm transition-all duration-200 rounded-lg ${
+                            isActive
+                              ? "bg-primary! text-white! hover:bg-primary/90! shadow-sm"
+                              : "text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-muted"
+                          }`}
+                        >
+                          <Link href={item.url} className="flex items-center gap-3 px-3 py-2">
+                            <item.icon className="size-3.5 shrink-0" />
+                            <span className="font-medium">{item.title}</span>
+                          </Link>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                    );
+                  })}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </SidebarMenu>
+      </SidebarGroupContent>
+    </SidebarGroup>
   );
 }
 
@@ -191,7 +307,7 @@ export default function AppSidebar() {
         {isMobile ? (
           <SidebarHeader className="p-6" suppressHydrationWarning>
             <div className="flex items-center gap-3">
-              <Image src="/logo-full.png" alt="Kaiross" width={140} height={40} className="object-contain mix-blend-multiply dark:mix-blend-normal" />
+              <Image src="/LOGO-MENU.png" alt="Kaiross" width={140} height={40} className="object-contain mix-blend-multiply dark:mix-blend-normal" />
             </div>
           </SidebarHeader>
         ) : (
@@ -207,13 +323,13 @@ export default function AppSidebar() {
                 <Image
                   src="/logo.png"
                   alt="Kaiross"
-                  width={72}
-                  height={72}
+                  width={40}
+                  height={40}
                   className="object-contain mix-blend-multiply dark:mix-blend-normal"
                 />
               ) : (
                 <Image
-                  src="/logo-full.png"
+                  src="/LOGO-MENU.png"
                   alt="Kaiross"
                   width={160}
                   height={48}
@@ -265,32 +381,35 @@ export default function AppSidebar() {
           </SidebarGroup>
 
           {/* Relatórios */}
-          <SidebarGroup className={`${isMobile ? "px-5 py-0" : "py-0"} ${isCollapsed ? "px-0" : ""}`}>
-            {!isCollapsed && (
-              <SidebarGroupLabel className="text-sidebar-foreground/40 px-3 text-[10px] font-semibold uppercase tracking-widest">
-                Relatórios
-              </SidebarGroupLabel>
-            )}
-            <SidebarGroupContent className={isCollapsed ? "px-0" : ""}>
-              <SidebarMenu className={`space-y-1 ${isCollapsed ? "space-y-2" : ""}`}>
-                {menus.relatorios.map((item) => renderMenuItem(item, pathname, isCollapsed, isMobile))}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
+          <CollapsibleMenuGroup
+            label="Relatórios"
+            icon={BarChart3}
+            items={menus.relatorios}
+            pathname={pathname}
+            isCollapsed={isCollapsed}
+            isMobile={isMobile}
+          />
 
           {/* Financeiro */}
           <SidebarGroup className={`${isMobile ? "px-5 py-0" : "py-0"} ${isCollapsed ? "px-0" : ""}`}>
-            {!isCollapsed && (
-              <SidebarGroupLabel className="text-sidebar-foreground/40 px-3 text-[10px] font-semibold uppercase tracking-widest">
-                Financeiro
-              </SidebarGroupLabel>
-            )}
             <SidebarGroupContent className={isCollapsed ? "px-0" : ""}>
               <SidebarMenu className={`space-y-1 ${isCollapsed ? "space-y-2" : ""}`}>
                 {menus.financeiro.map((item) => renderMenuItem(item, pathname, isCollapsed, isMobile))}
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
+
+          {/* Marketing — colapsável */}
+          {"marketing" in menus && (
+            <CollapsibleMenuGroup
+              label="Marketing"
+              icon={Megaphone}
+              items={(menus as typeof menusByRole.vendedor).marketing}
+              pathname={pathname}
+              isCollapsed={isCollapsed}
+              isMobile={isMobile}
+            />
+          )}
         </SidebarContent>
 
         <div className={`flex justify-center py-4 ${isCollapsed ? "px-0" : "px-2"}`}>
