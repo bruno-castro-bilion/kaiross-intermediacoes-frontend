@@ -1,16 +1,9 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { SidebarProvider } from "@/components/ui/sidebar";
 
 const SIDEBAR_KEY = "sidebar-collapsed";
-
-export function getSidebarCollapsed(): boolean | null {
-  if (typeof window === "undefined") return null;
-  const stored = localStorage.getItem(SIDEBAR_KEY);
-  if (stored === null) return null;
-  return stored === "true";
-}
 
 export function clearSidebarPreference() {
   if (typeof window !== "undefined") {
@@ -22,10 +15,16 @@ export function SidebarProviderPersist({
   children,
   ...props
 }: React.ComponentProps<typeof SidebarProvider>) {
-  const [open, setOpen] = useState(() => {
-    const collapsed = getSidebarCollapsed();
-    return collapsed !== true;
-  });
+  // Sempre inicia como "open" no servidor para evitar hydration mismatch
+  const [open, setOpen] = useState(true);
+
+  // Após montar no cliente, aplica o estado salvo no localStorage
+  useEffect(() => {
+    const stored = localStorage.getItem(SIDEBAR_KEY);
+    if (stored !== null) {
+      setOpen(stored !== "true");
+    }
+  }, []);
 
   const handleOpenChange = useCallback((value: boolean) => {
     setOpen(value);
