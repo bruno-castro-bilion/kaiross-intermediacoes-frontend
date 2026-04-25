@@ -3,6 +3,8 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import { QueryProvider } from "@/components/query-provider";
 import { Toaster } from "sonner";
+import AuthSyncProvider from "@/components/auth-sync-provider";
+import { TokenExpirationProvider } from "@/contexts/token-expiration-context";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -40,7 +42,11 @@ export default function RootLayout({
             enableSystem={false}
             disableTransitionOnChange
           >
-            {children}
+            <AuthSyncProvider>
+              <TokenExpirationProvider>
+                {children}
+              </TokenExpirationProvider>
+            </AuthSyncProvider>
             <Toaster position="top-right" richColors />
           </ThemeProvider>
         </QueryProvider>
