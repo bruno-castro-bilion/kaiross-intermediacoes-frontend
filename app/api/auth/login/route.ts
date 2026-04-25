@@ -7,6 +7,66 @@ const isProduction = process.env.NODE_ENV === "production";
 const isHomolog =
   process.env.NODE_ENV === "test" || process.env.NODE_ENV === "development";
 
+const MOCK_USERS: Record<
+  string,
+  { senha: string; data: LoginResponse }
+> = {
+  "admin@kaiross.com": {
+    senha: "123456",
+    data: {
+      id: "mock-admin-id",
+      nomeCompleto: "Admin Kaiross",
+      idTipoUsuario: 3,
+      fotoPerfil: null,
+      codigoPais: "55",
+      email: "admin@kaiross.com",
+      access_token: "",
+      refresh_token: "",
+      primeiroAcesso: false,
+    },
+  },
+  "vendedor@kaiross.com": {
+    senha: "123456",
+    data: {
+      id: "mock-vendedor-id",
+      nomeCompleto: "Vendedor Kaiross",
+      idTipoUsuario: 1,
+      fotoPerfil: null,
+      codigoPais: "55",
+      email: "vendedor@kaiross.com",
+      access_token: "",
+      refresh_token: "",
+      primeiroAcesso: false,
+    },
+  },
+  "fornecedor@kaiross.com": {
+    senha: "123456",
+    data: {
+      id: "mock-fornecedor-id",
+      nomeCompleto: "Fornecedor Kaiross",
+      idTipoUsuario: 2,
+      fotoPerfil: null,
+      codigoPais: "55",
+      email: "fornecedor@kaiross.com",
+      access_token: "",
+      refresh_token: "",
+      primeiroAcesso: false,
+    },
+  },
+};
+
+function buildMockJwt(payload: Record<string, unknown>): string {
+  const b64 = (obj: Record<string, unknown>) =>
+    Buffer.from(JSON.stringify(obj))
+      .toString("base64")
+      .replace(/=+$/, "")
+      .replace(/\+/g, "-")
+      .replace(/\//g, "_");
+  const header = b64({ alg: "none", typ: "JWT" });
+  const body = b64(payload);
+  return `${header}.${body}.mock-signature`;
+}
+
 const loginAttempts = new Map<string, { count: number; resetAt: number }>();
 const RATE_LIMIT = 10;
 const RATE_WINDOW_MS = 15 * 60 * 1000;
@@ -44,12 +104,36 @@ export async function POST(request: NextRequest) {
       senha: body.password || body.senha,
     };
 
-    const response = await axios.post<LoginResponse>(
-      `${process.env.API_URL}/auth/login`,
-      loginData,
-    );
+    const mock = MOCK_USERS[loginData.email?.toLowerCase?.() ?? ""];
+    let authData: LoginResponse;
 
-    const authData = response.data;
+    if (mock && mock.senha === loginData.senha) {
+      const nowSec = Math.floor(Date.now() / 1000);
+      const accessToken = buildMockJwt({
+        sub: mock.data.id,
+        email: mock.data.email,
+        idTipoUsuario: mock.data.idTipoUsuario,
+        iat: nowSec,
+        exp: nowSec + 5400,
+      });
+      const refreshToken = buildMockJwt({
+        sub: mock.data.id,
+        type: "refresh",
+        iat: nowSec,
+        exp: nowSec + 7 * 24 * 3600,
+      });
+      authData = {
+        ...mock.data,
+        access_token: accessToken,
+        refresh_token: refreshToken,
+      };
+    } else {
+      const response = await axios.post<LoginResponse>(
+        `${process.env.API_URL}/auth/login`,
+        loginData,
+      );
+      authData = response.data;
+    }
 
     const tipoUsuarioValue =
       typeof authData.idTipoUsuario === "object" &&
