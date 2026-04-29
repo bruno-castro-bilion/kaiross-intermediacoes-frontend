@@ -1,0 +1,139 @@
+"use client";
+
+import { Card } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Link, Share2, Mail } from "lucide-react";
+import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
+
+interface MetricItem {
+  label: string;
+  value: string;
+  isNegative?: boolean;
+}
+
+interface SalesMetricsProps {
+  data: MetricItem[];
+  loading?: boolean;
+}
+
+const salesSourcesData = [
+  {
+    icon: Link,
+    label: "Link direto",
+    subLabel: "Clica no link direto",
+    value: 450,
+    percent: "29,8%",
+  },
+  {
+    icon: Share2,
+    label: "Social Network",
+    subLabel: "Todas as redes sociais",
+    value: 2220,
+    percent: "29,5%",
+  },
+  {
+    icon: Mail,
+    label: "E-mail newsletter",
+    subLabel: "Campanhas de email",
+    value: 324,
+    percent: "27,2%",
+  },
+];
+
+export function SalesMetrics({ data, loading }: SalesMetricsProps) {
+  return (
+    <Card className="border-border/50 bg-card flex h-114.5 max-h-114.5 min-h-114.5 flex-col p-6 dark:bg-[radial-gradient(ellipse_at_top_left,rgba(22,22,28,1)_0%,rgba(10,10,15,1)_70%)]">
+      <h3 className="mb-3 text-sm font-semibold">Métricas de Vendas</h3>
+      <div className="flex-1 space-y-1">
+        {loading ? (
+          <Table>
+            <TableBody>
+              {[...Array(7)].map((_, i) => (
+                <TableRow key={i} className="border-border/50">
+                  <TableCell className="py-1.5">
+                    <Skeleton className="h-3 w-40" />
+                  </TableCell>
+                  <TableCell className="py-1.5 text-right">
+                    <Skeleton className="ml-auto h-3 w-16" />
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        ) : (
+          <Table>
+            <TableBody>
+              {data.map((metric, index) => (
+                <TableRow key={index} className="border-border/50">
+                  <TableCell className="text-muted-foreground py-1.5 text-xs">
+                    {metric.label}
+                  </TableCell>
+                  <TableCell
+                    className={`py-1.5 text-right text-xs font-semibold ${
+                      metric.isNegative ? "text-red-500" : "text-green-500"
+                    }`}
+                  >
+                    {metric.value}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        )}
+      </div>
+      <div className="border-border/50 border-t pt-3">
+        <div className="mb-2 flex items-center justify-between">
+          <h4 className="text-xs font-semibold">Vendas por fonte</h4>
+          <span className="text-muted-foreground text-[10px]">
+            3.450 vendas
+          </span>
+        </div>
+        <div className="space-y-2">
+          {loading
+            ? [...Array(4)].map((_, i) => (
+                <div key={i} className="flex items-center gap-2">
+                  <Skeleton className="h-6 w-6 rounded" />
+                  <div className="flex-1 space-y-0.5">
+                    <Skeleton className="h-2.5 w-20" />
+                    <Skeleton className="h-2 w-24" />
+                  </div>
+                  <div className="space-y-0.5 text-right">
+                    <Skeleton className="ml-auto h-2.5 w-10" />
+                    <Skeleton className="ml-auto h-2 w-12" />
+                  </div>
+                </div>
+              ))
+            : salesSourcesData.map((item, i) => {
+                const Icon = item.icon;
+                return (
+                  <div key={i} className="flex items-center gap-2">
+                    <div className="bg-muted flex h-6 w-6 items-center justify-center rounded">
+                      <Icon className="text-muted-foreground h-3 w-3" />
+                    </div>
+                    <div className="flex-1">
+                      <div className="text-[10px] leading-tight font-medium">
+                        {item.label}
+                      </div>
+                      <div className="text-muted-foreground text-[9px] leading-tight">
+                        {item.subLabel}
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-[10px] leading-tight font-semibold">
+                        {item.value}
+                      </div>
+                      <div className="text-muted-foreground text-[9px] leading-tight">
+                        {item.percent}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+        </div>
+        <button className="text-primary -mt-3 w-full text-[10px] hover:underline">
+          Ver relatório completo
+        </button>
+      </div>
+    </Card>
+  );
+}
