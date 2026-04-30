@@ -85,7 +85,7 @@ export async function POST(request: NextRequest) {
     const response = await axios.post<JavaAuthResponse>(
       `${API_URL}/auth/registrar`,
       { email, senha, role },
-      { headers: { "Content-Type": "application/json" } },
+      { headers: { "Content-Type": "application/json", "x-api-key": process.env.API_KEY } },
     );
     upstream = response.data;
   } catch (error) {

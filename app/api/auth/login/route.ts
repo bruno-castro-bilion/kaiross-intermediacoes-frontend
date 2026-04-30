@@ -113,7 +113,7 @@ async function callJavaLogin(
   const response = await axios.post<JavaAuthResponse>(
     `${API_URL}/auth/login`,
     { email, senha },
-    { headers: { "Content-Type": "application/json" } },
+    { headers: { "Content-Type": "application/json", "x-api-key": process.env.API_KEY } },
   );
   return {
     token: response.data.token,
