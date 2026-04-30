@@ -10,7 +10,7 @@ import backend from "@/app/api/_backend";
 export async function POST(request: NextRequest) {
   const refreshToken = request.cookies.get("refreshToken")?.value;
 
-  if (refreshToken && API_URL) {
+  if (refreshToken) {
     try {
       await backend.post(
         `auth/logout`,
