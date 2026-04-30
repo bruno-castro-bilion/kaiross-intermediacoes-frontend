@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import axios, { AxiosError } from "axios";
+import { AxiosError } from "axios";
+import backend from "@/app/api/_backend";
 import type { JavaAuthResponse } from "../types";
 
-const API_URL = process.env.API_URL ?? "";
 const isProduction = process.env.NODE_ENV === "production";
 const isHomolog =
   process.env.NODE_ENV === "test" || process.env.NODE_ENV === "development";
@@ -38,8 +38,8 @@ export async function POST(request: NextRequest) {
 
   let upstream: JavaAuthResponse;
   try {
-    const response = await axios.post<JavaAuthResponse>(
-      `${API_URL}/auth/refresh`,
+    const response = await backend.post<JavaAuthResponse>(
+      `auth/refresh`,
       { refreshToken },
       { headers: { "Content-Type": "application/json" } },
     );

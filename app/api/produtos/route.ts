@@ -1,11 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import axios, { AxiosError } from "axios";
+import { AxiosError } from "axios";
+import backend from "@/app/api/_backend";
 import type { ProdutoView } from "./types";
 
 // Em dev cada microservice escuta numa porta própria; em prod tudo cai no
 // mesmo API Gateway, então PRODUTOS_API_URL fica vazio e cai no fallback.
-const API_URL =
-  process.env.PRODUTOS_API_URL ?? process.env.API_URL ?? "";
 
 export async function GET(request: NextRequest) {
   const accessToken = request.cookies.get("accessToken")?.value;
@@ -18,7 +17,7 @@ export async function GET(request: NextRequest) {
   const size = url.searchParams.get("size") ?? "20";
 
   try {
-    const response = await axios.get<ProdutoView[]>(`${API_URL}/produtos`, {
+    const response = await backend.get<ProdutoView[]>(`produtos`, {
       params: { page, size },
       headers: { Authorization: `Bearer ${accessToken}` },
     });

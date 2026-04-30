@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
-import axios, { AxiosError } from "axios";
+import { AxiosError } from "axios";
+import backend from "@/app/api/_backend";
 import type { JavaAuthResponse, User } from "../types";
 import { mapRoleStringToRole, roleToUserTypeId, UserRole } from "../types";
 
 // Convenção: API_URL = base do backend Java incluindo "/api"
 //   dev local (auth-service direto):  http://localhost:8080/api
 //   prod (ALB único da Kaiross):       https://api.kaiross.com.br/api
-const API_URL = process.env.API_URL ?? "";
 const isProduction = process.env.NODE_ENV === "production";
 const isHomolog =
   process.env.NODE_ENV === "test" || process.env.NODE_ENV === "development";
@@ -110,8 +110,8 @@ async function callJavaLogin(
   email: string,
   senha: string,
 ): Promise<LoginUpstream> {
-  const response = await axios.post<JavaAuthResponse>(
-    `${API_URL}/auth/login`,
+  const response = await backend.post<JavaAuthResponse>(
+    `auth/login`,
     { email, senha },
     { headers: { "Content-Type": "application/json", "x-api-key": process.env.API_KEY } },
   );
@@ -129,7 +129,7 @@ async function callJavaLogin(
 // não rotear pra ele em dev, login segue funcionando sem o nome.
 async function fetchNomeUsuario(token: string): Promise<string | undefined> {
   try {
-    const r = await axios.get<{ nome?: string }>(`${API_URL}/usuarios/me`, {
+    const r = await backend.get<{ nome?: string }>(`usuarios/me`, {
       headers: { Authorization: `Bearer ${token}` },
       timeout: 3000,
     });

@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import axios, { AxiosError } from "axios";
+import { AxiosError } from "axios";
+import backend from "@/app/api/_backend";
 import type { SellerProdutoView } from "../../types";
 
-const API_URL =
   process.env.SELLER_PRODUTOS_API_URL ?? process.env.API_URL ?? "";
 
 export async function PUT(
@@ -23,8 +23,8 @@ export async function PUT(
   }
 
   try {
-    const response = await axios.put<SellerProdutoView>(
-      `${API_URL}/seller-produtos/${id}/reativar`,
+    const response = await backend.put<SellerProdutoView>(
+      `seller-produtos/${id}/reativar`,
       undefined,
       { headers: { Authorization: `Bearer ${accessToken}` } },
     );

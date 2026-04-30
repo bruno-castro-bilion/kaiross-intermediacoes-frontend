@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import axios, { AxiosError } from "axios";
+import { AxiosError } from "axios";
+import backend from "@/app/api/_backend";
 import type { SellerProdutoView } from "../../types";
 
-const API_URL =
   process.env.SELLER_PRODUTOS_API_URL ?? process.env.API_URL ?? "";
 
 // Endpoint público no backend (sem BearerAuth na OpenAPI), mas mantemos o
@@ -21,8 +21,8 @@ export async function GET(
   }
 
   try {
-    const response = await axios.get<SellerProdutoView>(
-      `${API_URL}/seller-produtos/checkout/${slug}`,
+    const response = await backend.get<SellerProdutoView>(
+      `seller-produtos/checkout/${slug}`,
       {
         headers: accessToken
           ? { Authorization: `Bearer ${accessToken}` }

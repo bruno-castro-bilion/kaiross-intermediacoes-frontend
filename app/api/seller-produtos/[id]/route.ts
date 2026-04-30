@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import axios, { AxiosError } from "axios";
+import { AxiosError } from "axios";
+import backend from "@/app/api/_backend";
 
-const API_URL =
   process.env.SELLER_PRODUTOS_API_URL ?? process.env.API_URL ?? "";
 
 export async function DELETE(
@@ -22,7 +22,7 @@ export async function DELETE(
   }
 
   try {
-    await axios.delete(`${API_URL}/seller-produtos/${id}`, {
+    await backend.delete(`seller-produtos/${id}`, {
       headers: { Authorization: `Bearer ${accessToken}` },
     });
     return NextResponse.json({ success: true });

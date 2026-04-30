@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import axios, { AxiosError } from "axios";
+import { AxiosError } from "axios";
+import backend from "@/app/api/_backend";
 import type { JavaAuthResponse, User } from "../types";
 import {
   mapRoleStringToRole,
@@ -7,7 +8,6 @@ import {
   UserRole,
 } from "../types";
 
-const API_URL = process.env.API_URL ?? "";
 const isProduction = process.env.NODE_ENV === "production";
 const isHomolog =
   process.env.NODE_ENV === "test" || process.env.NODE_ENV === "development";
@@ -82,8 +82,8 @@ export async function POST(request: NextRequest) {
 
   let upstream: JavaAuthResponse;
   try {
-    const response = await axios.post<JavaAuthResponse>(
-      `${API_URL}/auth/registrar`,
+    const response = await backend.post<JavaAuthResponse>(
+      `auth/registrar`,
       { email, senha, role },
       { headers: { "Content-Type": "application/json", "x-api-key": process.env.API_KEY } },
     );
@@ -146,8 +146,8 @@ export async function POST(request: NextRequest) {
   // Se falhar (usuarios-service fora do ar, API_URL só roteia auth, etc.),
   // a conta já foi criada e o usuário pode editar o nome depois pelo perfil.
   try {
-    await axios.put(
-      `${API_URL}/usuarios/${upstream.usuarioId}`,
+    await backend.put(
+      `usuarios/${upstream.usuarioId}`,
       { nome },
       {
         headers: {

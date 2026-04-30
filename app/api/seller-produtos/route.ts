@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import axios, { AxiosError } from "axios";
+import { AxiosError } from "axios";
+import backend from "@/app/api/_backend";
 import type { AfiliarProdutoRequest, SellerProdutoView } from "./types";
 
-const API_URL =
   process.env.SELLER_PRODUTOS_API_URL ?? process.env.API_URL ?? "";
 
 export async function GET(request: NextRequest) {
@@ -12,8 +12,8 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const response = await axios.get<SellerProdutoView[]>(
-      `${API_URL}/seller-produtos`,
+    const response = await backend.get<SellerProdutoView[]>(
+      `seller-produtos`,
       { headers: { Authorization: `Bearer ${accessToken}` } },
     );
     return NextResponse.json(response.data);
@@ -63,8 +63,8 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const response = await axios.post(
-      `${API_URL}/seller-produtos`,
+    const response = await backend.post(
+      `seller-produtos`,
       body,
       {
         headers: {

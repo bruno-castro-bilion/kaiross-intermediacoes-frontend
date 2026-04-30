@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import axios from "axios";
+import backend from "@/app/api/_backend";
 
-const API_URL = process.env.API_URL ?? "";
 
 /**
  * Revoga o refresh token no backend (best-effort) e limpa os cookies locais.
@@ -13,8 +12,8 @@ export async function POST(request: NextRequest) {
 
   if (refreshToken && API_URL) {
     try {
-      await axios.post(
-        `${API_URL}/auth/logout`,
+      await backend.post(
+        `auth/logout`,
         { refreshToken },
         {
           headers: { "Content-Type": "application/json" },

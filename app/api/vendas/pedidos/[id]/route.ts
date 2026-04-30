@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import axios, { AxiosError } from "axios";
+import { AxiosError } from "axios";
+import backend from "@/app/api/_backend";
 import type { PedidoView } from "../../types";
 
-const API_URL =
   process.env.VENDAS_API_URL ?? process.env.API_URL ?? "";
 
 export async function GET(
@@ -23,8 +23,8 @@ export async function GET(
   }
 
   try {
-    const response = await axios.get<PedidoView>(
-      `${API_URL}/vendas/pedidos/${id}`,
+    const response = await backend.get<PedidoView>(
+      `vendas/pedidos/${id}`,
       { headers: { Authorization: `Bearer ${accessToken}` } },
     );
     return NextResponse.json(response.data);
