@@ -4,9 +4,10 @@ import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { signupSchema, type SignupFormData } from "@/lib/schemas/auth";
 import { useSignup } from "@/app/api/auth/mutations";
+import { UserRole } from "@/app/api/auth/types";
 import { showToast } from "@/components/custom-toast";
-import { useRouter } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useState, useEffect, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
@@ -20,10 +21,24 @@ interface SignUpProps {
 
 const SignUp = ({ onTransition }: SignUpProps) => {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const { mutate: signup, isPending, error: mutationError } = useSignup();
+
+  // Cadastro pós-checkout: o link de "crie sua senha" carrega
+  // ?clienteId=...&role=COMPRADOR pra vincular o usuário ao Cliente master
+  // criado em /api/vendas/checkout. Sem esses params, signup vira VENDEDOR
+  // (fluxo padrão da landing).
+  const clienteIdParam = searchParams.get("clienteId") ?? undefined;
+  const roleParam = (searchParams.get("role") ?? "").toUpperCase();
+  const role = useMemo<UserRole>(() => {
+    if (roleParam === UserRole.COMPRADOR) return UserRole.COMPRADOR;
+    if (roleParam === UserRole.FORNECEDOR) return UserRole.FORNECEDOR;
+    return UserRole.VENDEDOR;
+  }, [roleParam]);
+  const isCompradorFlow = role === UserRole.COMPRADOR && !!clienteIdParam;
 
   const {
     register,
@@ -69,7 +84,13 @@ const SignUp = ({ onTransition }: SignUpProps) => {
 
   const onSubmit = (data: SignupFormData) => {
     signup(
-      { name: data.name, email: data.email, password: data.password },
+      {
+        name: data.name,
+        email: data.email,
+        password: data.password,
+        role,
+        clienteId: clienteIdParam,
+      },
       {
         onSuccess: (response) => {
           showToast({
@@ -95,6 +116,18 @@ const SignUp = ({ onTransition }: SignUpProps) => {
       onSubmit={handleSubmit(onSubmit)}
       className="space-y-3.5"
     >
+      {isCompradorFlow && (
+        <div
+          data-testid="signup-comprador-banner"
+          className="mb-4 rounded-lg border border-green-500/40 bg-green-500/10 px-3 py-2 text-xs"
+        >
+          <p className="text-foreground">
+            Vamos vincular essa conta ao seu pedido pra você acompanhar entregas
+            e comprar de novo sem refazer cadastro.
+          </p>
+        </div>
+      )}
+
       <div data-testid="signup-section-info-header" className="mb-4">
         <h2
           data-testid="signup-section-info-title"

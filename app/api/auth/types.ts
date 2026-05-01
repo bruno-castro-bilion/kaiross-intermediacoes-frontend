@@ -150,6 +150,12 @@ export interface SignupRequest {
   cpfCnpj?: string;
   /** Default VENDEDOR no BFF se não for informado. */
   role?: UserRole;
+  /**
+   * Vínculo com cliente master de vendas, retornado pelo POST /api/vendas/checkout.
+   * Quando presente, signup do comprador anônimo passa a ser logado como
+   * COMPRADOR daquele cliente.id (auth-service persiste em usuarios.cliente_id).
+   */
+  clienteId?: string;
 }
 
 export interface NextSignupResponse {
