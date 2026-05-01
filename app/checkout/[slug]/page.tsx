@@ -170,6 +170,10 @@ const CheckoutPage = ({ params }: PageProps) => {
   const goBack = () => setStep((s) => Math.max(0, s - 1));
 
   const onSubmit = (data: CheckoutFormData) => {
+    // Defesa contra Enter no input em steps anteriores: o browser pode
+    // auto-submeter o form, e como formaPagamento default = "PIX" passa
+    // na validação. Só finaliza de fato no último step.
+    if (step !== STEPS.length - 1) return;
     if (!produto) return;
     const req = toCheckoutRequest(produto.slugCheckout, data);
     iniciar(req, {
@@ -263,6 +267,18 @@ const CheckoutPage = ({ params }: PageProps) => {
         <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
           <form
             onSubmit={handleSubmit(onSubmit)}
+            onKeyDown={(e) => {
+              // Enter num input em step intermediário avança em vez de
+              // disparar o submit nativo do browser.
+              if (
+                e.key === "Enter" &&
+                step < STEPS.length - 1 &&
+                (e.target as HTMLElement).tagName === "INPUT"
+              ) {
+                e.preventDefault();
+                goNext();
+              }
+            }}
             data-testid="checkout-form"
             className="border-border bg-card/95 space-y-6 rounded-2xl border p-6 shadow-2xl backdrop-blur-xl"
           >
