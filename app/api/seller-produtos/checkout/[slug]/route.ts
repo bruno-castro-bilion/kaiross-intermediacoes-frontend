@@ -1,15 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { AxiosError } from "axios";
 import { sellerProdutosBackend } from "@/app/api/_backend";
-import type { SellerProdutoView } from "../../types";
+import type { CheckoutDetalhesView } from "../../types";
 
-// Endpoint público no backend (sem BearerAuth na OpenAPI), mas mantemos o
-// proxy no BFF por consistência — passamos o token se houver.
 export async function GET(
   request: NextRequest,
   context: { params: Promise<{ slug: string }> },
 ) {
-  const accessToken = request.cookies.get("accessToken")?.value;
   const { slug } = await context.params;
   if (!slug) {
     return NextResponse.json(
@@ -19,13 +16,8 @@ export async function GET(
   }
 
   try {
-    const response = await sellerProdutosBackend.get<SellerProdutoView>(
-      `seller-produtos/checkout/${slug}`,
-      {
-        headers: accessToken
-          ? { Authorization: `Bearer ${accessToken}` }
-          : undefined,
-      },
+    const response = await sellerProdutosBackend.get<CheckoutDetalhesView>(
+      `seller-produtos/checkout/${slug}/detalhes`,
     );
     return NextResponse.json(response.data);
   } catch (error) {

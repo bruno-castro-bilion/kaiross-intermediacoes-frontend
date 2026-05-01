@@ -16,6 +16,18 @@ export interface SellerProdutoView {
   dataCriacao?: string;
 }
 
+export interface CheckoutDetalhesView {
+  slugCheckout: string;
+  vendedorId: string;
+  produtoId: string;
+  fornecedorId: string;
+  precoVenda: number;
+  nomeProduto: string;
+  descricao: string | null;
+  sku: string | null;
+  imagemPrincipalUrl: string | null;
+}
+
 export interface AfiliarProdutoRequest {
   produtoId: string;
   precoVenda: number;
