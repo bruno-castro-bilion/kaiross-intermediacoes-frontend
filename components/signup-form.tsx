@@ -5,7 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { signupSchema, type SignupFormData } from "@/lib/schemas/auth";
 import { useSignup } from "@/app/api/auth/mutations";
 import { showToast } from "@/components/custom-toast";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,8 +20,6 @@ interface SignUpProps {
 
 const SignUp = ({ onTransition }: SignUpProps) => {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const redirectTo = searchParams.get("redirect");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
@@ -74,23 +72,18 @@ const SignUp = ({ onTransition }: SignUpProps) => {
       { name: data.name, email: data.email, password: data.password },
       {
         onSuccess: (response) => {
-          if ("error" in response) {
-            showToast({
-              type: "error",
-              title: "Erro ao criar conta",
-              description: response.error as string,
-            });
-            return;
-          }
-
           showToast({
             type: "success",
-            title: "Conta criada com sucesso!",
-            description: "Bem vindo à Kaiross.",
+            title: "Conta criada!",
+            description:
+              response.message ||
+              "Verifique seu email para ativar sua conta.",
           });
 
           onTransition?.();
-          router.push(redirectTo || "/dashboard");
+          router.push(
+            `/verifique-seu-email/${encodeURIComponent(response.email ?? data.email)}`,
+          );
         },
       },
     );

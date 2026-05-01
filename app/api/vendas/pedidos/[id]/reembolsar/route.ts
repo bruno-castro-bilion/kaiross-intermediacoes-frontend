@@ -1,9 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { AxiosError } from "axios";
-import backend from "@/app/api/_backend";
+import { vendasBackend } from "@/app/api/_backend";
 import type { PedidoView } from "../../../types";
-
-  process.env.VENDAS_API_URL ?? process.env.API_URL ?? "";
 
 export async function POST(
   request: NextRequest,
@@ -23,7 +21,7 @@ export async function POST(
   }
 
   try {
-    const response = await backend.post<PedidoView>(
+    const response = await vendasBackend.post<PedidoView>(
       `vendas/pedidos/${id}/reembolsar`,
       undefined,
       { headers: { Authorization: `Bearer ${accessToken}` } },

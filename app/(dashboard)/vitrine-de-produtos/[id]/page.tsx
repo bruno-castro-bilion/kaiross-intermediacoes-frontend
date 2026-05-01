@@ -163,7 +163,6 @@ function SpecsTab({ p }: { p: ProdutoView }) {
     ["Peso", p.pesoKg ? `${p.pesoKg} kg` : undefined],
     ["Dimensões", dim ?? undefined],
     ["Garantia", p.garantiaDias ? `${p.garantiaDias} dias` : undefined],
-    ["Fornecedor", p.fornecedor],
   ];
   const filled = specs.filter(([, v]) => v !== undefined && v !== null && v !== "");
 
@@ -582,7 +581,7 @@ export default function VitrineProductDetail() {
                 ))}
               </div>
               <span style={{ fontWeight: 700 }}>
-                {produto.marca ?? produto.fornecedor ?? "Kaiross"}
+                {produto.marca ?? "Kaiross"}
               </span>
               {produto.sku ? (
                 <>

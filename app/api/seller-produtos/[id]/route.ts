@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { AxiosError } from "axios";
-import backend from "@/app/api/_backend";
-
-  process.env.SELLER_PRODUTOS_API_URL ?? process.env.API_URL ?? "";
+import { sellerProdutosBackend } from "@/app/api/_backend";
 
 export async function DELETE(
   request: NextRequest,
@@ -22,7 +20,7 @@ export async function DELETE(
   }
 
   try {
-    await backend.delete(`seller-produtos/${id}`, {
+    await sellerProdutosBackend.delete(`seller-produtos/${id}`, {
       headers: { Authorization: `Bearer ${accessToken}` },
     });
     return NextResponse.json({ success: true });

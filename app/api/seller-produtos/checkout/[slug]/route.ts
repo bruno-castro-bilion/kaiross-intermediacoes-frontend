@@ -1,9 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { AxiosError } from "axios";
-import backend from "@/app/api/_backend";
+import { sellerProdutosBackend } from "@/app/api/_backend";
 import type { SellerProdutoView } from "../../types";
-
-  process.env.SELLER_PRODUTOS_API_URL ?? process.env.API_URL ?? "";
 
 // Endpoint público no backend (sem BearerAuth na OpenAPI), mas mantemos o
 // proxy no BFF por consistência — passamos o token se houver.
@@ -21,7 +19,7 @@ export async function GET(
   }
 
   try {
-    const response = await backend.get<SellerProdutoView>(
+    const response = await sellerProdutosBackend.get<SellerProdutoView>(
       `seller-produtos/checkout/${slug}`,
       {
         headers: accessToken

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { AxiosError } from "axios";
-import backend from "@/app/api/_backend";
+import { produtosBackend } from "@/app/api/_backend";
 import type { ProdutoView } from "../types";
 
 export async function GET(
@@ -21,7 +21,7 @@ export async function GET(
   }
 
   try {
-    const response = await backend.get<ProdutoView>(
+    const response = await produtosBackend.get<ProdutoView>(
       `produtos/${id}`,
       { headers: { Authorization: `Bearer ${accessToken}` } },
     );

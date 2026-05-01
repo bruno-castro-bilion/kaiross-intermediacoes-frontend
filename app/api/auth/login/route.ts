@@ -39,46 +39,6 @@ function buildInitials(text: string): string {
     .slice(0, 2);
 }
 
-// Mocks só carregados fora de produção, e somente quando o backend não
-// responde — o objetivo é destravar UI de dev sem auth real.
-const DEV_MOCK_USERS: Record<
-  string,
-  { senha: string; usuarioId: string; role: UserRole; nome: string }
-> = isProduction
-  ? {}
-  : {
-      "admin@kaiross.com": {
-        senha: "123456",
-        usuarioId: "00000000-0000-0000-0000-00000000ad01",
-        role: UserRole.ADMIN,
-        nome: "Admin Kaiross",
-      },
-      "vendedor@kaiross.com": {
-        senha: "123456",
-        usuarioId: "00000000-0000-0000-0000-000000000001",
-        role: UserRole.VENDEDOR,
-        nome: "Vendedor Kaiross",
-      },
-      "fornecedor@kaiross.com": {
-        senha: "123456",
-        usuarioId: "00000000-0000-0000-0000-000000000002",
-        role: UserRole.FORNECEDOR,
-        nome: "Fornecedor Kaiross",
-      },
-    };
-
-function buildDevMockJwt(payload: Record<string, unknown>): string {
-  const b64 = (obj: Record<string, unknown>) =>
-    Buffer.from(JSON.stringify(obj))
-      .toString("base64")
-      .replace(/=+$/, "")
-      .replace(/\+/g, "-")
-      .replace(/\//g, "_");
-  const header = b64({ alg: "none", typ: "JWT" });
-  const body = b64(payload);
-  return `${header}.${body}.dev-mock-signature`;
-}
-
 const loginAttempts = new Map<string, { count: number; resetAt: number }>();
 const RATE_LIMIT = 10;
 const RATE_WINDOW_MS = 15 * 60 * 1000;
@@ -183,42 +143,19 @@ export async function POST(request: NextRequest) {
     const status = axiosError.response?.status ?? 0;
     const responseData = axiosError.response?.data;
 
-    // Fallback dev-only: se o backend está fora do ar (sem resposta) ou
-    // retornou 5xx, e o usuário é um dos mocks de dev, autoriza com JWT
-    // assinado localmente (apenas para desbloquear UI sem backend rodando).
-    const mock = DEV_MOCK_USERS[email];
-    const backendUnavailable = !axiosError.response || status >= 500;
-    if (mock && backendUnavailable && mock.senha === senha) {
-      const nowSec = Math.floor(Date.now() / 1000);
-      const token = buildDevMockJwt({
-        sub: mock.usuarioId,
-        email,
-        role: mock.role,
-        iat: nowSec,
-        exp: nowSec + 5400,
-      });
-      upstream = {
-        token,
-        usuarioId: mock.usuarioId,
-        email,
-        role: mock.role,
-        nome: mock.nome,
-      };
-    } else {
-      const genericMessage =
-        "Sistema temporariamente indisponível. Tente novamente mais tarde.";
-      const errorMessage =
-        status === 0 || status >= 500
-          ? genericMessage
-          : responseData?.message ||
-            responseData?.mensagem ||
-            responseData?.error ||
-            "Credenciais inválidas.";
-      return NextResponse.json(
-        { error: errorMessage },
-        { status: status === 0 ? 503 : status },
-      );
-    }
+    const genericMessage =
+      "Sistema temporariamente indisponível. Tente novamente mais tarde.";
+    const errorMessage =
+      status === 0 || status >= 500
+        ? genericMessage
+        : responseData?.message ||
+          responseData?.mensagem ||
+          responseData?.error ||
+          "Credenciais inválidas.";
+    return NextResponse.json(
+      { error: errorMessage },
+      { status: status === 0 ? 503 : status },
+    );
   }
 
   // Tenta enriquecer com o nome (não bloqueia se falhar).

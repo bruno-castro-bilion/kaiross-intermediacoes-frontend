@@ -2,9 +2,11 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { useAuthStore } from "@/lib/store/auth-store";
 import type {
+  ConfirmEmailResponse,
   LoginRequest,
   NextLoginResponse,
   NextSignupResponse,
+  ResendConfirmationResponse,
   ResetPassword,
   ResetPasswordResponse,
   SignupRequest,
@@ -30,13 +32,20 @@ export function useLogin() {
         );
         return response.data;
       } catch (error) {
-        const axiosError = error as import("axios").AxiosError<{ message?: string; error?: string; mensagem?: string }>;
+        const axiosError = error as import("axios").AxiosError<{
+          message?: string;
+          error?: string;
+          mensagem?: string;
+        }>;
+        const status = axiosError.response?.status ?? 0;
         const msg =
           axiosError.response?.data?.message ||
           axiosError.response?.data?.error ||
           axiosError.response?.data?.mensagem ||
           "Erro inesperado. Tente novamente.";
-        throw new Error(msg);
+        const err: Error & { status?: number } = new Error(msg);
+        err.status = status;
+        throw err;
       }
     },
     onSuccess: (data) => {
@@ -47,9 +56,6 @@ export function useLogin() {
 }
 
 export function useSignup() {
-  const setUser = useAuthStore((state) => state.setUser);
-  const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: async (data: SignupRequest) => {
       try {
@@ -60,19 +66,17 @@ export function useSignup() {
         );
         return response.data;
       } catch (error) {
-        const axiosError = error as import("axios").AxiosError<{ message?: string; error?: string; mensagem?: string }>;
+        const axiosError = error as import("axios").AxiosError<{
+          message?: string;
+          error?: string;
+          mensagem?: string;
+        }>;
         const msg =
           axiosError.response?.data?.message ||
           axiosError.response?.data?.error ||
           axiosError.response?.data?.mensagem ||
           "Erro inesperado. Tente novamente.";
         throw new Error(msg);
-      }
-    },
-    onSuccess: (data) => {
-      if (data.user) {
-        setUser(data.user);
-        queryClient.invalidateQueries({ queryKey: ["user"] });
       }
     },
   });
@@ -132,18 +136,62 @@ export function useResetPassword() {
 
 export function useUpdatePassword() {
   return useMutation({
-    mutationFn: async (data: { password: string; token?: string }) => {
+    mutationFn: async (data: { password: string; token: string }) => {
       try {
-        const updatePasswordData: UpdatePassword = { senha: data.password };
-        const response = await axios.patch<UpdatePasswordResponse>(
+        const payload: UpdatePassword = {
+          token: data.token,
+          senha: data.password,
+        };
+        const response = await axios.post<UpdatePasswordResponse>(
           `/api/auth/update-password`,
-          updatePasswordData,
-          {
-            withCredentials: true,
-            headers: data.token
-              ? { Authorization: `Bearer ${data.token}` }
-              : undefined,
-          },
+          payload,
+          { withCredentials: true },
+        );
+        return response.data;
+      } catch (error) {
+        const axiosError = error as import("axios").AxiosError<{ message?: string; error?: string; mensagem?: string }>;
+        const msg =
+          axiosError.response?.data?.message ||
+          axiosError.response?.data?.error ||
+          axiosError.response?.data?.mensagem ||
+          "Erro inesperado. Tente novamente.";
+        throw new Error(msg);
+      }
+    },
+  });
+}
+
+export function useConfirmEmail() {
+  return useMutation({
+    mutationFn: async (data: { token: string }) => {
+      try {
+        const response = await axios.post<ConfirmEmailResponse>(
+          "/api/auth/confirm-email",
+          { token: data.token },
+          { withCredentials: true },
+        );
+        return response.data;
+      } catch (error) {
+        const axiosError = error as import("axios").AxiosError<{ message?: string; error?: string; mensagem?: string }>;
+        const msg =
+          axiosError.response?.data?.message ||
+          axiosError.response?.data?.error ||
+          axiosError.response?.data?.mensagem ||
+          "Erro inesperado. Tente novamente.";
+        throw new Error(msg);
+      }
+    },
+  });
+}
+
+export function useResendConfirmation() {
+  return useMutation({
+    mutationFn: async (data: { email: string }) => {
+      try {
+        const response = await axios.post<ResendConfirmationResponse>(
+          "/api/auth/resend-confirmation",
+          { email: data.email },
+          { withCredentials: true },
         );
         return response.data;
       } catch (error) {

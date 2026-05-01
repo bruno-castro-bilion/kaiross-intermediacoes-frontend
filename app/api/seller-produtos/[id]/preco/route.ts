@@ -1,9 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { AxiosError } from "axios";
-import backend from "@/app/api/_backend";
+import { sellerProdutosBackend } from "@/app/api/_backend";
 import type { AtualizarPrecoRequest, SellerProdutoView } from "../../types";
-
-  process.env.SELLER_PRODUTOS_API_URL ?? process.env.API_URL ?? "";
 
 export async function PUT(
   request: NextRequest,
@@ -40,7 +38,7 @@ export async function PUT(
   }
 
   try {
-    const response = await backend.put<SellerProdutoView>(
+    const response = await sellerProdutosBackend.put<SellerProdutoView>(
       `seller-produtos/${id}/preco`,
       body,
       {

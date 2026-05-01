@@ -1,9 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { AxiosError } from "axios";
-import backend from "@/app/api/_backend";
+import { vendasBackend } from "@/app/api/_backend";
 import type { FornecedorIntegracaoEvento } from "../../../../types";
-
-  process.env.VENDAS_API_URL ?? process.env.API_URL ?? "";
 
 export async function GET(
   request: NextRequest,
@@ -23,7 +21,7 @@ export async function GET(
   }
 
   try {
-    const response = await backend.get<FornecedorIntegracaoEvento[]>(
+    const response = await vendasBackend.get<FornecedorIntegracaoEvento[]>(
       `vendas/pedidos/${id}/fornecedor/historico`,
       { headers: { Authorization: `Bearer ${accessToken}` } },
     );

@@ -2,12 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { AxiosError } from "axios";
 import backend from "@/app/api/_backend";
 
-// Conclui fluxo de redefinição de senha — recebe { token, senha } e
-// proxia para POST /api/auth/reset-password do auth-service.
-// Backend valida token (single-use, TTL 30min), atualiza senha e revoga
-// todos os refresh tokens ativos do usuário.
+// Confirma email do usuário via token enviado por email no signup.
+// Backend valida token (single-use, TTL 24h) e seta usuario.email_confirmado=true.
 export async function POST(request: NextRequest) {
-  let body: { token?: string; senha?: string; password?: string };
+  let body: { token?: string };
   try {
     body = await request.json();
   } catch {
@@ -18,19 +16,17 @@ export async function POST(request: NextRequest) {
   }
 
   const token = (body.token ?? "").trim();
-  const novaSenha = body.senha ?? body.password ?? "";
-
-  if (!token || !novaSenha) {
+  if (!token) {
     return NextResponse.json(
-      { error: "Token e nova senha são obrigatórios." },
+      { error: "Token é obrigatório." },
       { status: 400 },
     );
   }
 
   try {
     await backend.post(
-      `auth/reset-password`,
-      { token, novaSenha },
+      `auth/confirm-email`,
+      { token },
       { headers: { "x-api-key": process.env.API_KEY } },
     );
   } catch (error) {
@@ -46,7 +42,7 @@ export async function POST(request: NextRequest) {
 
     if (status === 400) {
       return NextResponse.json(
-        { error: serverMessage || "Token inválido ou expirado." },
+        { error: serverMessage || "Link inválido ou expirado." },
         { status: 400 },
       );
     }
@@ -56,7 +52,7 @@ export async function POST(request: NextRequest) {
     const errorMessage =
       status === 0 || status >= 500
         ? genericMessage
-        : serverMessage || "Erro ao redefinir senha.";
+        : serverMessage || "Erro ao confirmar email.";
     return NextResponse.json(
       { error: errorMessage },
       { status: status === 0 ? 503 : status },
@@ -64,7 +60,7 @@ export async function POST(request: NextRequest) {
   }
 
   return NextResponse.json(
-    { success: true, message: "Senha redefinida com sucesso." },
+    { success: true, message: "Email confirmado." },
     { status: 200 },
   );
 }

@@ -153,8 +153,8 @@ export interface SignupRequest {
 }
 
 export interface NextSignupResponse {
-  user: User;
   message: string;
+  email: string;
 }
 
 export interface RefreshTokenResponse {
@@ -195,5 +195,16 @@ export interface UpdatePasswordResponse {
 }
 
 export interface UpdatePassword {
+  token: string;
   senha: string;
+}
+
+export interface ConfirmEmailResponse {
+  success: boolean;
+  message?: string;
+}
+
+export interface ResendConfirmationResponse {
+  success: boolean;
+  message?: string;
 }

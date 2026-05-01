@@ -3,7 +3,7 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema, type LoginFormData } from "@/lib/schemas/auth";
-import { useLogin } from "@/app/api/auth/mutations";
+import { useLogin, useResendConfirmation } from "@/app/api/auth/mutations";
 import { showToast } from "@/components/custom-toast";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
@@ -21,7 +21,9 @@ const LoginForm = ({ onTransition }: LoginFormProps) => {
   const searchParams = useSearchParams();
   const redirectTo = searchParams.get("redirect");
   const [showPassword, setShowPassword] = useState(false);
+  const [unconfirmedEmail, setUnconfirmedEmail] = useState<string | null>(null);
   const { mutate: login, isPending } = useLogin();
+  const { mutate: resend, isPending: isResending } = useResendConfirmation();
 
   const {
     register,
@@ -33,6 +35,7 @@ const LoginForm = ({ onTransition }: LoginFormProps) => {
   });
 
   const onSubmit = (data: LoginFormData) => {
+    setUnconfirmedEmail(null);
     login(data, {
       onSuccess: (response) => {
         if ("error" in response) {
@@ -47,14 +50,53 @@ const LoginForm = ({ onTransition }: LoginFormProps) => {
         onTransition?.();
         router.push(redirectTo || "/dashboard");
       },
-      onError: (error) => {
+      onError: (error: Error & { status?: number }) => {
+        const message = error.message || "Verifique suas credenciais.";
+        const isUnconfirmed =
+          error.status === 403 && /n[ãa]o confirmado/i.test(message);
+
+        if (isUnconfirmed) {
+          setUnconfirmedEmail(data.email);
+          showToast({
+            type: "error",
+            title: "Email não confirmado",
+            description:
+              "Confirme seu email pelo link enviado para ativar a conta.",
+          });
+          return;
+        }
+
         showToast({
           type: "error",
           title: "Erro ao fazer login",
-          description: error.message || "Verifique suas credenciais.",
+          description: message,
         });
       },
     });
+  };
+
+  const handleResend = () => {
+    if (!unconfirmedEmail) return;
+    resend(
+      { email: unconfirmedEmail },
+      {
+        onSuccess: () => {
+          showToast({
+            type: "success",
+            title: "Link reenviado",
+            description:
+              "Se houver uma conta pendente para esse email, um novo link foi enviado.",
+          });
+        },
+        onError: (error) => {
+          showToast({
+            type: "error",
+            title: "Falha ao reenviar",
+            description: error.message,
+          });
+        },
+      },
+    );
   };
 
   return (
@@ -107,6 +149,25 @@ const LoginForm = ({ onTransition }: LoginFormProps) => {
           <p className="text-xs text-red-500">{errors.password.message}</p>
         )}
       </div>
+
+      {unconfirmedEmail && (
+        <div className="border-border bg-muted/40 space-y-2 rounded-lg border p-3">
+          <p className="text-foreground text-xs">
+            Enviamos um link de confirmação para{" "}
+            <span className="font-medium">{unconfirmedEmail}</span>. Não recebeu?
+          </p>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={handleResend}
+            disabled={isResending}
+            className="w-full"
+          >
+            {isResending ? "Reenviando..." : "Reenviar email de confirmação"}
+          </Button>
+        </div>
+      )}
 
       <div className="pt-6">
         <Button

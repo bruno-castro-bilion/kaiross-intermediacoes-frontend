@@ -133,7 +133,7 @@ function ProductCardEditorial({ p }: { p: ProdutoView }) {
         >
           <Star size={12} style={{ color: "var(--kai-orange)", fill: "var(--kai-orange)" }} />
           <span style={{ fontWeight: 600, color: "var(--ink-900)" }}>
-            {p.marca ?? p.fornecedor ?? "Kaiross"}
+            {p.marca ?? "Kaiross"}
           </span>
           {p.ean ? <span>· EAN {p.ean}</span> : null}
         </div>

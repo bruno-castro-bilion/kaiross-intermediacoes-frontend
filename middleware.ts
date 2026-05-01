@@ -7,6 +7,8 @@ const PUBLIC_ROUTES = [
   "/reset-password-success",
   "/update-password",
   "/update-password-success",
+  "/verifique-seu-email",
+  "/confirm-email",
 ];
 
 export function middleware(request: NextRequest) {

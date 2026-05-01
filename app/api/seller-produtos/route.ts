@@ -1,9 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { AxiosError } from "axios";
-import backend from "@/app/api/_backend";
+import { sellerProdutosBackend } from "@/app/api/_backend";
 import type { AfiliarProdutoRequest, SellerProdutoView } from "./types";
-
-  process.env.SELLER_PRODUTOS_API_URL ?? process.env.API_URL ?? "";
 
 export async function GET(request: NextRequest) {
   const accessToken = request.cookies.get("accessToken")?.value;
@@ -12,7 +10,7 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const response = await backend.get<SellerProdutoView[]>(
+    const response = await sellerProdutosBackend.get<SellerProdutoView[]>(
       `seller-produtos`,
       { headers: { Authorization: `Bearer ${accessToken}` } },
     );
@@ -63,7 +61,7 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const response = await backend.post(
+    const response = await sellerProdutosBackend.post(
       `seller-produtos`,
       body,
       {
