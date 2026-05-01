@@ -84,6 +84,11 @@ const CheckoutPage = ({ params }: PageProps) => {
   const [step, setStep] = useState(0);
   const [cepLoading, setCepLoading] = useState(false);
   const lastCepLookup = useRef<string>("");
+  // Só finaliza quando o usuário clica explicitamente em "Finalizar compra".
+  // Sem isso, o click no "Continuar" do step 2 pode acabar processado pelo
+  // botão "Finalizar" que remonta no mesmo lugar (race entre mouseup e
+  // re-render do React).
+  const submitIntent = useRef(false);
 
   const {
     register,
@@ -170,9 +175,11 @@ const CheckoutPage = ({ params }: PageProps) => {
   const goBack = () => setStep((s) => Math.max(0, s - 1));
 
   const onSubmit = (data: CheckoutFormData) => {
-    // Defesa contra Enter no input em steps anteriores: o browser pode
-    // auto-submeter o form, e como formaPagamento default = "PIX" passa
-    // na validação. Só finaliza de fato no último step.
+    // Só processa se o usuário clicou explicitamente em "Finalizar compra".
+    // Qualquer outro caminho (Enter no input, click no Continuar herdado pelo
+    // Finalizar via re-render, etc.) é ignorado.
+    if (!submitIntent.current) return;
+    submitIntent.current = false;
     if (step !== STEPS.length - 1) return;
     if (!produto) return;
     const req = toCheckoutRequest(produto.slugCheckout, data);
@@ -266,6 +273,9 @@ const CheckoutPage = ({ params }: PageProps) => {
 
         <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
           <form
+            // O onSubmit lê submitIntent.current, mas só dentro do handler de
+            // evento — não durante render. O lint marca como falso positivo.
+            // eslint-disable-next-line react-hooks/refs
             onSubmit={handleSubmit(onSubmit)}
             onKeyDown={(e) => {
               // Enter num input em step intermediário avança em vez de
@@ -730,6 +740,9 @@ const CheckoutPage = ({ params }: PageProps) => {
               ) : (
                 <Button
                   type="submit"
+                  onClick={() => {
+                    submitIntent.current = true;
+                  }}
                   disabled={isPending}
                   data-testid="checkout-button-submit"
                   className="bg-primary text-primary-foreground hover:bg-primary/90 h-11 px-6 text-base"
