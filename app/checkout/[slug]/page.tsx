@@ -1,22 +1,30 @@
 "use client";
 
-import { use, useEffect, useMemo } from "react";
-import { useForm, useWatch } from "react-hook-form";
+import { use, useEffect, useMemo, useRef, useState } from "react";
+import {
+  Controller,
+  useForm,
+  useWatch,
+  type FieldPath,
+} from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import {
   CreditCard,
   FileText,
-  Mail,
+  Loader2,
+  Lock,
   MapPin,
-  Phone,
   QrCode,
   ShieldCheck,
+  Truck,
   User,
+  Wallet,
 } from "lucide-react";
 
 import BackgroundEffects from "@/components/background-effects";
+import CheckoutStepper from "@/components/checkout/checkout-stepper";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { InputCpfCnpj } from "@/components/ui/input-cpf-cnpj";
@@ -35,12 +43,26 @@ import {
   toCheckoutRequest,
   type CheckoutFormData,
 } from "@/lib/schemas/checkout";
+import { lookupCep } from "@/lib/api/cep";
 
-const formaPagamentoLabels: Record<CheckoutFormData["formaPagamento"], string> = {
-  PIX: "PIX",
-  BOLETO: "Boleto bancário",
-  CREDITO: "Cartão de crédito",
-  DOIS_CARTOES: "Dois cartões de crédito",
+type FormaPagamentoKey = CheckoutFormData["formaPagamento"];
+
+const STEPS = [
+  { key: "dados", label: "Seus dados" },
+  { key: "endereco", label: "Endereço" },
+  { key: "pagamento", label: "Pagamento" },
+];
+
+const STEP_FIELDS: Record<number, FieldPath<CheckoutFormData>[]> = {
+  0: ["compradorEmail", "cliente.nome", "cliente.documento"],
+  1: [
+    "cliente.cep",
+    "cliente.endereco",
+    "cliente.numero",
+    "cliente.cidade",
+    "cliente.uf",
+  ],
+  2: ["formaPagamento", "cartao", "cartao2", "valorCartao2", "parcelas"],
 };
 
 const formatBRL = (value: number) =>
@@ -59,10 +81,16 @@ const CheckoutPage = ({ params }: PageProps) => {
   const { data: produto, isLoading, isError } = useGetSellerProdutoBySlug(slug);
   const { mutate: iniciar, isPending } = useIniciarCheckout();
 
+  const [step, setStep] = useState(0);
+  const [cepLoading, setCepLoading] = useState(false);
+  const lastCepLookup = useRef<string>("");
+
   const {
     register,
     handleSubmit,
     setValue,
+    setFocus,
+    trigger,
     control,
     formState: { errors },
   } = useForm<CheckoutFormData>({
@@ -90,6 +118,7 @@ const CheckoutPage = ({ params }: PageProps) => {
     formaPagamento === "CREDITO" || formaPagamento === "DOIS_CARTOES";
   const usaDoisCartoes = formaPagamento === "DOIS_CARTOES";
 
+  // Reset cartões/parcelas se mudou pra forma sem cartão.
   useEffect(() => {
     if (!usaCartao) {
       setValue("cartao", undefined);
@@ -101,6 +130,44 @@ const CheckoutPage = ({ params }: PageProps) => {
       setValue("valorCartao2", undefined);
     }
   }, [usaCartao, usaDoisCartoes, setValue]);
+
+  // CEP lookup chamado direto no onChange do input. Evita useEffect+setState
+  // (anti-pattern apontado pelo react-hooks/set-state-in-effect).
+  const handleCepChange = (raw: string) => {
+    const digits = raw.replace(/\D/g, "");
+    if (digits.length !== 8 || digits === lastCepLookup.current) return;
+    lastCepLookup.current = digits;
+    setCepLoading(true);
+    lookupCep(digits)
+      .then((res) => {
+        if (res.endereco) setValue("cliente.endereco", res.endereco);
+        if (res.bairro) setValue("cliente.bairro", res.bairro);
+        if (res.cidade) setValue("cliente.cidade", res.cidade);
+        if (res.uf) setValue("cliente.uf", res.uf);
+      })
+      .catch((e: Error) => {
+        showToast({
+          type: "warning",
+          title: "Não consegui preencher o endereço",
+          description: e.message,
+        });
+      })
+      .finally(() => setCepLoading(false));
+  };
+
+  const goNext = async () => {
+    const valid = await trigger(STEP_FIELDS[step]);
+    if (!valid) return;
+    const next = Math.min(step + 1, STEPS.length - 1);
+    setStep(next);
+    // Foco no primeiro campo do próximo step.
+    const firstField = STEP_FIELDS[next]?.[0];
+    if (firstField) {
+      setTimeout(() => setFocus(firstField), 50);
+    }
+  };
+
+  const goBack = () => setStep((s) => Math.max(0, s - 1));
 
   const onSubmit = (data: CheckoutFormData) => {
     if (!produto) return;
@@ -144,7 +211,7 @@ const CheckoutPage = ({ params }: PageProps) => {
         data-testid="checkout-loading"
         className="flex min-h-screen items-center justify-center"
       >
-        <div className="border-primary h-10 w-10 animate-spin rounded-full border-2 border-t-transparent" />
+        <Loader2 className="text-primary h-10 w-10 animate-spin" />
       </div>
     );
   }
@@ -166,7 +233,9 @@ const CheckoutPage = ({ params }: PageProps) => {
   }
 
   const fieldError = (msg?: string) =>
-    msg ? "border border-red-500 focus-visible:ring-1 focus-visible:ring-red-500" : "";
+    msg
+      ? "border border-red-500 focus-visible:ring-1 focus-visible:ring-red-500"
+      : "";
 
   return (
     <div
@@ -197,35 +266,25 @@ const CheckoutPage = ({ params }: PageProps) => {
             data-testid="checkout-form"
             className="border-border bg-card/95 space-y-6 rounded-2xl border p-6 shadow-2xl backdrop-blur-xl"
           >
-            <section className="space-y-3">
-              <h2 className="text-md text-foreground flex items-center gap-2 font-bold">
-                <Mail className="h-4 w-4" /> Email pra envio do pedido
-              </h2>
-              <Input
-                data-testid="checkout-input-comprador-email"
-                type="email"
-                placeholder="seu@email.com"
-                {...register("compradorEmail")}
-                disabled={isPending}
-                className={`bg-input ${fieldError(errors.compradorEmail?.message)}`}
-              />
-              {errors.compradorEmail && (
-                <p className="text-xs text-red-500">
-                  {errors.compradorEmail.message}
-                </p>
-              )}
-            </section>
+            <CheckoutStepper
+              steps={STEPS}
+              current={step}
+              onJumpTo={(i) => setStep(i)}
+            />
 
-            <section className="space-y-3">
-              <h2 className="text-md text-foreground flex items-center gap-2 font-bold">
-                <User className="h-4 w-4" /> Dados do comprador
-              </h2>
+            {step === 0 && (
+              <section className="space-y-4">
+                <h2 className="text-foreground flex items-center gap-2 text-base font-semibold">
+                  <User className="h-4 w-4" /> Seus dados
+                </h2>
 
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                <div className="space-y-1.5 sm:col-span-2">
+                <div className="space-y-1.5">
+                  <label className="text-muted-foreground text-xs">
+                    Nome completo
+                  </label>
                   <Input
                     data-testid="checkout-input-cliente-nome"
-                    placeholder="Nome completo"
+                    placeholder="João da Silva"
                     {...register("cliente.nome")}
                     disabled={isPending}
                     className={`bg-input ${fieldError(errors.cliente?.nome?.message)}`}
@@ -238,270 +297,453 @@ const CheckoutPage = ({ params }: PageProps) => {
                 </div>
 
                 <div className="space-y-1.5">
-                  <InputCpfCnpj
-                    data-testid="checkout-input-cliente-documento"
-                    {...register("cliente.documento")}
-                    onChange={(v) =>
-                      setValue("cliente.documento", v, { shouldValidate: false })
-                    }
+                  <label className="text-muted-foreground text-xs">
+                    E-mail
+                  </label>
+                  <Input
+                    data-testid="checkout-input-comprador-email"
+                    type="email"
+                    placeholder="seu@email.com"
+                    {...register("compradorEmail")}
                     disabled={isPending}
-                    className={`bg-input ${fieldError(errors.cliente?.documento?.message)}`}
+                    className={`bg-input ${fieldError(errors.compradorEmail?.message)}`}
                   />
-                  {errors.cliente?.documento && (
+                  {errors.compradorEmail && (
                     <p className="text-xs text-red-500">
-                      {errors.cliente.documento.message}
+                      {errors.compradorEmail.message}
                     </p>
                   )}
                 </div>
 
-                <div className="space-y-1.5">
-                  <div className="relative">
-                    <Phone className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
-                    <Input
-                      data-testid="checkout-input-cliente-telefone"
-                      placeholder="Telefone (opcional)"
-                      {...register("cliente.telefone")}
-                      disabled={isPending}
-                      className="bg-input pl-9"
-                    />
-                  </div>
-                </div>
-              </div>
-            </section>
-
-            <section className="space-y-3">
-              <h2 className="text-md text-foreground flex items-center gap-2 font-bold">
-                <MapPin className="h-4 w-4" /> Endereço de entrega
-              </h2>
-
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-                <div className="space-y-1.5">
-                  <Input
-                    data-testid="checkout-input-cep"
-                    placeholder="CEP"
-                    {...register("cliente.cep")}
-                    disabled={isPending}
-                    className={`bg-input ${fieldError(errors.cliente?.cep?.message)}`}
-                  />
-                  {errors.cliente?.cep && (
-                    <p className="text-xs text-red-500">
-                      {errors.cliente.cep.message}
-                    </p>
-                  )}
-                </div>
-
-                <div className="space-y-1.5 sm:col-span-2">
-                  <Input
-                    data-testid="checkout-input-endereco"
-                    placeholder="Endereço"
-                    {...register("cliente.endereco")}
-                    disabled={isPending}
-                    className={`bg-input ${fieldError(errors.cliente?.endereco?.message)}`}
-                  />
-                  {errors.cliente?.endereco && (
-                    <p className="text-xs text-red-500">
-                      {errors.cliente.endereco.message}
-                    </p>
-                  )}
-                </div>
-
-                <div className="space-y-1.5">
-                  <Input
-                    data-testid="checkout-input-numero"
-                    placeholder="Número"
-                    {...register("cliente.numero")}
-                    disabled={isPending}
-                    className={`bg-input ${fieldError(errors.cliente?.numero?.message)}`}
-                  />
-                  {errors.cliente?.numero && (
-                    <p className="text-xs text-red-500">
-                      {errors.cliente.numero.message}
-                    </p>
-                  )}
-                </div>
-
-                <div className="space-y-1.5">
-                  <Input
-                    data-testid="checkout-input-bairro"
-                    placeholder="Bairro (opcional)"
-                    {...register("cliente.bairro")}
-                    disabled={isPending}
-                    className="bg-input"
-                  />
-                </div>
-
-                <div className="space-y-1.5">
-                  <Input
-                    data-testid="checkout-input-complemento"
-                    placeholder="Complemento (opcional)"
-                    {...register("cliente.complemento")}
-                    disabled={isPending}
-                    className="bg-input"
-                  />
-                </div>
-
-                <div className="space-y-1.5 sm:col-span-2">
-                  <Input
-                    data-testid="checkout-input-cidade"
-                    placeholder="Cidade"
-                    {...register("cliente.cidade")}
-                    disabled={isPending}
-                    className={`bg-input ${fieldError(errors.cliente?.cidade?.message)}`}
-                  />
-                  {errors.cliente?.cidade && (
-                    <p className="text-xs text-red-500">
-                      {errors.cliente.cidade.message}
-                    </p>
-                  )}
-                </div>
-
-                <div className="space-y-1.5">
-                  <Input
-                    data-testid="checkout-input-uf"
-                    placeholder="UF"
-                    maxLength={2}
-                    {...register("cliente.uf")}
-                    disabled={isPending}
-                    className={`bg-input uppercase ${fieldError(errors.cliente?.uf?.message)}`}
-                  />
-                  {errors.cliente?.uf && (
-                    <p className="text-xs text-red-500">
-                      {errors.cliente.uf.message}
-                    </p>
-                  )}
-                </div>
-              </div>
-            </section>
-
-            <section className="space-y-3">
-              <h2 className="text-md text-foreground flex items-center gap-2 font-bold">
-                <CreditCard className="h-4 w-4" /> Forma de pagamento
-              </h2>
-
-              <Select
-                value={formaPagamento}
-                onValueChange={(v) =>
-                  setValue("formaPagamento", v as CheckoutFormData["formaPagamento"], {
-                    shouldValidate: true,
-                  })
-                }
-                disabled={isPending}
-              >
-                <SelectTrigger
-                  data-testid="checkout-select-forma-pagamento"
-                  className="bg-input w-full"
-                >
-                  <SelectValue placeholder="Escolha como pagar" />
-                </SelectTrigger>
-                <SelectContent>
-                  {(Object.keys(formaPagamentoLabels) as Array<
-                    CheckoutFormData["formaPagamento"]
-                  >).map((key) => (
-                    <SelectItem key={key} value={key}>
-                      <div className="flex items-center gap-2">
-                        {key === "PIX" && <QrCode className="h-4 w-4" />}
-                        {key === "BOLETO" && <FileText className="h-4 w-4" />}
-                        {(key === "CREDITO" || key === "DOIS_CARTOES") && (
-                          <CreditCard className="h-4 w-4" />
-                        )}
-                        {formaPagamentoLabels[key]}
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-
-              {usaCartao && (
-                <div className="border-border bg-background/40 space-y-3 rounded-lg border p-4">
-                  <h3 className="text-foreground text-sm font-semibold">
-                    {usaDoisCartoes ? "Cartão 1" : "Dados do cartão"}
-                  </h3>
-                  <CartaoFields
-                    prefix="cartao"
-                    register={register}
-                    errors={errors.cartao}
-                    disabled={isPending}
-                  />
-
-                  <div>
-                    <label className="text-muted-foreground text-xs">
-                      Parcelas
-                    </label>
-                    <Select
-                      value={String(parcelas ?? 1)}
-                      onValueChange={(v) =>
-                        setValue("parcelas", Number(v), { shouldValidate: false })
-                      }
-                      disabled={isPending}
-                    >
-                      <SelectTrigger
-                        data-testid="checkout-select-parcelas"
-                        className="bg-input mt-1 w-full"
-                      >
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {Array.from({ length: 12 }, (_, i) => i + 1).map((n) => (
-                          <SelectItem key={n} value={String(n)}>
-                            {n}x de {formatBRL(totalCalculado / n)}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-              )}
-
-              {usaDoisCartoes && (
-                <div className="border-border bg-background/40 space-y-3 rounded-lg border p-4">
-                  <h3 className="text-foreground text-sm font-semibold">
-                    Cartão 2
-                  </h3>
-                  <CartaoFields
-                    prefix="cartao2"
-                    register={register}
-                    errors={errors.cartao2}
-                    disabled={isPending}
-                  />
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                   <div className="space-y-1.5">
                     <label className="text-muted-foreground text-xs">
-                      Valor no cartão 2
+                      CPF / CNPJ
+                    </label>
+                    <InputCpfCnpj
+                      data-testid="checkout-input-cliente-documento"
+                      {...register("cliente.documento")}
+                      onChange={(v) =>
+                        setValue("cliente.documento", v, {
+                          shouldValidate: false,
+                        })
+                      }
+                      disabled={isPending}
+                      className={`bg-input ${fieldError(errors.cliente?.documento?.message)}`}
+                    />
+                    {errors.cliente?.documento && (
+                      <p className="text-xs text-red-500">
+                        {errors.cliente.documento.message}
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-muted-foreground text-xs">
+                      Celular (opcional)
                     </label>
                     <Input
-                      data-testid="checkout-input-valor-cartao2"
-                      type="number"
-                      step="0.01"
-                      min="0"
-                      placeholder="0,00"
-                      {...register("valorCartao2", { valueAsNumber: true })}
+                      data-testid="checkout-input-cliente-telefone"
+                      placeholder="(11) 91234-5678"
+                      {...register("cliente.telefone")}
                       disabled={isPending}
-                      className={`bg-input ${fieldError(errors.valorCartao2?.message)}`}
+                      className="bg-input"
                     />
-                    {errors.valorCartao2 && (
+                  </div>
+                </div>
+              </section>
+            )}
+
+            {step === 1 && (
+              <section className="space-y-4">
+                <h2 className="text-foreground flex items-center gap-2 text-base font-semibold">
+                  <MapPin className="h-4 w-4" /> Endereço de entrega
+                </h2>
+
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+                  <div className="space-y-1.5">
+                    <label className="text-muted-foreground text-xs">
+                      CEP
+                    </label>
+                    <div className="relative">
+                      <Controller
+                        control={control}
+                        name="cliente.cep"
+                        render={({ field }) => (
+                          <Input
+                            data-testid="checkout-input-cep"
+                            placeholder="00000-000"
+                            inputMode="numeric"
+                            maxLength={9}
+                            value={field.value ?? ""}
+                            onBlur={field.onBlur}
+                            ref={field.ref}
+                            name={field.name}
+                            onChange={(e) => {
+                              field.onChange(e.target.value);
+                              handleCepChange(e.target.value);
+                            }}
+                            disabled={isPending}
+                            className={`bg-input ${fieldError(errors.cliente?.cep?.message)}`}
+                          />
+                        )}
+                      />
+                      {cepLoading && (
+                        <Loader2 className="text-muted-foreground absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2 animate-spin" />
+                      )}
+                    </div>
+                    {errors.cliente?.cep && (
                       <p className="text-xs text-red-500">
-                        {errors.valorCartao2.message}
+                        {errors.cliente.cep.message}
+                      </p>
+                    )}
+                    <a
+                      href="https://buscacepinter.correios.com.br/app/endereco/index.php"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-muted-foreground hover:text-foreground text-[11px] underline"
+                    >
+                      Não sei meu CEP
+                    </a>
+                  </div>
+
+                  <div className="space-y-1.5 sm:col-span-2">
+                    <label className="text-muted-foreground text-xs">
+                      Endereço
+                    </label>
+                    <Input
+                      data-testid="checkout-input-endereco"
+                      placeholder="Rua, avenida..."
+                      {...register("cliente.endereco")}
+                      disabled={isPending}
+                      className={`bg-input ${fieldError(errors.cliente?.endereco?.message)}`}
+                    />
+                    {errors.cliente?.endereco && (
+                      <p className="text-xs text-red-500">
+                        {errors.cliente.endereco.message}
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-muted-foreground text-xs">
+                      Número
+                    </label>
+                    <Input
+                      data-testid="checkout-input-numero"
+                      placeholder="123"
+                      {...register("cliente.numero")}
+                      disabled={isPending}
+                      className={`bg-input ${fieldError(errors.cliente?.numero?.message)}`}
+                    />
+                    {errors.cliente?.numero && (
+                      <p className="text-xs text-red-500">
+                        {errors.cliente.numero.message}
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-muted-foreground text-xs">
+                      Bairro
+                    </label>
+                    <Input
+                      data-testid="checkout-input-bairro"
+                      placeholder="Bairro"
+                      {...register("cliente.bairro")}
+                      disabled={isPending}
+                      className="bg-input"
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-muted-foreground text-xs">
+                      Complemento
+                    </label>
+                    <Input
+                      data-testid="checkout-input-complemento"
+                      placeholder="Apto, bloco..."
+                      {...register("cliente.complemento")}
+                      disabled={isPending}
+                      className="bg-input"
+                    />
+                  </div>
+
+                  <div className="space-y-1.5 sm:col-span-2">
+                    <label className="text-muted-foreground text-xs">
+                      Cidade
+                    </label>
+                    <Input
+                      data-testid="checkout-input-cidade"
+                      placeholder="São Paulo"
+                      {...register("cliente.cidade")}
+                      disabled={isPending}
+                      className={`bg-input ${fieldError(errors.cliente?.cidade?.message)}`}
+                    />
+                    {errors.cliente?.cidade && (
+                      <p className="text-xs text-red-500">
+                        {errors.cliente.cidade.message}
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-muted-foreground text-xs">UF</label>
+                    <Input
+                      data-testid="checkout-input-uf"
+                      placeholder="SP"
+                      maxLength={2}
+                      {...register("cliente.uf")}
+                      disabled={isPending}
+                      className={`bg-input uppercase ${fieldError(errors.cliente?.uf?.message)}`}
+                    />
+                    {errors.cliente?.uf && (
+                      <p className="text-xs text-red-500">
+                        {errors.cliente.uf.message}
                       </p>
                     )}
                   </div>
                 </div>
-              )}
-            </section>
+              </section>
+            )}
 
-            <Button
-              type="submit"
-              data-testid="checkout-button-submit"
-              disabled={isPending}
-              className="bg-primary text-primary-foreground hover:bg-primary/90 h-11 w-full text-base"
-            >
-              {isPending ? (
-                <span className="flex items-center gap-2">
-                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
-                  Processando…
-                </span>
+            {step === 2 && (
+              <section className="space-y-5">
+                <div
+                  data-testid="checkout-orderbump-placeholder"
+                  className="rounded-lg border border-dashed border-yellow-500/40 bg-yellow-500/5 p-4"
+                >
+                  <p className="text-foreground text-sm font-semibold">
+                    🎁 Oferta exclusiva
+                  </p>
+                  <p className="text-muted-foreground mt-1 text-xs">
+                    Em breve: produtos complementares aparecem aqui pra adicionar
+                    ao pedido com 1 clique.
+                  </p>
+                </div>
+
+                <div className="space-y-3">
+                  <h2 className="text-foreground flex items-center gap-2 text-base font-semibold">
+                    <Wallet className="h-4 w-4" /> Forma de pagamento
+                  </h2>
+
+                  <div className="grid gap-2">
+                    {(
+                      [
+                        {
+                          key: "PIX",
+                          icon: QrCode,
+                          title: "PIX",
+                          subtitle: "Aprovação imediata",
+                        },
+                        {
+                          key: "CREDITO",
+                          icon: CreditCard,
+                          title: "Cartão de crédito",
+                          subtitle: "Até 12x sem juros do vendedor",
+                        },
+                        {
+                          key: "DOIS_CARTOES",
+                          icon: CreditCard,
+                          title: "2 cartões",
+                          subtitle: "Divida o valor entre dois cartões",
+                        },
+                        {
+                          key: "BOLETO",
+                          icon: FileText,
+                          title: "Boleto bancário",
+                          subtitle: "Compensa em até 3 dias úteis",
+                        },
+                      ] satisfies Array<{
+                        key: FormaPagamentoKey;
+                        icon: typeof QrCode;
+                        title: string;
+                        subtitle: string;
+                      }>
+                    ).map(({ key, icon: Icon, title, subtitle }) => {
+                      const selected = formaPagamento === key;
+                      return (
+                        <button
+                          key={key}
+                          type="button"
+                          data-testid={`checkout-pagamento-${key}`}
+                          onClick={() =>
+                            setValue("formaPagamento", key, {
+                              shouldValidate: true,
+                            })
+                          }
+                          className={`border-border bg-input flex w-full items-center gap-3 rounded-lg border p-3 text-left transition-colors ${
+                            selected
+                              ? "border-primary bg-primary/10 ring-primary/20 ring-2"
+                              : "hover:border-muted-foreground"
+                          }`}
+                        >
+                          <span
+                            className={`flex h-9 w-9 items-center justify-center rounded-md ${
+                              selected
+                                ? "bg-primary text-primary-foreground"
+                                : "bg-muted text-muted-foreground"
+                            }`}
+                          >
+                            <Icon className="h-4 w-4" />
+                          </span>
+                          <span className="flex-1">
+                            <span className="text-foreground block text-sm font-semibold">
+                              {title}
+                            </span>
+                            <span className="text-muted-foreground block text-xs">
+                              {subtitle}
+                            </span>
+                          </span>
+                          <span
+                            className={`h-4 w-4 rounded-full border ${
+                              selected
+                                ? "border-primary bg-primary"
+                                : "border-muted-foreground"
+                            }`}
+                            aria-hidden
+                          />
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {usaCartao && (
+                  <div className="border-border bg-background/40 space-y-3 rounded-lg border p-4">
+                    <h3 className="text-foreground text-sm font-semibold">
+                      {usaDoisCartoes ? "Cartão 1" : "Dados do cartão"}
+                    </h3>
+                    <CartaoFields
+                      prefix="cartao"
+                      register={register}
+                      errors={errors.cartao}
+                      disabled={isPending}
+                    />
+
+                    <div>
+                      <label className="text-muted-foreground text-xs">
+                        Parcelas
+                      </label>
+                      <Select
+                        value={String(parcelas ?? 1)}
+                        onValueChange={(v) =>
+                          setValue("parcelas", Number(v), {
+                            shouldValidate: false,
+                          })
+                        }
+                        disabled={isPending}
+                      >
+                        <SelectTrigger
+                          data-testid="checkout-select-parcelas"
+                          className="bg-input mt-1 w-full"
+                        >
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {Array.from({ length: 12 }, (_, i) => i + 1).map(
+                            (n) => (
+                              <SelectItem key={n} value={String(n)}>
+                                {n}x de {formatBRL(totalCalculado / n)}
+                              </SelectItem>
+                            ),
+                          )}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                )}
+
+                {usaDoisCartoes && (
+                  <div className="border-border bg-background/40 space-y-3 rounded-lg border p-4">
+                    <h3 className="text-foreground text-sm font-semibold">
+                      Cartão 2
+                    </h3>
+                    <CartaoFields
+                      prefix="cartao2"
+                      register={register}
+                      errors={errors.cartao2}
+                      disabled={isPending}
+                    />
+                    <div className="space-y-1.5">
+                      <label className="text-muted-foreground text-xs">
+                        Valor no cartão 2
+                      </label>
+                      <Input
+                        data-testid="checkout-input-valor-cartao2"
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        placeholder="0,00"
+                        {...register("valorCartao2", { valueAsNumber: true })}
+                        disabled={isPending}
+                        className={`bg-input ${fieldError(errors.valorCartao2?.message)}`}
+                      />
+                      {errors.valorCartao2 && (
+                        <p className="text-xs text-red-500">
+                          {errors.valorCartao2.message}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </section>
+            )}
+
+            <div className="border-border flex items-center justify-between gap-3 border-t pt-4">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={goBack}
+                disabled={step === 0 || isPending}
+                data-testid="checkout-button-voltar"
+              >
+                Voltar
+              </Button>
+
+              {step < STEPS.length - 1 ? (
+                <Button
+                  type="button"
+                  onClick={goNext}
+                  disabled={isPending}
+                  data-testid="checkout-button-continuar"
+                  className="bg-primary text-primary-foreground hover:bg-primary/90"
+                >
+                  Continuar
+                </Button>
               ) : (
-                `Pagar ${formatBRL(totalCalculado)}`
+                <Button
+                  type="submit"
+                  disabled={isPending}
+                  data-testid="checkout-button-submit"
+                  className="bg-primary text-primary-foreground hover:bg-primary/90 h-11 px-6 text-base"
+                >
+                  {isPending ? (
+                    <span className="flex items-center gap-2">
+                      <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+                      Processando…
+                    </span>
+                  ) : (
+                    `Finalizar compra · ${formatBRL(totalCalculado)}`
+                  )}
+                </Button>
               )}
-            </Button>
+            </div>
+
+            <div
+              data-testid="checkout-trust-badges"
+              className="text-muted-foreground border-border flex flex-wrap items-center justify-center gap-4 border-t pt-4 text-xs"
+            >
+              <span className="flex items-center gap-1.5">
+                <ShieldCheck className="h-3.5 w-3.5" /> Compra protegida
+              </span>
+              <span className="flex items-center gap-1.5">
+                <Lock className="h-3.5 w-3.5" /> Pagamento seguro
+              </span>
+              <span className="flex items-center gap-1.5">
+                <Truck className="h-3.5 w-3.5" /> Frete rastreado
+              </span>
+            </div>
           </form>
 
           <aside
@@ -557,6 +799,10 @@ const CheckoutPage = ({ params }: PageProps) => {
                   {formatBRL(totalCalculado)}
                 </span>
               </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Frete</span>
+                <span className="text-muted-foreground">a calcular</span>
+              </div>
               <div className="text-foreground flex justify-between text-base font-semibold">
                 <span>Total</span>
                 <span>{formatBRL(totalCalculado)}</span>
@@ -572,13 +818,22 @@ const CheckoutPage = ({ params }: PageProps) => {
 interface CartaoFieldsProps {
   prefix: "cartao" | "cartao2";
   register: ReturnType<typeof useForm<CheckoutFormData>>["register"];
-  errors: ReturnType<typeof useForm<CheckoutFormData>>["formState"]["errors"]["cartao"];
+  errors: ReturnType<
+    typeof useForm<CheckoutFormData>
+  >["formState"]["errors"]["cartao"];
   disabled?: boolean;
 }
 
-const CartaoFields = ({ prefix, register, errors, disabled }: CartaoFieldsProps) => {
+const CartaoFields = ({
+  prefix,
+  register,
+  errors,
+  disabled,
+}: CartaoFieldsProps) => {
   const fieldError = (msg?: string) =>
-    msg ? "border border-red-500 focus-visible:ring-1 focus-visible:ring-red-500" : "";
+    msg
+      ? "border border-red-500 focus-visible:ring-1 focus-visible:ring-red-500"
+      : "";
   return (
     <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
       <div className="space-y-1.5 sm:col-span-3">
@@ -615,7 +870,9 @@ const CartaoFields = ({ prefix, register, errors, disabled }: CartaoFieldsProps)
           min={1}
           max={12}
           placeholder="Mês"
-          {...register(`${prefix}.mesExpiracao` as const, { valueAsNumber: true })}
+          {...register(`${prefix}.mesExpiracao` as const, {
+            valueAsNumber: true,
+          })}
           disabled={disabled}
           className={`bg-input ${fieldError(errors?.mesExpiracao?.message)}`}
         />
@@ -627,7 +884,9 @@ const CartaoFields = ({ prefix, register, errors, disabled }: CartaoFieldsProps)
           type="number"
           min={new Date().getFullYear()}
           placeholder="Ano"
-          {...register(`${prefix}.anoExpiracao` as const, { valueAsNumber: true })}
+          {...register(`${prefix}.anoExpiracao` as const, {
+            valueAsNumber: true,
+          })}
           disabled={disabled}
           className={`bg-input ${fieldError(errors?.anoExpiracao?.message)}`}
         />

@@ -39,7 +39,6 @@ const cartaoSchema = z.object({
 
 const clienteSchema = z.object({
   nome: z.string().min(3, "Nome obrigatório").max(255, "Nome muito longo"),
-  email: z.email("Email inválido").optional().or(z.literal("")),
   documento: z
     .string()
     .min(1, "CPF/CNPJ obrigatório")
@@ -133,7 +132,10 @@ export function toCheckoutRequest(
 ): IniciarCheckoutRequest {
   const cliente: DadosCliente = {
     nome: data.cliente.nome,
-    email: data.cliente.email || undefined,
+    // Reaproveita o email do comprador como email do cliente master.
+    // Se eventualmente quiser separar (ex.: empresa comprando pra outro
+    // contato), expor 2 campos novamente.
+    email: data.compradorEmail,
     documento: data.cliente.documento,
     telefone: data.cliente.telefone || undefined,
     cep: data.cliente.cep,
