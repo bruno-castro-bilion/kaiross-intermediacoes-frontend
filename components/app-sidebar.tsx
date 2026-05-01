@@ -11,12 +11,6 @@ import {
   Megaphone,
   Settings,
   ChevronDown,
-  Tag,
-  Layers,
-  Radio,
-  ShoppingCart,
-  RefreshCcw,
-  TrendingUp,
   LogOut,
 } from "lucide-react";
 import Image from "next/image";
@@ -102,6 +96,9 @@ function SimpleNavItem({
 
   const inner = (
     <Link
+      data-testid={`sidebar-nav-${item.key}`}
+      data-active={isActive ? "true" : "false"}
+      data-collapsed={isCollapsed ? "true" : "false"}
       href={href}
       className={[
         "flex items-center gap-3 transition-all duration-150",
@@ -116,6 +113,7 @@ function SimpleNavItem({
       ].join(" ")}
     >
       <item.icon
+        data-testid={`sidebar-nav-${item.key}-icon`}
         size={18}
         className={[
           "shrink-0",
@@ -124,9 +122,15 @@ function SimpleNavItem({
       />
       {!isCollapsed && (
         <>
-          <span className="flex-1 text-sm font-medium leading-tight">{item.label}</span>
+          <span
+            data-testid={`sidebar-nav-${item.key}-label`}
+            className="flex-1 text-sm font-medium leading-tight"
+          >
+            {item.label}
+          </span>
           {item.badge && (
             <span
+              data-testid={`sidebar-nav-${item.key}-badge`}
               className={[
                 "flex h-5 items-center justify-center rounded-[var(--r-pill)] px-2 text-[11px] font-bold",
                 isActive
@@ -147,6 +151,7 @@ function SimpleNavItem({
       <Tooltip>
         <TooltipTrigger asChild>{inner}</TooltipTrigger>
         <TooltipContent
+          data-testid={`sidebar-nav-${item.key}-tooltip`}
           side="right"
           sideOffset={12}
           className="bg-[var(--ink-900)] text-white border-0 text-xs font-medium"
@@ -180,6 +185,9 @@ function CollapsibleNavItem({
       <Tooltip>
         <TooltipTrigger asChild>
           <button
+            data-testid={`sidebar-nav-${item.key}-toggle`}
+            data-active={isAnyChildActive ? "true" : "false"}
+            data-collapsed="true"
             onClick={() => setOpen((v) => !v)}
             className={[
               "flex justify-center items-center rounded-[var(--r-md)] p-2.5 mx-auto w-10 h-10 transition-all duration-150",
@@ -189,12 +197,14 @@ function CollapsibleNavItem({
             ].join(" ")}
           >
             <item.icon
+              data-testid={`sidebar-nav-${item.key}-toggle-icon`}
               size={18}
               className={isAnyChildActive ? "text-white" : "text-[var(--ink-600)]"}
             />
           </button>
         </TooltipTrigger>
         <TooltipContent
+          data-testid={`sidebar-nav-${item.key}-tooltip`}
           side="right"
           sideOffset={12}
           className="bg-[var(--ink-900)] text-white border-0 text-xs font-medium"
@@ -208,6 +218,9 @@ function CollapsibleNavItem({
   return (
     <>
       <button
+        data-testid={`sidebar-nav-${item.key}-toggle`}
+        data-active={isAnyChildActive ? "true" : "false"}
+        data-open={open ? "true" : "false"}
         onClick={() => setOpen((v) => !v)}
         className={[
           "flex w-full items-center gap-3 rounded-[var(--r-md)] px-3 py-2.5 text-sm font-medium transition-all duration-150",
@@ -217,19 +230,27 @@ function CollapsibleNavItem({
         ].join(" ")}
       >
         <item.icon
+          data-testid={`sidebar-nav-${item.key}-toggle-icon`}
           size={18}
           className={[
             "shrink-0",
             isAnyChildActive ? "text-[var(--kai-orange-600)]" : "text-[var(--ink-600)]",
           ].join(" ")}
         />
-        <span className="flex-1 text-left">{item.label}</span>
+        <span
+          data-testid={`sidebar-nav-${item.key}-toggle-label`}
+          className="flex-1 text-left"
+        >
+          {item.label}
+        </span>
         <motion.span
+          data-testid={`sidebar-nav-${item.key}-toggle-chevron-wrapper`}
           animate={{ rotate: open ? 0 : -90 }}
           transition={{ duration: 0.2 }}
           className="shrink-0"
         >
           <ChevronDown
+            data-testid={`sidebar-nav-${item.key}-toggle-chevron`}
             size={14}
             className={isAnyChildActive ? "text-[var(--kai-orange-500)]" : "text-[var(--ink-500)]"}
           />
@@ -240,13 +261,17 @@ function CollapsibleNavItem({
         {open && (
           <motion.div
             key={`${item.key}-children`}
+            data-testid={`sidebar-nav-${item.key}-children`}
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.22, ease: "easeInOut" }}
             className="overflow-hidden"
           >
-            <div className="ml-[30px] mt-0.5 mb-1 flex flex-col gap-0.5 border-l border-[var(--ink-200)] pl-1">
+            <div
+              data-testid={`sidebar-nav-${item.key}-children-list`}
+              className="ml-[30px] mt-0.5 mb-1 flex flex-col gap-0.5 border-l border-[var(--ink-200)] pl-1"
+            >
               {item.children?.map((child) => {
                 const isChildActive =
                   pathname === child.href ||
@@ -254,6 +279,8 @@ function CollapsibleNavItem({
                 return (
                   <Link
                     key={child.key}
+                    data-testid={`sidebar-nav-${item.key}-child-${child.key}`}
+                    data-active={isChildActive ? "true" : "false"}
                     href={child.href}
                     className={[
                       "rounded-[var(--r-sm)] px-2.5 py-2 text-[13px] transition-all duration-150",
@@ -310,6 +337,7 @@ export default function AppSidebar() {
       .slice(0, 2) ?? "VK";
 
   const firstName = user?.nomeCompleto?.split(" ")[0] ?? "Vendedor";
+  void firstName;
 
   /* Determina key ativa a partir do pathname */
   function getActiveKey(pathname: string): string {
@@ -334,6 +362,8 @@ export default function AppSidebar() {
   return (
     <TooltipProvider delayDuration={250}>
       <Sidebar
+        data-testid="app-sidebar"
+        data-collapsed={isCollapsed ? "true" : "false"}
         variant="inset"
         collapsible="icon"
         className="border-r border-[var(--ink-200)] bg-[var(--ink-0)]"
@@ -341,20 +371,31 @@ export default function AppSidebar() {
       >
         {/* ── Logo ── */}
         <SidebarHeader
+          data-testid="app-sidebar-header"
           className={[
             "transition-all duration-300",
             isCollapsed ? "px-2 pt-5 pb-3" : "px-4 pt-5 pb-3",
           ].join(" ")}
         >
-          <div className={["flex items-center", isCollapsed ? "justify-center" : "px-1 pb-2"].join(" ")}>
+          <div
+            data-testid="app-sidebar-logo-wrapper"
+            className={["flex items-center", isCollapsed ? "justify-center" : "px-1 pb-2"].join(" ")}
+          >
             {isCollapsed ? (
               <div
+                data-testid="app-sidebar-logo-collapsed"
                 className="flex h-9 w-9 items-center justify-center rounded-[var(--r-md)] bg-[var(--kai-orange)]"
               >
-                <span className="text-white text-xs font-black tracking-tight">K</span>
+                <span
+                  data-testid="app-sidebar-logo-collapsed-letter"
+                  className="text-white text-xs font-black tracking-tight"
+                >
+                  K
+                </span>
               </div>
             ) : (
               <Image
+                data-testid="app-sidebar-logo-full"
                 src="/LOGO-MENU.png"
                 alt="Kaiross"
                 width={148}
@@ -365,21 +406,38 @@ export default function AppSidebar() {
             )}
           </div>
           {!isCollapsed && (
-            <div className="mx-1 h-px bg-[var(--ink-200)]" />
+            <div
+              data-testid="app-sidebar-header-divider"
+              className="mx-1 h-px bg-[var(--ink-200)]"
+            />
           )}
         </SidebarHeader>
 
         {/* ── Conteúdo de navegação ── */}
-        <SidebarContent className="px-2 py-1 overflow-y-auto">
+        <SidebarContent
+          data-testid="app-sidebar-content"
+          className="px-2 py-1 overflow-y-auto"
+        >
           {/* Grupo Operação */}
           {!isCollapsed && (
-            <p className="px-3 pt-3 pb-1.5 text-[10.5px] font-bold uppercase tracking-[0.08em] text-[var(--ink-500)]">
+            <p
+              data-testid="app-sidebar-group-operacao-title"
+              className="px-3 pt-3 pb-1.5 text-[10.5px] font-bold uppercase tracking-[0.08em] text-[var(--ink-500)]"
+            >
               Operação
             </p>
           )}
-          {isCollapsed && <div className="mt-2" />}
+          {isCollapsed && (
+            <div
+              data-testid="app-sidebar-group-operacao-spacer"
+              className="mt-2"
+            />
+          )}
 
-          <nav className="flex flex-col gap-0.5">
+          <nav
+            data-testid="app-sidebar-nav-operacao"
+            className="flex flex-col gap-0.5"
+          >
             {operationItems.map((item) => (
               <SimpleNavItem
                 key={item.key}
@@ -392,13 +450,24 @@ export default function AppSidebar() {
 
           {/* Grupo Crescimento */}
           {!isCollapsed && (
-            <p className="px-3 pt-4 pb-1.5 text-[10.5px] font-bold uppercase tracking-[0.08em] text-[var(--ink-500)]">
+            <p
+              data-testid="app-sidebar-group-crescimento-title"
+              className="px-3 pt-4 pb-1.5 text-[10.5px] font-bold uppercase tracking-[0.08em] text-[var(--ink-500)]"
+            >
               Crescimento
             </p>
           )}
-          {isCollapsed && <div className="mt-3" />}
+          {isCollapsed && (
+            <div
+              data-testid="app-sidebar-group-crescimento-spacer"
+              className="mt-3"
+            />
+          )}
 
-          <nav className="flex flex-col gap-0.5">
+          <nav
+            data-testid="app-sidebar-nav-crescimento"
+            className="flex flex-col gap-0.5"
+          >
             {NAV_GROWTH.map((item) =>
               item.children ? (
                 <CollapsibleNavItem
@@ -423,14 +492,24 @@ export default function AppSidebar() {
         </SidebarContent>
 
         {/* ── Footer ── */}
-        <SidebarFooter className="px-2 pb-4 pt-2">
-          <div className="mx-2 mb-2 h-px bg-[var(--ink-200)]" />
+        <SidebarFooter
+          data-testid="app-sidebar-footer"
+          className="px-2 pb-4 pt-2"
+        >
+          <div
+            data-testid="app-sidebar-footer-divider"
+            className="mx-2 mb-2 h-px bg-[var(--ink-200)]"
+          />
 
           {isCollapsed ? (
-            <div className="flex flex-col items-center gap-2">
+            <div
+              data-testid="app-sidebar-footer-collapsed"
+              className="flex flex-col items-center gap-2"
+            >
               <Tooltip>
                 <TooltipTrigger asChild>
                   <button
+                    data-testid="app-sidebar-button-account-collapsed"
                     className="flex h-9 w-9 items-center justify-center rounded-[var(--r-md)] bg-[var(--kai-orange)] text-white text-xs font-bold transition-all hover:opacity-90"
                     onClick={() => router.push("/minha-conta")}
                   >
@@ -438,25 +517,41 @@ export default function AppSidebar() {
                   </button>
                 </TooltipTrigger>
                 <TooltipContent
+                  data-testid="app-sidebar-tooltip-account-collapsed"
                   side="right"
                   sideOffset={12}
                   className="bg-[var(--ink-900)] text-white border-0 text-xs"
                 >
-                  <p className="font-semibold">{user?.nomeCompleto ?? "Vendedor Kaiross"}</p>
-                  <p className="text-[var(--ink-400)]">{user?.email ?? ""}</p>
+                  <p
+                    data-testid="app-sidebar-tooltip-account-name"
+                    className="font-semibold"
+                  >
+                    {user?.nomeCompleto ?? "Vendedor Kaiross"}
+                  </p>
+                  <p
+                    data-testid="app-sidebar-tooltip-account-email"
+                    className="text-[var(--ink-400)]"
+                  >
+                    {user?.email ?? ""}
+                  </p>
                 </TooltipContent>
               </Tooltip>
 
               <Tooltip>
                 <TooltipTrigger asChild>
                   <button
+                    data-testid="app-sidebar-button-logout-collapsed"
                     onClick={handleLogout}
                     className="flex h-8 w-8 items-center justify-center rounded-[var(--r-sm)] text-[var(--kai-danger)] hover:bg-[var(--kai-danger-bg)] transition-all duration-150"
                   >
-                    <LogOut size={15} />
+                    <LogOut
+                      data-testid="app-sidebar-button-logout-collapsed-icon"
+                      size={15}
+                    />
                   </button>
                 </TooltipTrigger>
                 <TooltipContent
+                  data-testid="app-sidebar-tooltip-logout-collapsed"
                   side="right"
                   sideOffset={12}
                   className="bg-[var(--ink-900)] text-white border-0 text-xs"
@@ -467,36 +562,60 @@ export default function AppSidebar() {
             </div>
           ) : (
             <div
+              data-testid="app-sidebar-account-card"
               className="flex cursor-pointer items-center gap-2.5 rounded-[var(--r-md)] border border-[var(--ink-200)] bg-[var(--ink-50)] p-3 transition-all hover:bg-[var(--ink-100)]"
               onClick={() => router.push("/minha-conta")}
             >
               {/* Avatar */}
-              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[var(--kai-orange)] text-white text-[13px] font-bold">
+              <div
+                data-testid="app-sidebar-account-avatar"
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[var(--kai-orange)] text-white text-[13px] font-bold"
+              >
                 {initials}
               </div>
 
               {/* Info */}
-              <div className="flex min-w-0 flex-1 flex-col">
-                <span className="truncate text-[13px] font-semibold text-[var(--ink-900)]">
+              <div
+                data-testid="app-sidebar-account-info"
+                className="flex min-w-0 flex-1 flex-col"
+              >
+                <span
+                  data-testid="app-sidebar-account-name"
+                  className="truncate text-[13px] font-semibold text-[var(--ink-900)]"
+                >
                   {user?.nomeCompleto ?? "Vendedor Kaiross"}
                 </span>
-                <span className="truncate text-[11px] text-[var(--ink-500)]">
+                <span
+                  data-testid="app-sidebar-account-email"
+                  className="truncate text-[11px] text-[var(--ink-500)]"
+                >
                   {user?.email ?? "vendedor@kaiross.com"}
                 </span>
               </div>
 
               {/* Ações */}
-              <div className="flex shrink-0 items-center gap-1">
+              <div
+                data-testid="app-sidebar-account-actions"
+                className="flex shrink-0 items-center gap-1"
+              >
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <button
+                      data-testid="app-sidebar-button-settings"
                       onClick={(e) => { e.stopPropagation(); router.push("/minha-conta"); }}
                       className="flex h-7 w-7 items-center justify-center rounded-[var(--r-sm)] text-[var(--ink-500)] hover:bg-[var(--ink-200)] hover:text-[var(--ink-900)] transition-all"
                     >
-                      <Settings size={14} />
+                      <Settings
+                        data-testid="app-sidebar-button-settings-icon"
+                        size={14}
+                      />
                     </button>
                   </TooltipTrigger>
-                  <TooltipContent side="top" className="bg-[var(--ink-900)] text-white border-0 text-xs">
+                  <TooltipContent
+                    data-testid="app-sidebar-tooltip-settings"
+                    side="top"
+                    className="bg-[var(--ink-900)] text-white border-0 text-xs"
+                  >
                     Configurações
                   </TooltipContent>
                 </Tooltip>
@@ -504,13 +623,21 @@ export default function AppSidebar() {
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <button
+                      data-testid="app-sidebar-button-logout"
                       onClick={(e) => { e.stopPropagation(); handleLogout(); }}
                       className="flex h-7 w-7 items-center justify-center rounded-[var(--r-sm)] text-[var(--kai-danger)] hover:bg-[var(--kai-danger-bg)] transition-all"
                     >
-                      <LogOut size={14} />
+                      <LogOut
+                        data-testid="app-sidebar-button-logout-icon"
+                        size={14}
+                      />
                     </button>
                   </TooltipTrigger>
-                  <TooltipContent side="top" className="bg-[var(--ink-900)] text-white border-0 text-xs">
+                  <TooltipContent
+                    data-testid="app-sidebar-tooltip-logout"
+                    side="top"
+                    className="bg-[var(--ink-900)] text-white border-0 text-xs"
+                  >
                     Sair
                   </TooltipContent>
                 </Tooltip>

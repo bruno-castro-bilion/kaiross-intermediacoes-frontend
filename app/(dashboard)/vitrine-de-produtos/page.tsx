@@ -30,8 +30,12 @@ function ProductCardEditorial({ p }: { p: ProdutoView }) {
   const cat = p.categoria?.trim() || "Geral";
   const img = p.imagemPrincipalUrl?.trim() || PLACEHOLDER_IMG;
   return (
-    <div className="rounded-[var(--r-lg)] border border-[var(--ink-200)] bg-[var(--ink-0)] overflow-hidden flex flex-col transition-all duration-200 hover:shadow-[var(--sh-md)] hover:-translate-y-0.5">
+    <div
+      data-testid={`vitrine-card-${p.id}`}
+      className="rounded-[var(--r-lg)] border border-[var(--ink-200)] bg-[var(--ink-0)] overflow-hidden flex flex-col transition-all duration-200 hover:shadow-[var(--sh-md)] hover:-translate-y-0.5"
+    >
       <div
+        data-testid={`vitrine-card-${p.id}-image-wrapper`}
         style={{
           position: "relative",
           height: 200,
@@ -40,6 +44,7 @@ function ProductCardEditorial({ p }: { p: ProdutoView }) {
         }}
       >
         <img
+          data-testid={`vitrine-card-${p.id}-image`}
           src={img}
           alt={p.nome}
           referrerPolicy="no-referrer"
@@ -53,6 +58,7 @@ function ProductCardEditorial({ p }: { p: ProdutoView }) {
           }}
         />
         <div
+          data-testid={`vitrine-card-${p.id}-badges`}
           style={{
             position: "absolute",
             top: 12,
@@ -65,6 +71,7 @@ function ProductCardEditorial({ p }: { p: ProdutoView }) {
         >
           {typeof p.estoque === "number" && p.estoque > 0 ? (
             <span
+              data-testid={`vitrine-card-${p.id}-stock-badge`}
               style={{
                 display: "inline-flex",
                 alignItems: "center",
@@ -80,9 +87,10 @@ function ProductCardEditorial({ p }: { p: ProdutoView }) {
               {p.estoque} em estoque
             </span>
           ) : (
-            <span />
+            <span data-testid={`vitrine-card-${p.id}-stock-empty`} />
           )}
           <span
+            data-testid={`vitrine-card-${p.id}-sku-badge`}
             style={{
               fontFamily: "var(--font-mono)",
               fontSize: 10,
@@ -98,6 +106,7 @@ function ProductCardEditorial({ p }: { p: ProdutoView }) {
         </div>
 
         <div
+          data-testid={`vitrine-card-${p.id}-category-badge`}
           style={{
             position: "absolute",
             bottom: 12,
@@ -116,12 +125,19 @@ function ProductCardEditorial({ p }: { p: ProdutoView }) {
         </div>
       </div>
 
-      <div style={{ padding: 16, flex: 1, display: "flex", flexDirection: "column" }}>
-        <h3 style={{ fontSize: 16, fontWeight: 600, marginBottom: 8, lineHeight: 1.3 }}>
+      <div
+        data-testid={`vitrine-card-${p.id}-body`}
+        style={{ padding: 16, flex: 1, display: "flex", flexDirection: "column" }}
+      >
+        <h3
+          data-testid={`vitrine-card-${p.id}-title`}
+          style={{ fontSize: 16, fontWeight: 600, marginBottom: 8, lineHeight: 1.3 }}
+        >
           {p.nome}
         </h3>
 
         <div
+          data-testid={`vitrine-card-${p.id}-meta`}
           style={{
             display: "flex",
             alignItems: "center",
@@ -132,13 +148,19 @@ function ProductCardEditorial({ p }: { p: ProdutoView }) {
           }}
         >
           <Star size={12} style={{ color: "var(--kai-orange)", fill: "var(--kai-orange)" }} />
-          <span style={{ fontWeight: 600, color: "var(--ink-900)" }}>
+          <span
+            data-testid={`vitrine-card-${p.id}-brand`}
+            style={{ fontWeight: 600, color: "var(--ink-900)" }}
+          >
             {p.marca ?? "Kaiross"}
           </span>
-          {p.ean ? <span>· EAN {p.ean}</span> : null}
+          {p.ean ? (
+            <span data-testid={`vitrine-card-${p.id}-ean`}>· EAN {p.ean}</span>
+          ) : null}
         </div>
 
         <div
+          data-testid={`vitrine-card-${p.id}-footer`}
           style={{
             display: "flex",
             alignItems: "center",
@@ -148,8 +170,12 @@ function ProductCardEditorial({ p }: { p: ProdutoView }) {
             borderTop: "1px dashed var(--ink-200)",
           }}
         >
-          <div style={{ display: "flex", flexDirection: "column", gap: 1 }}>
+          <div
+            data-testid={`vitrine-card-${p.id}-price-block`}
+            style={{ display: "flex", flexDirection: "column", gap: 1 }}
+          >
             <span
+              data-testid={`vitrine-card-${p.id}-price-label`}
               style={{
                 fontSize: 10,
                 color: "var(--ink-500)",
@@ -160,6 +186,7 @@ function ProductCardEditorial({ p }: { p: ProdutoView }) {
               Preço de Custo
             </span>
             <span
+              data-testid={`vitrine-card-${p.id}-price`}
               style={{
                 fontSize: 18,
                 fontWeight: 700,
@@ -172,8 +199,12 @@ function ProductCardEditorial({ p }: { p: ProdutoView }) {
             </span>
           </div>
 
-          <Link href={`/vitrine-de-produtos/${p.id}`}>
+          <Link
+            data-testid={`vitrine-card-${p.id}-link`}
+            href={`/vitrine-de-produtos/${p.id}`}
+          >
             <button
+              data-testid={`vitrine-card-${p.id}-cta`}
               style={{
                 height: 34,
                 padding: "0 14px",
@@ -258,17 +289,20 @@ export default function VitrineDeProtudos() {
 
   return (
     <motion.div
+      data-testid="vitrine-page"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.4 }}
       className="p-6 md:p-8 max-w-[1440px] mx-auto w-full"
     >
       <PageHeader
+        data-testid="vitrine-page-header"
         title="Vitrine de Produtos"
         subtitle="Explore o catálogo dos fornecedores e escolha qual produto vender no seu checkout."
         actions={
           <>
             <button
+              data-testid="vitrine-button-favorites"
               style={{
                 height: 36,
                 padding: "0 14px",
@@ -288,6 +322,7 @@ export default function VitrineDeProtudos() {
               <Heart size={14} /> Favoritos
             </button>
             <button
+              data-testid="vitrine-button-recommended"
               style={{
                 height: 36,
                 padding: "0 14px",
@@ -310,19 +345,25 @@ export default function VitrineDeProtudos() {
         }
       />
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 mb-6">
+      <div
+        data-testid="vitrine-stats-grid"
+        className="grid grid-cols-1 gap-4 sm:grid-cols-3 mb-6"
+      >
         <StatCard
+          data-testid="vitrine-stat-total"
           icon={Layers}
           label="Total de produtos"
           value={String(stats.total)}
         />
         <StatCard
+          data-testid="vitrine-stat-max-price"
           icon={TrendingUp}
           label="Maior preço sugerido"
           value={stats.maiorPreco > 0 ? fmtBRL(stats.maiorPreco) : "—"}
           highlight
         />
         <StatCard
+          data-testid="vitrine-stat-with-stock"
           icon={Flame}
           label="Com estoque disponível"
           value={`${stats.comEstoque} produtos`}
@@ -330,10 +371,12 @@ export default function VitrineDeProtudos() {
       </div>
 
       <div
+        data-testid="vitrine-toolbar"
         className="rounded-[var(--r-lg)] border border-[var(--ink-200)] bg-[var(--ink-0)] p-4 mb-5"
         style={{ display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}
       >
         <div
+          data-testid="vitrine-search-wrapper"
           style={{
             flex: 1,
             minWidth: 240,
@@ -349,6 +392,7 @@ export default function VitrineDeProtudos() {
         >
           <Search size={16} style={{ color: "var(--ink-500)", flexShrink: 0 }} />
           <input
+            data-testid="vitrine-input-search"
             value={search}
             onChange={(e) => {
               setSearch(e.target.value);
@@ -367,9 +411,13 @@ export default function VitrineDeProtudos() {
           />
         </div>
 
-        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+        <div
+          data-testid="vitrine-categories-list"
+          style={{ display: "flex", gap: 8, flexWrap: "wrap" }}
+        >
           {categories.map((cat) => (
             <button
+              data-testid={`vitrine-category-${cat.toLowerCase().replace(/\s+/g, "-")}`}
               key={cat}
               onClick={() => {
                 setFilter(cat);
@@ -400,17 +448,30 @@ export default function VitrineDeProtudos() {
       </div>
 
       {isLoading ? (
-        <div className="flex flex-col items-center gap-4 py-20 text-center">
+        <div
+          data-testid="vitrine-loading-state"
+          className="flex flex-col items-center gap-4 py-20 text-center"
+        >
           <Loader2
+            data-testid="vitrine-loading-spinner"
             size={28}
             className="animate-spin"
             style={{ color: "var(--kai-orange)" }}
           />
-          <p className="text-sm text-[var(--ink-500)]">Carregando produtos…</p>
+          <p
+            data-testid="vitrine-loading-message"
+            className="text-sm text-[var(--ink-500)]"
+          >
+            Carregando produtos…
+          </p>
         </div>
       ) : isError ? (
-        <div className="flex flex-col items-center gap-4 py-20 text-center">
+        <div
+          data-testid="vitrine-error-state"
+          className="flex flex-col items-center gap-4 py-20 text-center"
+        >
           <div
+            data-testid="vitrine-error-icon-wrapper"
             style={{
               width: 64,
               height: 64,
@@ -423,15 +484,22 @@ export default function VitrineDeProtudos() {
           >
             <AlertCircle size={28} style={{ color: "var(--kai-error, #dc2626)" }} />
           </div>
-          <div>
-            <p className="font-semibold text-[var(--ink-900)]">
+          <div data-testid="vitrine-error-text">
+            <p
+              data-testid="vitrine-error-title"
+              className="font-semibold text-[var(--ink-900)]"
+            >
               Não foi possível carregar a vitrine
             </p>
-            <p className="text-sm text-[var(--ink-500)] mt-1">
+            <p
+              data-testid="vitrine-error-message"
+              className="text-sm text-[var(--ink-500)] mt-1"
+            >
               {error?.message ?? "Tente novamente em instantes."}
             </p>
           </div>
           <button
+            data-testid="vitrine-button-retry"
             onClick={() => refetch()}
             disabled={isFetching}
             style={{
@@ -452,8 +520,12 @@ export default function VitrineDeProtudos() {
           </button>
         </div>
       ) : slice.length === 0 ? (
-        <div className="flex flex-col items-center gap-4 py-20 text-center">
+        <div
+          data-testid="vitrine-empty-state"
+          className="flex flex-col items-center gap-4 py-20 text-center"
+        >
           <div
+            data-testid="vitrine-empty-icon-wrapper"
             style={{
               width: 64,
               height: 64,
@@ -466,15 +538,22 @@ export default function VitrineDeProtudos() {
           >
             <Search size={28} style={{ color: "var(--ink-400)" }} />
           </div>
-          <div>
-            <p className="font-semibold text-[var(--ink-900)]">
+          <div data-testid="vitrine-empty-text">
+            <p
+              data-testid="vitrine-empty-title"
+              className="font-semibold text-[var(--ink-900)]"
+            >
               Nenhum produto encontrado
             </p>
-            <p className="text-sm text-[var(--ink-500)] mt-1">
+            <p
+              data-testid="vitrine-empty-message"
+              className="text-sm text-[var(--ink-500)] mt-1"
+            >
               Tente ajustar os filtros ou a busca.
             </p>
           </div>
           <button
+            data-testid="vitrine-button-clear-filters"
             onClick={() => {
               setSearch("");
               setFilter("todas");
@@ -497,6 +576,7 @@ export default function VitrineDeProtudos() {
         </div>
       ) : (
         <div
+          data-testid="vitrine-grid"
           style={{
             display: "grid",
             gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
@@ -505,6 +585,7 @@ export default function VitrineDeProtudos() {
         >
           {slice.map((p, i) => (
             <motion.div
+              data-testid={`vitrine-grid-item-${p.id}`}
               key={p.id}
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
@@ -517,8 +598,12 @@ export default function VitrineDeProtudos() {
       )}
 
       {!isLoading && !isError && total > 0 && (
-        <div className="mt-5 rounded-[var(--r-lg)] border border-[var(--ink-200)] bg-[var(--ink-0)] overflow-hidden">
+        <div
+          data-testid="vitrine-pagination-wrapper"
+          className="mt-5 rounded-[var(--r-lg)] border border-[var(--ink-200)] bg-[var(--ink-0)] overflow-hidden"
+        >
           <Pagination
+            data-testid="vitrine-pagination"
             page={page}
             totalPages={totalPages}
             total={total}

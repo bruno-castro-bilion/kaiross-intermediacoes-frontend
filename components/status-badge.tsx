@@ -16,12 +16,16 @@ const STATUS_MAP: Record<
 interface StatusBadgeProps {
   status: StatusType;
   className?: string;
+  testId?: string;
 }
 
-export function StatusBadge({ status, className }: StatusBadgeProps) {
+export function StatusBadge({ status, className, testId }: StatusBadgeProps) {
   const s = STATUS_MAP[status] ?? STATUS_MAP.pausado;
+  const baseId = testId || `status-badge-${status}`;
   return (
     <span
+      data-testid={baseId}
+      data-status={status}
       className={className}
       style={{
         display: "inline-flex",
@@ -38,6 +42,7 @@ export function StatusBadge({ status, className }: StatusBadgeProps) {
       }}
     >
       <span
+        data-testid={`${baseId}-dot`}
         style={{ width: 6, height: 6, borderRadius: "50%", background: s.dot, flexShrink: 0 }}
       />
       {s.label}

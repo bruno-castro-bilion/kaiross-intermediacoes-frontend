@@ -100,11 +100,16 @@ const LoginForm = ({ onTransition }: LoginFormProps) => {
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-3.5">
-      <div className="space-y-1.5">
-        <div className="relative">
+    <form
+      data-testid="login-form"
+      onSubmit={handleSubmit(onSubmit)}
+      className="space-y-3.5"
+    >
+      <div data-testid="login-field-email" className="space-y-1.5">
+        <div data-testid="login-field-email-wrapper" className="relative">
           <Mail className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
           <Input
+            data-testid="login-input-email"
             id="email"
             type="email"
             placeholder="seuemail@dominio.com"
@@ -118,14 +123,17 @@ const LoginForm = ({ onTransition }: LoginFormProps) => {
           />
         </div>
         {errors.email && (
-          <p className="text-xs text-red-500">{errors.email.message}</p>
+          <p data-testid="login-error-email" className="text-xs text-red-500">
+            {errors.email.message}
+          </p>
         )}
       </div>
 
-      <div className="space-y-1.5">
-        <div className="relative">
+      <div data-testid="login-field-password" className="space-y-1.5">
+        <div data-testid="login-field-password-wrapper" className="relative">
           <Lock className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
           <Input
+            data-testid="login-input-password"
             id="password"
             type={showPassword ? "text" : "password"}
             placeholder="Sua senha"
@@ -138,6 +146,7 @@ const LoginForm = ({ onTransition }: LoginFormProps) => {
             }`}
           />
           <button
+            data-testid="login-button-toggle-password-visibility"
             type="button"
             onClick={() => setShowPassword(!showPassword)}
             className="text-muted-foreground hover:text-foreground absolute top-1/2 right-3 -translate-y-1/2 transition-colors"
@@ -146,17 +155,32 @@ const LoginForm = ({ onTransition }: LoginFormProps) => {
           </button>
         </div>
         {errors.password && (
-          <p className="text-xs text-red-500">{errors.password.message}</p>
+          <p data-testid="login-error-password" className="text-xs text-red-500">
+            {errors.password.message}
+          </p>
         )}
       </div>
 
       {unconfirmedEmail && (
-        <div className="border-border bg-muted/40 space-y-2 rounded-lg border p-3">
-          <p className="text-foreground text-xs">
+        <div
+          data-testid="login-unconfirmed-email-banner"
+          className="border-border bg-muted/40 space-y-2 rounded-lg border p-3"
+        >
+          <p
+            data-testid="login-unconfirmed-email-message"
+            className="text-foreground text-xs"
+          >
             Enviamos um link de confirmação para{" "}
-            <span className="font-medium">{unconfirmedEmail}</span>. Não recebeu?
+            <span
+              data-testid="login-unconfirmed-email-address"
+              className="font-medium"
+            >
+              {unconfirmedEmail}
+            </span>
+            . Não recebeu?
           </p>
           <Button
+            data-testid="login-button-resend-confirmation"
             type="button"
             variant="outline"
             size="sm"
@@ -169,15 +193,22 @@ const LoginForm = ({ onTransition }: LoginFormProps) => {
         </div>
       )}
 
-      <div className="pt-6">
+      <div data-testid="login-submit-wrapper" className="pt-6">
         <Button
+          data-testid="login-button-submit"
           type="submit"
           className="bg-primary text-primary-foreground hover:bg-primary/90 h-10 w-full"
           disabled={!isValid || isPending}
         >
           {isPending ? (
-            <div className="flex items-center gap-2">
-              <div className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+            <div
+              data-testid="login-button-submit-loading"
+              className="flex items-center gap-2"
+            >
+              <div
+                data-testid="login-button-submit-spinner"
+                className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white"
+              />
               Entrando...
             </div>
           ) : (
@@ -186,8 +217,9 @@ const LoginForm = ({ onTransition }: LoginFormProps) => {
         </Button>
       </div>
 
-      <div className="text-center">
+      <div data-testid="login-forgot-password-wrapper" className="text-center">
         <Link
+          data-testid="login-link-forgot-password"
           href="/reset-password"
           className="text-foreground hover:text-primary text-sm transition-colors"
         >
@@ -195,10 +227,17 @@ const LoginForm = ({ onTransition }: LoginFormProps) => {
         </Link>
       </div>
 
-      <div className="text-center">
-        <p className="text-muted-foreground text-xs">
+      <div data-testid="login-signup-wrapper" className="text-center">
+        <p
+          data-testid="login-signup-prompt"
+          className="text-muted-foreground text-xs"
+        >
           Ainda não tem conta?{" "}
-          <Link href="/signup" className="text-foreground font-medium hover:underline">
+          <Link
+            data-testid="login-link-signup"
+            href="/signup"
+            className="text-foreground font-medium hover:underline"
+          >
             Cadastre-se agora!
           </Link>
         </p>

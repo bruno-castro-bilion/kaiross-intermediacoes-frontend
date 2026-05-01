@@ -143,6 +143,7 @@ export default function OrderBumpPage() {
 
   return (
     <motion.div
+      data-testid="marketing-orderbump-page"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.4 }}
@@ -153,6 +154,7 @@ export default function OrderBumpPage() {
         subtitle="Ofereça produtos complementares no checkout para aumentar o ticket médio."
         actions={
           <button
+            data-testid="marketing-orderbump-button-create"
             onClick={() => setOpen((v) => !v)}
             disabled={meusProdutos.isLoading}
             style={{
@@ -178,6 +180,7 @@ export default function OrderBumpPage() {
       />
 
       <div
+        data-testid="marketing-orderbump-banner-warning"
         style={{
           display: "flex",
           gap: 10,
@@ -191,7 +194,7 @@ export default function OrderBumpPage() {
         }}
       >
         <Info size={16} style={{ flexShrink: 0, marginTop: 2 }} />
-        <div>
+        <div data-testid="marketing-orderbump-banner-warning-text">
           <strong>Configuração local.</strong> Os produtos da sua vitrine
           vêm do seller-produtos-service, mas o backend ainda não tem onde
           guardar a regra de order bump — a configuração fica no seu
@@ -201,24 +204,28 @@ export default function OrderBumpPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4 mb-6">
+      <div data-testid="marketing-orderbump-stats" className="grid grid-cols-2 gap-4 lg:grid-cols-4 mb-6">
         <StatCard
+          testId="marketing-orderbump-stat-views"
           icon={Eye}
           label="Exibições"
           value={totals.totalViews.toLocaleString("pt-BR")}
         />
         <StatCard
+          testId="marketing-orderbump-stat-accepts"
           icon={Check}
           label="Aceites"
           value={totals.totalAccepts.toLocaleString("pt-BR")}
         />
         <StatCard
+          testId="marketing-orderbump-stat-rate"
           icon={TrendingUp}
           label="Taxa de aceite"
           value={`${totals.acceptRate}%`}
           highlight
         />
         <StatCard
+          testId="marketing-orderbump-stat-revenue"
           icon={TrendingUp}
           label="Receita extra"
           value={fmtBRL(totals.totalRevenue)}
@@ -227,6 +234,7 @@ export default function OrderBumpPage() {
 
       {open && (
         <motion.div
+          data-testid="marketing-orderbump-modal-create"
           initial={{ opacity: 0, y: -8 }}
           animate={{ opacity: 1, y: 0 }}
           style={{
@@ -237,12 +245,13 @@ export default function OrderBumpPage() {
             marginBottom: 20,
           }}
         >
-          <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 16 }}>
+          <h3 data-testid="marketing-orderbump-modal-title" style={{ fontSize: 16, fontWeight: 700, marginBottom: 16 }}>
             Novo order bump
           </h3>
 
           {meusProdutos.isLoading ? (
             <div
+              data-testid="marketing-orderbump-loading"
               style={{
                 display: "flex",
                 alignItems: "center",
@@ -255,18 +264,19 @@ export default function OrderBumpPage() {
               <Loader2 size={14} className="animate-spin" /> Carregando seus produtos…
             </div>
           ) : meusProdutos.isError ? (
-            <div style={{ fontSize: 13, color: "var(--kai-danger, #dc2626)" }}>
+            <div data-testid="marketing-orderbump-error" style={{ fontSize: 13, color: "var(--kai-danger, #dc2626)" }}>
               Falha ao carregar seus produtos. Tente novamente.
             </div>
           ) : productOptions.length < 2 ? (
-            <div style={{ fontSize: 13, color: "var(--ink-600)" }}>
+            <div data-testid="marketing-orderbump-need-products" style={{ fontSize: 13, color: "var(--ink-600)" }}>
               Você precisa de pelo menos 2 produtos afiliados na sua vitrine
               para configurar um order bump.
             </div>
           ) : (
             <>
-              <div style={{ marginBottom: 12 }}>
+              <div data-testid="marketing-orderbump-field-title" style={{ marginBottom: 12 }}>
                 <label
+                  data-testid="marketing-orderbump-label-title"
                   style={{
                     fontSize: 12,
                     fontWeight: 600,
@@ -278,6 +288,7 @@ export default function OrderBumpPage() {
                   Título exibido no checkout
                 </label>
                 <input
+                  data-testid="marketing-orderbump-input-title"
                   value={form.title}
                   onChange={(e) =>
                     setForm((p) => ({ ...p, title: e.target.value }))
@@ -286,8 +297,9 @@ export default function OrderBumpPage() {
                   style={inputStyle}
                 />
               </div>
-              <div style={{ marginBottom: 12 }}>
+              <div data-testid="marketing-orderbump-field-description" style={{ marginBottom: 12 }}>
                 <label
+                  data-testid="marketing-orderbump-label-description"
                   style={{
                     fontSize: 12,
                     fontWeight: 600,
@@ -299,6 +311,7 @@ export default function OrderBumpPage() {
                   Descrição (opcional)
                 </label>
                 <input
+                  data-testid="marketing-orderbump-input-description"
                   value={form.description}
                   onChange={(e) =>
                     setForm((p) => ({ ...p, description: e.target.value }))
@@ -309,6 +322,7 @@ export default function OrderBumpPage() {
               </div>
 
               <div
+                data-testid="marketing-orderbump-grid-products"
                 style={{
                   display: "grid",
                   gridTemplateColumns: "1fr 1fr",
@@ -316,8 +330,9 @@ export default function OrderBumpPage() {
                   marginBottom: 12,
                 }}
               >
-                <div>
+                <div data-testid="marketing-orderbump-field-main-product">
                   <label
+                    data-testid="marketing-orderbump-label-main-product"
                     style={{
                       fontSize: 12,
                       fontWeight: 600,
@@ -329,22 +344,24 @@ export default function OrderBumpPage() {
                     Produto principal (gatilho)
                   </label>
                   <select
+                    data-testid="marketing-orderbump-select-main-product"
                     value={form.mainProductId}
                     onChange={(e) =>
                       setForm((p) => ({ ...p, mainProductId: e.target.value }))
                     }
                     style={inputStyle}
                   >
-                    <option value="">Selecione…</option>
+                    <option data-testid="marketing-orderbump-select-main-product-option-empty" value="">Selecione…</option>
                     {productOptions.map((opt) => (
-                      <option key={opt.id} value={opt.id}>
+                      <option data-testid={`marketing-orderbump-select-main-product-option-${opt.id}`} key={opt.id} value={opt.id}>
                         {opt.label} · {fmtBRL(opt.precoVenda)}
                       </option>
                     ))}
                   </select>
                 </div>
-                <div>
+                <div data-testid="marketing-orderbump-field-bump-product">
                   <label
+                    data-testid="marketing-orderbump-label-bump-product"
                     style={{
                       fontSize: 12,
                       fontWeight: 600,
@@ -356,15 +373,16 @@ export default function OrderBumpPage() {
                     Produto bump (oferta)
                   </label>
                   <select
+                    data-testid="marketing-orderbump-select-bump-product"
                     value={form.bumpProductId}
                     onChange={(e) =>
                       setForm((p) => ({ ...p, bumpProductId: e.target.value }))
                     }
                     style={inputStyle}
                   >
-                    <option value="">Selecione…</option>
+                    <option data-testid="marketing-orderbump-select-bump-product-option-empty" value="">Selecione…</option>
                     {productOptions.map((opt) => (
-                      <option key={opt.id} value={opt.id}>
+                      <option data-testid={`marketing-orderbump-select-bump-product-option-${opt.id}`} key={opt.id} value={opt.id}>
                         {opt.label} · {fmtBRL(opt.precoVenda)}
                       </option>
                     ))}
@@ -373,6 +391,7 @@ export default function OrderBumpPage() {
               </div>
 
               <div
+                data-testid="marketing-orderbump-grid-discount"
                 style={{
                   display: "grid",
                   gridTemplateColumns: "1fr 1fr",
@@ -380,8 +399,9 @@ export default function OrderBumpPage() {
                   marginBottom: 16,
                 }}
               >
-                <div>
+                <div data-testid="marketing-orderbump-field-discount-type">
                   <label
+                    data-testid="marketing-orderbump-label-discount-type"
                     style={{
                       fontSize: 12,
                       fontWeight: 600,
@@ -393,6 +413,7 @@ export default function OrderBumpPage() {
                     Tipo de desconto
                   </label>
                   <select
+                    data-testid="marketing-orderbump-select-discount-type"
                     value={form.discountType}
                     onChange={(e) =>
                       setForm((p) => ({
@@ -402,12 +423,13 @@ export default function OrderBumpPage() {
                     }
                     style={inputStyle}
                   >
-                    <option value="percent">Percentual (%)</option>
-                    <option value="fixed">Valor fixo (R$)</option>
+                    <option data-testid="marketing-orderbump-select-discount-type-option-percent" value="percent">Percentual (%)</option>
+                    <option data-testid="marketing-orderbump-select-discount-type-option-fixed" value="fixed">Valor fixo (R$)</option>
                   </select>
                 </div>
-                <div>
+                <div data-testid="marketing-orderbump-field-discount-value">
                   <label
+                    data-testid="marketing-orderbump-label-discount-value"
                     style={{
                       fontSize: 12,
                       fontWeight: 600,
@@ -419,6 +441,7 @@ export default function OrderBumpPage() {
                     Valor do desconto
                   </label>
                   <input
+                    data-testid="marketing-orderbump-input-discount-value"
                     type="number"
                     min={0}
                     step={form.discountType === "percent" ? 1 : 0.01}
@@ -434,8 +457,9 @@ export default function OrderBumpPage() {
                 </div>
               </div>
 
-              <div style={{ display: "flex", gap: 8 }}>
+              <div data-testid="marketing-orderbump-modal-actions" style={{ display: "flex", gap: 8 }}>
                 <button
+                  data-testid="marketing-orderbump-button-cancel"
                   onClick={() => setOpen(false)}
                   style={{
                     height: 38,
@@ -453,6 +477,7 @@ export default function OrderBumpPage() {
                   Cancelar
                 </button>
                 <button
+                  data-testid="marketing-orderbump-button-save"
                   onClick={handleSave}
                   style={{
                     height: 38,
@@ -476,6 +501,7 @@ export default function OrderBumpPage() {
       )}
 
       <div
+        data-testid="marketing-orderbump-table-wrap"
         style={{
           borderRadius: "var(--r-lg)",
           border: "1px solid var(--ink-200)",
@@ -484,6 +510,7 @@ export default function OrderBumpPage() {
         }}
       >
         <div
+          data-testid="marketing-orderbump-table-header"
           style={{
             padding: "16px 20px",
             borderBottom: "1px solid var(--ink-200)",
@@ -494,10 +521,11 @@ export default function OrderBumpPage() {
             flexWrap: "wrap",
           }}
         >
-          <h3 style={{ fontSize: 16, fontWeight: 700 }}>
+          <h3 data-testid="marketing-orderbump-table-title" style={{ fontSize: 16, fontWeight: 700 }}>
             Bumps configurados ({orderBumps.length})
           </h3>
           <div
+            data-testid="marketing-orderbump-filter-tabs"
             style={{
               display: "flex",
               gap: 4,
@@ -515,6 +543,7 @@ export default function OrderBumpPage() {
               ] as const
             ).map((t) => (
               <button
+                data-testid={`marketing-orderbump-tab-${t.k}`}
                 key={t.k}
                 onClick={() => setFilter(t.k)}
                 style={{
@@ -537,6 +566,7 @@ export default function OrderBumpPage() {
         </div>
 
         <div
+          data-testid="marketing-orderbump-table-columns"
           style={{
             display: "grid",
             gridTemplateColumns: "2.5fr 1.5fr 1fr 1fr 0.8fr 0.6fr",
@@ -550,16 +580,17 @@ export default function OrderBumpPage() {
             borderBottom: "1px solid var(--ink-200)",
           }}
         >
-          <div>Bump</div>
-          <div>Produtos</div>
-          <div>Desconto</div>
-          <div>Aceite</div>
-          <div>Status</div>
-          <div />
+          <div data-testid="marketing-orderbump-col-bump">Bump</div>
+          <div data-testid="marketing-orderbump-col-produtos">Produtos</div>
+          <div data-testid="marketing-orderbump-col-desconto">Desconto</div>
+          <div data-testid="marketing-orderbump-col-aceite">Aceite</div>
+          <div data-testid="marketing-orderbump-col-status">Status</div>
+          <div data-testid="marketing-orderbump-col-actions" />
         </div>
 
         {visible.length === 0 ? (
           <div
+            data-testid="marketing-orderbump-empty"
             style={{
               padding: "60px 20px",
               textAlign: "center",
@@ -576,6 +607,7 @@ export default function OrderBumpPage() {
               : "0.0";
             return (
               <div
+                data-testid={`marketing-orderbump-row-${b.id}`}
                 key={b.id}
                 style={{
                   display: "grid",
@@ -586,9 +618,10 @@ export default function OrderBumpPage() {
                   borderBottom: "1px solid var(--ink-100)",
                 }}
               >
-                <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
-                  <span style={{ fontWeight: 600 }}>{b.title}</span>
+                <div data-testid={`marketing-orderbump-row-${b.id}-info`} style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                  <span data-testid={`marketing-orderbump-row-${b.id}-title`} style={{ fontWeight: 600 }}>{b.title}</span>
                   <span
+                    data-testid={`marketing-orderbump-row-${b.id}-description`}
                     style={{
                       fontSize: 12,
                       color: "var(--ink-500)",
@@ -601,6 +634,7 @@ export default function OrderBumpPage() {
                   </span>
                 </div>
                 <div
+                  data-testid={`marketing-orderbump-row-${b.id}-products`}
                   style={{
                     display: "flex",
                     flexDirection: "column",
@@ -609,10 +643,11 @@ export default function OrderBumpPage() {
                     color: "var(--ink-600)",
                   }}
                 >
-                  <span style={{ fontWeight: 600, color: "var(--ink-900)" }}>
+                  <span data-testid={`marketing-orderbump-row-${b.id}-products-when-label`} style={{ fontWeight: 600, color: "var(--ink-900)" }}>
                     Quando vende
                   </span>
                   <span
+                    data-testid={`marketing-orderbump-row-${b.id}-products-main`}
                     style={{
                       overflow: "hidden",
                       textOverflow: "ellipsis",
@@ -621,10 +656,11 @@ export default function OrderBumpPage() {
                   >
                     {b.mainProductLabel}
                   </span>
-                  <span style={{ fontWeight: 600, color: "var(--ink-900)" }}>
+                  <span data-testid={`marketing-orderbump-row-${b.id}-products-offers-label`} style={{ fontWeight: 600, color: "var(--ink-900)" }}>
                     Oferece
                   </span>
                   <span
+                    data-testid={`marketing-orderbump-row-${b.id}-products-bump`}
                     style={{
                       overflow: "hidden",
                       textOverflow: "ellipsis",
@@ -635,6 +671,7 @@ export default function OrderBumpPage() {
                   </span>
                 </div>
                 <div
+                  data-testid={`marketing-orderbump-row-${b.id}-discount`}
                   style={{
                     fontWeight: 600,
                     fontFamily: "var(--font-mono)",
@@ -645,8 +682,9 @@ export default function OrderBumpPage() {
                     ? `${b.discountValue}%`
                     : fmtBRL(b.discountValue)}
                 </div>
-                <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                <div data-testid={`marketing-orderbump-row-${b.id}-accept`} style={{ display: "flex", flexDirection: "column", gap: 2 }}>
                   <span
+                    data-testid={`marketing-orderbump-row-${b.id}-accept-rate`}
                     style={{
                       fontWeight: 700,
                       fontFamily: "var(--font-mono)",
@@ -655,15 +693,16 @@ export default function OrderBumpPage() {
                   >
                     {rate}%
                   </span>
-                  <span style={{ fontSize: 11, color: "var(--ink-500)" }}>
+                  <span data-testid={`marketing-orderbump-row-${b.id}-accept-counts`} style={{ fontSize: 11, color: "var(--ink-500)" }}>
                     {b.accepts}/{b.views}
                   </span>
                 </div>
-                <div>
+                <div data-testid={`marketing-orderbump-row-${b.id}-status`}>
                   <StatusBadge status={b.active ? "ativo" : "pausado"} />
                 </div>
-                <div style={{ display: "flex", gap: 4 }}>
+                <div data-testid={`marketing-orderbump-row-${b.id}-actions`} style={{ display: "flex", gap: 4 }}>
                   <button
+                    data-testid={`marketing-orderbump-row-${b.id}-button-toggle`}
                     onClick={() => toggleOrderBump(b.id)}
                     title={b.active ? "Pausar" : "Ativar"}
                     style={{
@@ -682,6 +721,7 @@ export default function OrderBumpPage() {
                     {b.active ? <X size={12} /> : <Check size={12} />}
                   </button>
                   <button
+                    data-testid={`marketing-orderbump-row-${b.id}-button-remove`}
                     onClick={() => handleRemove(b)}
                     title="Remover"
                     style={{

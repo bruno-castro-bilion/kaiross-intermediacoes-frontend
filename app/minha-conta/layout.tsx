@@ -10,9 +10,17 @@ export default function MinhaContaLayout({
 }) {
   return (
     <BalanceVisibilityProvider>
-      <div className="flex min-h-screen flex-col">
+      <div
+        data-testid="minha-conta-shell"
+        className="flex min-h-screen flex-col"
+      >
         <AppHeader showLogo />
-        <main className="flex-1 overflow-y-auto">{children}</main>
+        <main
+          data-testid="minha-conta-shell-main"
+          className="flex-1 overflow-y-auto"
+        >
+          {children}
+        </main>
       </div>
     </BalanceVisibilityProvider>
   );

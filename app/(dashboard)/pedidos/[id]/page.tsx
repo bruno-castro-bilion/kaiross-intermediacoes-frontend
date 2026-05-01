@@ -61,7 +61,7 @@ function relativeTime(raw?: string): string {
   return `há ${days}d`;
 }
 
-function CopyButton({ value, label }: { value: string; label?: string }) {
+function CopyButton({ value, label, testId }: { value: string; label?: string; testId?: string }) {
   const [copied, setCopied] = useState(false);
   const copy = async (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -77,6 +77,7 @@ function CopyButton({ value, label }: { value: string; label?: string }) {
   return (
     <button
       onClick={copy}
+      data-testid={testId ?? "pedido-detail-button-copy"}
       style={{
         height: 26,
         padding: "0 8px",
@@ -251,6 +252,7 @@ function buildTimeline(
 function LoadingState() {
   return (
     <div
+      data-testid="pedido-detail-state-loading"
       style={{
         display: "flex",
         flexDirection: "column",
@@ -261,7 +263,7 @@ function LoadingState() {
       }}
     >
       <Loader2 size={28} className="animate-spin" style={{ color: "var(--kai-orange)" }} />
-      <span style={{ fontSize: 13, color: "var(--ink-500)" }}>Carregando pedido…</span>
+      <span data-testid="pedido-detail-state-loading-text" style={{ fontSize: 13, color: "var(--ink-500)" }}>Carregando pedido…</span>
     </div>
   );
 }
@@ -274,9 +276,10 @@ function ErrorState({
   onRetry: () => void;
 }) {
   return (
-    <div style={{ padding: "32px", maxWidth: 1240, margin: "0 auto", width: "100%" }}>
-      <Link href="/pedidos">
+    <div data-testid="pedido-detail-state-error" style={{ padding: "32px", maxWidth: 1240, margin: "0 auto", width: "100%" }}>
+      <Link href="/pedidos" data-testid="pedido-detail-link-back-error">
         <button
+          data-testid="pedido-detail-button-back-error"
           style={{
             display: "flex",
             alignItems: "center",
@@ -298,6 +301,7 @@ function ErrorState({
         </button>
       </Link>
       <div
+        data-testid="pedido-detail-state-error-card"
         style={{
           padding: 40,
           border: "1px solid var(--ink-200)",
@@ -310,10 +314,11 @@ function ErrorState({
         }}
       >
         <AlertCircle size={28} style={{ color: "var(--kai-danger, #dc2626)" }} />
-        <p className="font-semibold text-[var(--ink-900)]">Pedido indisponível</p>
-        <p className="text-sm text-[var(--ink-500)]">{message}</p>
+        <p data-testid="pedido-detail-state-error-title" className="font-semibold text-[var(--ink-900)]">Pedido indisponível</p>
+        <p data-testid="pedido-detail-state-error-message" className="text-sm text-[var(--ink-500)]">{message}</p>
         <button
           onClick={onRetry}
+          data-testid="pedido-detail-button-retry"
           style={{
             height: 36,
             padding: "0 16px",
@@ -406,11 +411,13 @@ export default function PedidoDetail() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.4 }}
+      data-testid="pedido-detail-page"
       style={{ padding: "32px", maxWidth: 1240, margin: "0 auto", width: "100%" }}
     >
-      <div style={{ marginBottom: 28 }}>
-        <Link href="/pedidos">
+      <div data-testid="pedido-detail-section-header" style={{ marginBottom: 28 }}>
+        <Link href="/pedidos" data-testid="pedido-detail-link-back">
           <button
+            data-testid="pedido-detail-button-back"
             style={{
               display: "flex",
               alignItems: "center",
@@ -432,6 +439,7 @@ export default function PedidoDetail() {
           </button>
         </Link>
         <div
+          data-testid="pedido-detail-header-row"
           style={{
             display: "flex",
             justifyContent: "space-between",
@@ -440,8 +448,9 @@ export default function PedidoDetail() {
             gap: 16,
           }}
         >
-          <div>
+          <div data-testid="pedido-detail-header-info">
             <div
+              data-testid="pedido-detail-header-title-row"
               style={{
                 display: "flex",
                 alignItems: "baseline",
@@ -451,6 +460,7 @@ export default function PedidoDetail() {
               }}
             >
               <h1
+                data-testid="pedido-detail-page-title"
                 style={{
                   fontSize: 26,
                   fontWeight: 800,
@@ -460,9 +470,10 @@ export default function PedidoDetail() {
               >
                 {numero}
               </h1>
-              <StatusBadge status={statusToBadge(pedido)} />
+              <StatusBadge status={statusToBadge(pedido)} testId="pedido-detail-status-badge" />
               {pedido.fornecedor && (
                 <span
+                  data-testid="pedido-detail-fornecedor-tag"
                   style={{
                     display: "inline-flex",
                     alignItems: "center",
@@ -479,17 +490,18 @@ export default function PedidoDetail() {
                 </span>
               )}
             </div>
-            <p style={{ fontSize: 15, color: "var(--ink-600)" }}>
+            <p data-testid="pedido-detail-header-meta" style={{ fontSize: 15, color: "var(--ink-600)" }}>
               Realizado em {fmtDateTime(pedido.dataCriacao)} ·{" "}
               {relativeTime(pedido.dataCriacao)}
             </p>
           </div>
-          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+          <div data-testid="pedido-detail-header-actions" style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
             {pedido.labelUrlA4 && (
               <a
                 href={pedido.labelUrlA4}
                 target="_blank"
                 rel="noopener noreferrer"
+                data-testid="pedido-detail-link-download-label"
                 style={{
                   display: "flex",
                   alignItems: "center",
@@ -515,6 +527,7 @@ export default function PedidoDetail() {
                 href={`mailto:${pedido.compradorEmail}?subject=${encodeURIComponent(
                   `Sobre seu pedido ${numero}`,
                 )}`}
+                data-testid="pedido-detail-link-email-cliente"
                 style={{
                   display: "flex",
                   alignItems: "center",
@@ -539,6 +552,7 @@ export default function PedidoDetail() {
               <button
                 onClick={handleReembolsar}
                 disabled={reembolsar.isPending}
+                data-testid="pedido-detail-button-refund"
                 style={{
                   display: "flex",
                   alignItems: "center",
@@ -572,6 +586,7 @@ export default function PedidoDetail() {
       </div>
 
       <div
+        data-testid="pedido-detail-grid"
         style={{
           display: "grid",
           gridTemplateColumns: "2fr 1fr",
@@ -579,8 +594,9 @@ export default function PedidoDetail() {
           alignItems: "start",
         }}
       >
-        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+        <div data-testid="pedido-detail-column-main" style={{ display: "flex", flexDirection: "column", gap: 16 }}>
           <div
+            data-testid="pedido-detail-section-timeline"
             style={{
               padding: 24,
               background: "var(--ink-0)",
@@ -589,6 +605,7 @@ export default function PedidoDetail() {
             }}
           >
             <div
+              data-testid="pedido-detail-timeline-header"
               style={{
                 display: "flex",
                 justifyContent: "space-between",
@@ -598,10 +615,11 @@ export default function PedidoDetail() {
                 gap: 8,
               }}
             >
-              <h3 style={{ fontSize: 16, fontWeight: 700 }}>Linha do tempo</h3>
+              <h3 data-testid="pedido-detail-timeline-title" style={{ fontSize: 16, fontWeight: 700 }}>Linha do tempo</h3>
               {pedido.trackingCode && (
-                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <div data-testid="pedido-detail-tracking-row" style={{ display: "flex", alignItems: "center", gap: 8 }}>
                   <span
+                    data-testid="pedido-detail-tracking-tag"
                     style={{
                       display: "inline-flex",
                       alignItems: "center",
@@ -618,6 +636,7 @@ export default function PedidoDetail() {
                     <Truck size={12} /> Rastreio
                   </span>
                   <span
+                    data-testid="pedido-detail-tracking-code"
                     style={{
                       fontFamily: "var(--font-mono)",
                       fontSize: 12,
@@ -626,13 +645,14 @@ export default function PedidoDetail() {
                   >
                     {pedido.trackingCode}
                   </span>
-                  <CopyButton value={pedido.trackingCode} />
+                  <CopyButton value={pedido.trackingCode} testId="pedido-detail-button-copy-tracking" />
                 </div>
               )}
             </div>
 
             {historico.isLoading ? (
               <div
+                data-testid="pedido-detail-timeline-loading"
                 style={{
                   display: "flex",
                   alignItems: "center",
@@ -646,8 +666,9 @@ export default function PedidoDetail() {
                 fornecedor…
               </div>
             ) : (
-              <div style={{ position: "relative", paddingLeft: 28 }}>
+              <div data-testid="pedido-detail-timeline-list" style={{ position: "relative", paddingLeft: 28 }}>
                 <div
+                  data-testid="pedido-detail-timeline-line"
                   style={{
                     position: "absolute",
                     left: 11,
@@ -660,12 +681,14 @@ export default function PedidoDetail() {
                 {timeline.map((step, i) => (
                   <div
                     key={step.key}
+                    data-testid={`pedido-detail-timeline-step-${step.key}`}
                     style={{
                       position: "relative",
                       paddingBottom: i === timeline.length - 1 ? 0 : 18,
                     }}
                   >
                     <div
+                      data-testid={`pedido-detail-timeline-step-${step.key}-marker`}
                       style={{
                         position: "absolute",
                         left: -28,
@@ -692,10 +715,11 @@ export default function PedidoDetail() {
                         fontWeight: 700,
                       }}
                     >
-                      {step.done ? <Check size={12} /> : <span>{i + 1}</span>}
+                      {step.done ? <Check size={12} /> : <span data-testid={`pedido-detail-timeline-step-${step.key}-index`}>{i + 1}</span>}
                     </div>
-                    <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                    <div data-testid={`pedido-detail-timeline-step-${step.key}-content`} style={{ display: "flex", flexDirection: "column", gap: 2 }}>
                       <span
+                        data-testid={`pedido-detail-timeline-step-${step.key}-label`}
                         style={{
                           fontWeight: 600,
                           fontSize: 14,
@@ -708,6 +732,7 @@ export default function PedidoDetail() {
                         {step.label}
                         {step.current && (
                           <span
+                            data-testid={`pedido-detail-timeline-step-${step.key}-current-tag`}
                             style={{
                               display: "inline-flex",
                               alignItems: "center",
@@ -726,7 +751,7 @@ export default function PedidoDetail() {
                           </span>
                         )}
                       </span>
-                      <span style={{ fontSize: 12, color: "var(--ink-500)" }}>
+                      <span data-testid={`pedido-detail-timeline-step-${step.key}-meta`} style={{ fontSize: 12, color: "var(--ink-500)" }}>
                         {step.when ?? "—"}
                         {step.sub ? " · " + step.sub : ""}
                       </span>
@@ -738,6 +763,7 @@ export default function PedidoDetail() {
           </div>
 
           <div
+            data-testid="pedido-detail-section-items"
             style={{
               background: "var(--ink-0)",
               border: "1px solid var(--ink-200)",
@@ -746,6 +772,7 @@ export default function PedidoDetail() {
             }}
           >
             <div
+              data-testid="pedido-detail-items-header"
               style={{
                 padding: "18px 20px",
                 borderBottom: "1px solid var(--ink-200)",
@@ -753,13 +780,14 @@ export default function PedidoDetail() {
                 justifyContent: "space-between",
               }}
             >
-              <h3 style={{ fontSize: 16, fontWeight: 700 }}>Itens do pedido</h3>
-              <span style={{ fontSize: 12, color: "var(--ink-500)" }}>
+              <h3 data-testid="pedido-detail-items-title" style={{ fontSize: 16, fontWeight: 700 }}>Itens do pedido</h3>
+              <span data-testid="pedido-detail-items-count" style={{ fontSize: 12, color: "var(--ink-500)" }}>
                 {pedido.quantidadeTotal ?? 0} unidades
               </span>
             </div>
             {(pedido.itens ?? []).length === 0 ? (
               <div
+                data-testid="pedido-detail-items-empty"
                 style={{
                   padding: 32,
                   textAlign: "center",
@@ -770,9 +798,12 @@ export default function PedidoDetail() {
                 Nenhum item registrado neste pedido.
               </div>
             ) : (
-              (pedido.itens ?? []).map((item, i) => (
+              (pedido.itens ?? []).map((item, i) => {
+                const itemId = item.id ?? `idx-${i}`;
+                return (
                 <div
                   key={item.id ?? i}
+                  data-testid={`pedido-detail-item-${itemId}`}
                   style={{
                     padding: "16px 20px",
                     display: "grid",
@@ -782,21 +813,22 @@ export default function PedidoDetail() {
                     borderBottom: "1px solid var(--ink-100)",
                   }}
                 >
-                  <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
-                    <span style={{ fontWeight: 600 }}>
+                  <div data-testid={`pedido-detail-item-${itemId}-info`} style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                    <span data-testid={`pedido-detail-item-${itemId}-nome`} style={{ fontWeight: 600 }}>
                       {item.produtoNome ?? "Produto"}
                     </span>
-                    <span style={{ fontSize: 12, color: "var(--ink-500)" }}>
+                    <span data-testid={`pedido-detail-item-${itemId}-sku`} style={{ fontSize: 12, color: "var(--ink-500)" }}>
                       {item.produtoCodigo ? `SKU ${item.produtoCodigo}` : "Sem SKU"}
                     </span>
                   </div>
-                  <span style={{ fontSize: 13, color: "var(--ink-600)" }}>
+                  <span data-testid={`pedido-detail-item-${itemId}-qtd`} style={{ fontSize: 13, color: "var(--ink-600)" }}>
                     × {item.quantidade ?? 0}
                   </span>
-                  <span style={{ fontFamily: "var(--font-mono)", fontSize: 13, color: "var(--ink-600)" }}>
+                  <span data-testid={`pedido-detail-item-${itemId}-unit`} style={{ fontFamily: "var(--font-mono)", fontSize: 13, color: "var(--ink-600)" }}>
                     {fmtBRL(item.valorUnitario ?? 0)}
                   </span>
                   <span
+                    data-testid={`pedido-detail-item-${itemId}-total`}
                     style={{
                       fontFamily: "var(--font-mono)",
                       fontWeight: 700,
@@ -808,10 +840,12 @@ export default function PedidoDetail() {
                     {fmtBRL(item.valorTotal ?? 0)}
                   </span>
                 </div>
-              ))
+                );
+              })
             )}
 
             <div
+              data-testid="pedido-detail-items-footer"
               style={{
                 padding: "16px 20px",
                 background: "var(--ink-50)",
@@ -821,11 +855,12 @@ export default function PedidoDetail() {
                 fontSize: 14,
               }}
             >
-              <span style={{ color: "var(--ink-600)" }}>Subtotal dos itens</span>
-              <span style={{ fontFamily: "var(--font-mono)" }}>
+              <span data-testid="pedido-detail-items-subtotal-label" style={{ color: "var(--ink-600)" }}>Subtotal dos itens</span>
+              <span data-testid="pedido-detail-items-subtotal-value" style={{ fontFamily: "var(--font-mono)" }}>
                 {fmtBRL(subtotal)}
               </span>
               <span
+                data-testid="pedido-detail-items-total-label"
                 style={{
                   fontWeight: 700,
                   fontSize: 16,
@@ -836,6 +871,7 @@ export default function PedidoDetail() {
                 Total cobrado
               </span>
               <span
+                data-testid="pedido-detail-items-total-value"
                 style={{
                   fontFamily: "var(--font-mono)",
                   fontWeight: 800,
@@ -850,6 +886,7 @@ export default function PedidoDetail() {
           </div>
 
           <div
+            data-testid="pedido-detail-section-historico"
             style={{
               padding: 24,
               background: "var(--ink-0)",
@@ -858,6 +895,7 @@ export default function PedidoDetail() {
             }}
           >
             <div
+              data-testid="pedido-detail-historico-header"
               style={{
                 display: "flex",
                 justifyContent: "space-between",
@@ -867,12 +905,13 @@ export default function PedidoDetail() {
                 gap: 8,
               }}
             >
-              <h3 style={{ fontSize: 16, fontWeight: 700 }}>
+              <h3 data-testid="pedido-detail-historico-title" style={{ fontSize: 16, fontWeight: 700 }}>
                 Histórico de integração com fornecedor
               </h3>
               <button
                 onClick={() => historico.refetch()}
                 disabled={historico.isFetching}
+                data-testid="pedido-detail-button-historico-refresh"
                 style={{
                   display: "flex",
                   alignItems: "center",
@@ -899,14 +938,17 @@ export default function PedidoDetail() {
               </button>
             </div>
             {(historico.data ?? []).length === 0 ? (
-              <p style={{ fontSize: 13, color: "var(--ink-500)" }}>
+              <p data-testid="pedido-detail-historico-empty" style={{ fontSize: 13, color: "var(--ink-500)" }}>
                 Nenhum evento de integração registrado ainda.
               </p>
             ) : (
-              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                {(historico.data ?? []).map((evt, i) => (
+              <div data-testid="pedido-detail-historico-list" style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                {(historico.data ?? []).map((evt, i) => {
+                  const evtId = evt.id ?? `idx-${i}`;
+                  return (
                   <div
                     key={evt.id ?? i}
+                    data-testid={`pedido-detail-historico-item-${evtId}`}
                     style={{
                       padding: 12,
                       borderRadius: 10,
@@ -918,8 +960,9 @@ export default function PedidoDetail() {
                       alignItems: "center",
                     }}
                   >
-                    <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                    <div data-testid={`pedido-detail-historico-item-${evtId}-info`} style={{ display: "flex", flexDirection: "column", gap: 2 }}>
                       <span
+                        data-testid={`pedido-detail-historico-item-${evtId}-label`}
                         style={{
                           fontWeight: 600,
                           fontSize: 13,
@@ -936,7 +979,7 @@ export default function PedidoDetail() {
                           evt.eventoTipo ??
                           "Evento"}
                       </span>
-                      <span style={{ fontSize: 11, color: "var(--ink-500)" }}>
+                      <span data-testid={`pedido-detail-historico-item-${evtId}-meta`} style={{ fontSize: 11, color: "var(--ink-500)" }}>
                         {fmtDateTime(evt.enviadoEm)}
                         {evt.httpStatus
                           ? ` · HTTP ${evt.httpStatus}`
@@ -945,6 +988,7 @@ export default function PedidoDetail() {
                       </span>
                     </div>
                     <span
+                      data-testid={`pedido-detail-historico-item-${evtId}-status`}
                       style={{
                         display: "inline-flex",
                         alignItems: "center",
@@ -964,14 +1008,16 @@ export default function PedidoDetail() {
                       {evt.sucesso ? "Sucesso" : "Falha"}
                     </span>
                   </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>
         </div>
 
-        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+        <div data-testid="pedido-detail-column-side" style={{ display: "flex", flexDirection: "column", gap: 16 }}>
           <div
+            data-testid="pedido-detail-section-comprador"
             style={{
               padding: 20,
               background: "var(--ink-0)",
@@ -979,10 +1025,11 @@ export default function PedidoDetail() {
               borderRadius: "var(--r-lg)",
             }}
           >
-            <h3 style={{ fontSize: 14, fontWeight: 700, marginBottom: 14 }}>
+            <h3 data-testid="pedido-detail-comprador-title" style={{ fontSize: 14, fontWeight: 700, marginBottom: 14 }}>
               Comprador
             </h3>
             <div
+              data-testid="pedido-detail-comprador-content"
               style={{
                 display: "flex",
                 flexDirection: "column",
@@ -991,6 +1038,7 @@ export default function PedidoDetail() {
               }}
             >
               <div
+                data-testid="pedido-detail-comprador-email-row"
                 style={{
                   display: "flex",
                   justifyContent: "space-between",
@@ -999,6 +1047,7 @@ export default function PedidoDetail() {
                 }}
               >
                 <div
+                  data-testid="pedido-detail-comprador-email-wrapper"
                   style={{
                     display: "flex",
                     gap: 8,
@@ -1009,6 +1058,7 @@ export default function PedidoDetail() {
                 >
                   <Mail size={14} style={{ color: "var(--ink-500)", flexShrink: 0 }} />
                   <span
+                    data-testid="pedido-detail-comprador-email"
                     style={{
                       overflow: "hidden",
                       textOverflow: "ellipsis",
@@ -1019,18 +1069,18 @@ export default function PedidoDetail() {
                   </span>
                 </div>
                 {pedido.compradorEmail && (
-                  <CopyButton value={pedido.compradorEmail} />
+                  <CopyButton value={pedido.compradorEmail} testId="pedido-detail-button-copy-email" />
                 )}
               </div>
               {pedido.compradorId && (
-                <div style={{ fontSize: 11, color: "var(--ink-500)" }}>
+                <div data-testid="pedido-detail-comprador-id" style={{ fontSize: 11, color: "var(--ink-500)" }}>
                   ID interno:{" "}
-                  <span style={{ fontFamily: "var(--font-mono)" }}>
+                  <span data-testid="pedido-detail-comprador-id-value" style={{ fontFamily: "var(--font-mono)" }}>
                     {pedido.compradorId.slice(0, 8)}…
                   </span>
                 </div>
               )}
-              <p style={{ fontSize: 11, color: "var(--ink-500)", lineHeight: 1.5 }}>
+              <p data-testid="pedido-detail-comprador-privacy-note" style={{ fontSize: 11, color: "var(--ink-500)", lineHeight: 1.5 }}>
                 Endereço, telefone e CPF ficam no usuarios-service e na pagar.me
                 — esses dados não são expostos no detalhe do pedido pelo
                 vendas-service por questões de privacidade.
@@ -1039,6 +1089,7 @@ export default function PedidoDetail() {
           </div>
 
           <div
+            data-testid="pedido-detail-section-pagamento"
             style={{
               padding: 20,
               background: "var(--ink-0)",
@@ -1046,10 +1097,11 @@ export default function PedidoDetail() {
               borderRadius: "var(--r-lg)",
             }}
           >
-            <h3 style={{ fontSize: 14, fontWeight: 700, marginBottom: 14 }}>
+            <h3 data-testid="pedido-detail-pagamento-title" style={{ fontSize: 14, fontWeight: 700, marginBottom: 14 }}>
               Pagamento
             </h3>
             <div
+              data-testid="pedido-detail-pagamento-card"
               style={{
                 display: "flex",
                 gap: 12,
@@ -1060,6 +1112,7 @@ export default function PedidoDetail() {
               }}
             >
               <div
+                data-testid="pedido-detail-pagamento-icon-wrapper"
                 style={{
                   width: 40,
                   height: 40,
@@ -1073,9 +1126,9 @@ export default function PedidoDetail() {
               >
                 <CreditCard size={18} style={{ color: "var(--kai-orange)" }} />
               </div>
-              <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
-                <span style={{ fontWeight: 600 }}>pagar.me</span>
-                <span style={{ fontSize: 12, color: "var(--ink-500)" }}>
+              <div data-testid="pedido-detail-pagamento-info" style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                <span data-testid="pedido-detail-pagamento-provider" style={{ fontWeight: 600 }}>pagar.me</span>
+                <span data-testid="pedido-detail-pagamento-status" style={{ fontSize: 12, color: "var(--ink-500)" }}>
                   {pedido.pagoEm
                     ? `Pago em ${fmtDateTime(pedido.pagoEm)}`
                     : pedido.status === "PENDENTE"
@@ -1088,6 +1141,7 @@ export default function PedidoDetail() {
             </div>
             {(pedido.pagarmeChargeId || pedido.pagarmeOrderId) && (
               <div
+                data-testid="pedido-detail-pagamento-ids"
                 style={{
                   marginTop: 12,
                   display: "flex",
@@ -1098,28 +1152,30 @@ export default function PedidoDetail() {
               >
                 {pedido.pagarmeOrderId && (
                   <div
+                    data-testid="pedido-detail-pagamento-order-id-row"
                     style={{
                       display: "flex",
                       justifyContent: "space-between",
                       gap: 6,
                     }}
                   >
-                    <span style={{ color: "var(--ink-500)" }}>Order ID</span>
-                    <span style={{ fontFamily: "var(--font-mono)", color: "var(--ink-700)" }}>
+                    <span data-testid="pedido-detail-pagamento-order-id-label" style={{ color: "var(--ink-500)" }}>Order ID</span>
+                    <span data-testid="pedido-detail-pagamento-order-id-value" style={{ fontFamily: "var(--font-mono)", color: "var(--ink-700)" }}>
                       {pedido.pagarmeOrderId}
                     </span>
                   </div>
                 )}
                 {pedido.pagarmeChargeId && (
                   <div
+                    data-testid="pedido-detail-pagamento-charge-id-row"
                     style={{
                       display: "flex",
                       justifyContent: "space-between",
                       gap: 6,
                     }}
                   >
-                    <span style={{ color: "var(--ink-500)" }}>Charge ID</span>
-                    <span style={{ fontFamily: "var(--font-mono)", color: "var(--ink-700)" }}>
+                    <span data-testid="pedido-detail-pagamento-charge-id-label" style={{ color: "var(--ink-500)" }}>Charge ID</span>
+                    <span data-testid="pedido-detail-pagamento-charge-id-value" style={{ fontFamily: "var(--font-mono)", color: "var(--ink-700)" }}>
                       {pedido.pagarmeChargeId}
                     </span>
                   </div>
@@ -1129,6 +1185,7 @@ export default function PedidoDetail() {
           </div>
 
           <div
+            data-testid="pedido-detail-section-status-fornecedor"
             style={{
               padding: 20,
               background: "var(--ink-0)",
@@ -1137,6 +1194,7 @@ export default function PedidoDetail() {
             }}
           >
             <div
+              data-testid="pedido-detail-status-fornecedor-header"
               style={{
                 display: "flex",
                 justifyContent: "space-between",
@@ -1144,11 +1202,12 @@ export default function PedidoDetail() {
                 marginBottom: 14,
               }}
             >
-              <h3 style={{ fontSize: 14, fontWeight: 700 }}>Status no fornecedor</h3>
+              <h3 data-testid="pedido-detail-status-fornecedor-title" style={{ fontSize: 14, fontWeight: 700 }}>Status no fornecedor</h3>
               <button
                 onClick={() => statusFornecedor.refetch()}
                 disabled={statusFornecedor.isFetching}
                 title="Atualizar"
+                data-testid="pedido-detail-button-status-fornecedor-refresh"
                 style={{
                   width: 28,
                   height: 28,
@@ -1171,6 +1230,7 @@ export default function PedidoDetail() {
             </div>
             {statusFornecedor.isLoading ? (
               <div
+                data-testid="pedido-detail-status-fornecedor-loading"
                 style={{
                   display: "flex",
                   alignItems: "center",
@@ -1182,11 +1242,12 @@ export default function PedidoDetail() {
                 <Loader2 size={14} className="animate-spin" /> Consultando…
               </div>
             ) : statusFornecedor.isError || !statusFornecedor.data ? (
-              <p style={{ fontSize: 12, color: "var(--ink-500)" }}>
+              <p data-testid="pedido-detail-status-fornecedor-empty" style={{ fontSize: 12, color: "var(--ink-500)" }}>
                 Status do fornecedor ainda não disponível para este pedido.
               </p>
             ) : (
               <div
+                data-testid="pedido-detail-status-fornecedor-content"
                 style={{
                   display: "flex",
                   flexDirection: "column",
@@ -1196,6 +1257,7 @@ export default function PedidoDetail() {
               >
                 {statusFornecedor.data.orderStatusDescricao && (
                   <div
+                    data-testid="pedido-detail-status-fornecedor-descricao"
                     style={{
                       padding: 10,
                       background: "var(--kai-orange-50)",
@@ -1212,6 +1274,7 @@ export default function PedidoDetail() {
                   </div>
                 )}
                 <div
+                  data-testid="pedido-detail-status-fornecedor-fields"
                   style={{
                     display: "grid",
                     gridTemplateColumns: "1fr auto",
@@ -1221,30 +1284,30 @@ export default function PedidoDetail() {
                 >
                   {statusFornecedor.data.numeroPedido && (
                     <>
-                      <span style={{ color: "var(--ink-500)" }}>
+                      <span data-testid="pedido-detail-status-fornecedor-numero-label" style={{ color: "var(--ink-500)" }}>
                         Nº fornecedor
                       </span>
-                      <span style={{ fontFamily: "var(--font-mono)" }}>
+                      <span data-testid="pedido-detail-status-fornecedor-numero-value" style={{ fontFamily: "var(--font-mono)" }}>
                         {statusFornecedor.data.numeroPedido}
                       </span>
                     </>
                   )}
                   {statusFornecedor.data.shopName && (
                     <>
-                      <span style={{ color: "var(--ink-500)" }}>Loja</span>
-                      <span>{statusFornecedor.data.shopName}</span>
+                      <span data-testid="pedido-detail-status-fornecedor-shop-label" style={{ color: "var(--ink-500)" }}>Loja</span>
+                      <span data-testid="pedido-detail-status-fornecedor-shop-value">{statusFornecedor.data.shopName}</span>
                     </>
                   )}
                   {statusFornecedor.data.expressTime && (
                     <>
-                      <span style={{ color: "var(--ink-500)" }}>Prazo</span>
-                      <span>{statusFornecedor.data.expressTime}</span>
+                      <span data-testid="pedido-detail-status-fornecedor-prazo-label" style={{ color: "var(--ink-500)" }}>Prazo</span>
+                      <span data-testid="pedido-detail-status-fornecedor-prazo-value">{statusFornecedor.data.expressTime}</span>
                     </>
                   )}
                   {statusFornecedor.data.trackNumber && (
                     <>
-                      <span style={{ color: "var(--ink-500)" }}>Tracking</span>
-                      <span style={{ fontFamily: "var(--font-mono)" }}>
+                      <span data-testid="pedido-detail-status-fornecedor-track-label" style={{ color: "var(--ink-500)" }}>Tracking</span>
+                      <span data-testid="pedido-detail-status-fornecedor-track-value" style={{ fontFamily: "var(--font-mono)" }}>
                         {statusFornecedor.data.trackNumber}
                       </span>
                     </>
@@ -1257,6 +1320,7 @@ export default function PedidoDetail() {
                 href={pedido.labelUrlA4}
                 target="_blank"
                 rel="noopener noreferrer"
+                data-testid="pedido-detail-link-open-label-a4"
                 style={{
                   marginTop: 12,
                   display: "flex",

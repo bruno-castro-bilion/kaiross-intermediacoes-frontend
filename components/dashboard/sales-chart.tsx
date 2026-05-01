@@ -30,21 +30,51 @@ interface CustomTooltipProps {
 const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
   if (active && payload && payload.length) {
     return (
-      <div className="overflow-hidden rounded-[var(--r-md)] border border-[var(--ink-200)] bg-[var(--ink-0)] shadow-[var(--sh-md)]">
-        <div className="border-b border-[var(--ink-100)] bg-[var(--ink-50)] px-3 py-1.5">
-          <p className="text-xs font-semibold text-[var(--ink-900)]">{label}</p>
+      <div
+        data-testid="sales-chart-tooltip"
+        className="overflow-hidden rounded-[var(--r-md)] border border-[var(--ink-200)] bg-[var(--ink-0)] shadow-[var(--sh-md)]"
+      >
+        <div
+          data-testid="sales-chart-tooltip-header"
+          className="border-b border-[var(--ink-100)] bg-[var(--ink-50)] px-3 py-1.5"
+        >
+          <p
+            data-testid="sales-chart-tooltip-label"
+            className="text-xs font-semibold text-[var(--ink-900)]"
+          >
+            {label}
+          </p>
         </div>
-        <div className="space-y-2 p-3">
+        <div
+          data-testid="sales-chart-tooltip-body"
+          className="space-y-2 p-3"
+        >
           {payload.map((entry, index) => (
-            <div key={index} className="flex items-center justify-between gap-6">
-              <div className="flex items-center gap-2">
+            <div
+              key={index}
+              data-testid={`sales-chart-tooltip-entry-${entry.name}`}
+              className="flex items-center justify-between gap-6"
+            >
+              <div
+                data-testid={`sales-chart-tooltip-entry-${entry.name}-label-wrapper`}
+                className="flex items-center gap-2"
+              >
                 <div
+                  data-testid={`sales-chart-tooltip-entry-${entry.name}-dot`}
                   className="h-2.5 w-2.5 rounded-full"
                   style={{ backgroundColor: entry.color }}
                 />
-                <span className="text-xs capitalize text-[var(--ink-600)]">{entry.name}</span>
+                <span
+                  data-testid={`sales-chart-tooltip-entry-${entry.name}-name`}
+                  className="text-xs capitalize text-[var(--ink-600)]"
+                >
+                  {entry.name}
+                </span>
               </div>
-              <span className="mono-num text-sm font-semibold text-[var(--ink-900)]">
+              <span
+                data-testid={`sales-chart-tooltip-entry-${entry.name}-value`}
+                className="mono-num text-sm font-semibold text-[var(--ink-900)]"
+              >
                 R$ {entry.value.toLocaleString("pt-BR")}
               </span>
             </div>
@@ -58,13 +88,29 @@ const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
 
 export function SalesChart({ data, showBalance = true }: SalesChartProps) {
   return (
-    <div className="flex flex-1 flex-col rounded-[var(--r-lg)] border border-[var(--ink-200)] bg-[var(--ink-0)] p-6 shadow-[var(--sh-xs)]">
+    <div
+      data-testid="sales-chart"
+      className="flex flex-1 flex-col rounded-[var(--r-lg)] border border-[var(--ink-200)] bg-[var(--ink-0)] p-6 shadow-[var(--sh-xs)]"
+    >
       {/* Cabeçalho */}
-      <div className="mb-5 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-        <div>
-          <p className="mb-1 text-[13px] text-[var(--ink-600)]">Saldo Total</p>
-          <div className="flex items-baseline gap-2">
+      <div
+        data-testid="sales-chart-header"
+        className="mb-5 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between"
+      >
+        <div data-testid="sales-chart-summary">
+          <p
+            data-testid="sales-chart-summary-label"
+            className="mb-1 text-[13px] text-[var(--ink-600)]"
+          >
+            Saldo Total
+          </p>
+          <div
+            data-testid="sales-chart-summary-value-wrapper"
+            className="flex items-baseline gap-2"
+          >
             <span
+              data-testid="sales-chart-summary-value"
+              data-balance-hidden={!showBalance ? "true" : "false"}
               className="mono-num text-[26px] font-extrabold tracking-[-0.025em] text-[var(--ink-900)]"
               style={{
                 filter: showBalance ? "none" : "blur(8px)",
@@ -74,27 +120,55 @@ export function SalesChart({ data, showBalance = true }: SalesChartProps) {
             >
               R$ 23.842,00
             </span>
-            <span className="inline-flex items-center gap-1 rounded-[var(--r-pill)] bg-[var(--kai-success-bg)] px-2 py-0.5 text-[12px] font-semibold text-[var(--kai-success)]">
+            <span
+              data-testid="sales-chart-summary-delta"
+              className="inline-flex items-center gap-1 rounded-[var(--r-pill)] bg-[var(--kai-success-bg)] px-2 py-0.5 text-[12px] font-semibold text-[var(--kai-success)]"
+            >
               ↑ 6,8%
             </span>
           </div>
         </div>
 
         {/* Legenda */}
-        <div className="flex gap-4 text-xs">
-          <div className="flex items-center gap-2">
-            <div className="h-2.5 w-2.5 rounded-full bg-[var(--kai-orange)]" />
-            <span className="text-[var(--ink-600)]">Vendido</span>
+        <div
+          data-testid="sales-chart-legend"
+          className="flex gap-4 text-xs"
+        >
+          <div
+            data-testid="sales-chart-legend-vendido"
+            className="flex items-center gap-2"
+          >
+            <div
+              data-testid="sales-chart-legend-vendido-dot"
+              className="h-2.5 w-2.5 rounded-full bg-[var(--kai-orange)]"
+            />
+            <span
+              data-testid="sales-chart-legend-vendido-label"
+              className="text-[var(--ink-600)]"
+            >
+              Vendido
+            </span>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="h-2.5 w-2.5 rounded-full bg-[var(--kai-success)]" />
-            <span className="text-[var(--ink-600)]">Assinatura</span>
+          <div
+            data-testid="sales-chart-legend-assinatura"
+            className="flex items-center gap-2"
+          >
+            <div
+              data-testid="sales-chart-legend-assinatura-dot"
+              className="h-2.5 w-2.5 rounded-full bg-[var(--kai-success)]"
+            />
+            <span
+              data-testid="sales-chart-legend-assinatura-label"
+              className="text-[var(--ink-600)]"
+            >
+              Assinatura
+            </span>
           </div>
         </div>
       </div>
 
       {/* Gráfico */}
-      <div className="h-64">
+      <div data-testid="sales-chart-graph-wrapper" className="h-64">
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={data} margin={{ top: 8, right: 8, left: -24, bottom: 0 }}>
             <defs>

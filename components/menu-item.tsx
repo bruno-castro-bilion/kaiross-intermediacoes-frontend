@@ -10,6 +10,7 @@ type MenuItemProps = {
   selected?: boolean;
   onClick?: () => void;
   onSelect?: () => void;
+  testId?: string;
 };
 
 export default function MenuItem({
@@ -20,9 +21,19 @@ export default function MenuItem({
   selected = false,
   onClick,
   onSelect,
+  testId,
 }: MenuItemProps) {
+  const baseId =
+    testId ||
+    `menu-item-${label
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "")}`;
+
   return (
     <button
+      data-testid={baseId}
+      data-selected={selected ? "true" : "false"}
       type="button"
       onClick={onClick ?? onSelect}
       style={{ cursor: "pointer" }}
@@ -32,6 +43,7 @@ export default function MenuItem({
     >
       {icon && (
         <span
+          data-testid={`${baseId}-icon`}
           style={{ cursor: "pointer" }}
           className={`h-4 w-4 shrink-0 ${
             selected ? "text-primary" : "text-muted-foreground"
@@ -41,9 +53,17 @@ export default function MenuItem({
         </span>
       )}
 
-      <div style={{ cursor: "pointer" }} className="min-w-0 flex-1">
-        <div className="flex items-center gap-2">
+      <div
+        data-testid={`${baseId}-content`}
+        style={{ cursor: "pointer" }}
+        className="min-w-0 flex-1"
+      >
+        <div
+          data-testid={`${baseId}-header`}
+          className="flex items-center gap-2"
+        >
           <span
+            data-testid={`${baseId}-label`}
             style={{ cursor: "pointer" }}
             className={`truncate font-medium ${
               selected ? "text-primary" : "text-muted-foreground"
@@ -53,6 +73,7 @@ export default function MenuItem({
           </span>
           {badge && (
             <span
+              data-testid={`${baseId}-badge`}
               style={{ cursor: "pointer" }}
               className={`ml-1 ${selected ? "" : "text-muted-foreground"}`}
             >
@@ -62,6 +83,7 @@ export default function MenuItem({
         </div>
         {description && (
           <p
+            data-testid={`${baseId}-description`}
             style={{ cursor: "pointer" }}
             className={`truncate text-sm ${
               selected ? "text-muted-foreground" : "text-muted-foreground"

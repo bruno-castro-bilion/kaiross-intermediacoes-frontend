@@ -24,26 +24,44 @@ export default function MinhaContaPage() {
 
   return (
     <motion.div
+      data-testid="minha-conta-page"
+      data-active-tab={activeTab}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5, ease: "easeOut" }}
       className="mx-auto w-full max-w-5xl p-4 pb-8 md:p-6 md:pb-12"
     >
-      <h1 className="mb-6 text-lg font-semibold">Minha conta</h1>
+      <h1
+        data-testid="minha-conta-page-title"
+        className="mb-6 text-lg font-semibold"
+      >
+        Minha conta
+      </h1>
 
-      <div className="flex flex-col gap-4 md:flex-row md:items-start md:gap-x-4">
+      <div
+        data-testid="minha-conta-page-layout"
+        className="flex flex-col gap-4 md:flex-row md:items-start md:gap-x-4"
+      >
         {/* Coluna esquerda — perfil + navegação */}
-        <aside className="flex w-full flex-col gap-4 md:w-72 md:shrink-0 lg:w-80">
+        <aside
+          data-testid="minha-conta-page-aside"
+          className="flex w-full flex-col gap-4 md:w-72 md:shrink-0 lg:w-80"
+        >
           <AccountProfileCard user={fetchedUser ?? undefined} />
 
           {/* Menu de navegação */}
-          <div className="border-border bg-card w-full rounded-lg border p-2">
+          <div
+            data-testid="minha-conta-tabs"
+            className="border-border bg-card w-full rounded-lg border p-2"
+          >
             {tabs.map((tab) => {
               const Icon = tab.icon;
               const isActive = activeTab === tab.id;
               return (
                 <button
                   key={tab.id}
+                  data-testid={`minha-conta-tab-${tab.id}`}
+                  data-active={isActive ? "true" : "false"}
                   onClick={() => setActiveTab(tab.id)}
                   className={`flex w-full cursor-pointer items-center gap-2.5 rounded-md px-3 py-2.5 text-sm font-medium transition-colors ${
                     isActive
@@ -51,8 +69,13 @@ export default function MinhaContaPage() {
                       : "text-muted-foreground hover:bg-accent hover:text-foreground"
                   }`}
                 >
-                  <Icon className="h-4 w-4 shrink-0" />
-                  {tab.label}
+                  <Icon
+                    data-testid={`minha-conta-tab-${tab.id}-icon`}
+                    className="h-4 w-4 shrink-0"
+                  />
+                  <span data-testid={`minha-conta-tab-${tab.id}-label`}>
+                    {tab.label}
+                  </span>
                 </button>
               );
             })}
@@ -60,7 +83,10 @@ export default function MinhaContaPage() {
         </aside>
 
         {/* Coluna direita — conteúdo da aba ativa */}
-        <main className="min-w-0 flex-1">
+        <main
+          data-testid="minha-conta-page-content"
+          className="min-w-0 flex-1"
+        >
           {activeTab === "dados-gerais" ? (
             <AccountDetailsCard user={fetchedUser ?? undefined} />
           ) : (

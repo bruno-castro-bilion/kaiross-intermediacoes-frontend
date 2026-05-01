@@ -245,6 +245,7 @@ export default function Pedidos() {
       animate={{ opacity: 1 }}
       transition={{ duration: 0.4 }}
       className="p-6 md:p-8 max-w-[1440px] mx-auto w-full"
+      data-testid="pedidos-page"
     >
       <PageHeader
         title="Pedidos"
@@ -253,6 +254,7 @@ export default function Pedidos() {
           <button
             onClick={() => exportCsv(filtered.map((r) => r.pedido))}
             disabled={filtered.length === 0}
+            data-testid="pedidos-button-export"
             style={{
               display: "flex",
               alignItems: "center",
@@ -275,31 +277,36 @@ export default function Pedidos() {
         }
       />
 
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4 mb-6">
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4 mb-6" data-testid="pedidos-section-stats">
         <StatCard
           icon={ShoppingCart}
           label="Vendas no mês"
           value={String(stats.mes)}
+          testId="pedidos-stat-vendas-mes"
         />
         <StatCard
           icon={Truck}
           label="Em trânsito"
           value={String(stats.emTransito)}
+          testId="pedidos-stat-em-transito"
         />
         <StatCard
           icon={CheckCircle}
           label="Receita confirmada"
           value={stats.receita > 0 ? fmtBRLShort(stats.receita) : "R$ 0"}
           highlight
+          testId="pedidos-stat-receita"
         />
         <StatCard
           icon={AlertTriangle}
           label="Aguardando pagamento"
           value={String(stats.pendentes)}
+          testId="pedidos-stat-pendentes"
         />
       </div>
 
       <div
+        data-testid="pedidos-list-wrapper"
         style={{
           borderRadius: "var(--r-lg)",
           border: "1px solid var(--ink-200)",
@@ -308,6 +315,7 @@ export default function Pedidos() {
         }}
       >
         <div
+          data-testid="pedidos-toolbar"
           style={{
             padding: 16,
             borderBottom: "1px solid var(--ink-200)",
@@ -318,6 +326,8 @@ export default function Pedidos() {
           }}
         >
           <div
+            data-testid="pedidos-tabs"
+            role="tablist"
             style={{
               display: "flex",
               gap: 4,
@@ -335,6 +345,7 @@ export default function Pedidos() {
                   setTab(t.key);
                   setPage(1);
                 }}
+                data-testid={`pedidos-tab-${t.key}`}
                 style={{
                   padding: "7px 14px",
                   borderRadius: "var(--r-pill)",
@@ -354,6 +365,7 @@ export default function Pedidos() {
             ))}
           </div>
           <div
+            data-testid="pedidos-search-wrapper"
             style={{
               flex: 1,
               minWidth: 240,
@@ -376,6 +388,7 @@ export default function Pedidos() {
                 setPage(1);
               }}
               placeholder="Buscar por nº, email, produto, tracking..."
+              data-testid="pedidos-input-search"
               style={{
                 border: 0,
                 outline: 0,
@@ -391,6 +404,7 @@ export default function Pedidos() {
 
         {!userId ? (
           <div
+            data-testid="pedidos-state-no-session"
             style={{
               padding: 60,
               textAlign: "center",
@@ -402,6 +416,7 @@ export default function Pedidos() {
           </div>
         ) : isLoading ? (
           <div
+            data-testid="pedidos-state-loading"
             style={{
               padding: 80,
               display: "flex",
@@ -415,12 +430,13 @@ export default function Pedidos() {
               className="animate-spin"
               style={{ color: "var(--kai-orange)" }}
             />
-            <span style={{ fontSize: 13, color: "var(--ink-500)" }}>
+            <span data-testid="pedidos-state-loading-text" style={{ fontSize: 13, color: "var(--ink-500)" }}>
               Carregando seus pedidos…
             </span>
           </div>
         ) : isError ? (
           <div
+            data-testid="pedidos-state-error"
             style={{
               padding: 60,
               display: "flex",
@@ -431,15 +447,16 @@ export default function Pedidos() {
             }}
           >
             <AlertCircle size={28} style={{ color: "var(--kai-danger, #dc2626)" }} />
-            <p className="font-semibold text-[var(--ink-900)]">
+            <p data-testid="pedidos-state-error-title" className="font-semibold text-[var(--ink-900)]">
               Não foi possível carregar os pedidos
             </p>
-            <p className="text-sm text-[var(--ink-500)]">
+            <p data-testid="pedidos-state-error-message" className="text-sm text-[var(--ink-500)]">
               {error?.message ?? "Tente novamente em instantes."}
             </p>
             <button
               onClick={() => refetch()}
               disabled={isFetching}
+              data-testid="pedidos-button-retry"
               style={{
                 height: 36,
                 padding: "0 16px",
@@ -459,6 +476,7 @@ export default function Pedidos() {
           </div>
         ) : pedidos.length === 0 ? (
           <div
+            data-testid="pedidos-state-empty"
             style={{
               padding: 60,
               textAlign: "center",
@@ -470,6 +488,7 @@ export default function Pedidos() {
               style={{ margin: "0 auto 16px", color: "var(--ink-300)" }}
             />
             <p
+              data-testid="pedidos-state-empty-title"
               style={{
                 fontWeight: 600,
                 fontSize: 15,
@@ -479,13 +498,14 @@ export default function Pedidos() {
             >
               Você ainda não recebeu pedidos
             </p>
-            <p style={{ fontSize: 13 }}>
+            <p data-testid="pedidos-state-empty-subtitle" style={{ fontSize: 13 }}>
               Assim que um cliente concluir o checkout, o pedido aparece aqui.
             </p>
           </div>
         ) : (
           <>
             <div
+              data-testid="pedidos-table-header"
               style={{
                 display: "grid",
                 gridTemplateColumns: "1.2fr 1.8fr 2fr 1fr 1.2fr 1fr 0.5fr",
@@ -499,13 +519,13 @@ export default function Pedidos() {
                 borderBottom: "1px solid var(--ink-200)",
               }}
             >
-              <div>Pedido</div>
-              <div>Cliente</div>
-              <div>Produto</div>
-              <div>Valor</div>
-              <div>Status</div>
-              <div>Tracking</div>
-              <div />
+              <div data-testid="pedidos-table-header-pedido">Pedido</div>
+              <div data-testid="pedidos-table-header-cliente">Cliente</div>
+              <div data-testid="pedidos-table-header-produto">Produto</div>
+              <div data-testid="pedidos-table-header-valor">Valor</div>
+              <div data-testid="pedidos-table-header-status">Status</div>
+              <div data-testid="pedidos-table-header-tracking">Tracking</div>
+              <div data-testid="pedidos-table-header-actions" />
             </div>
 
             {slice.map(({ pedido: p, ui, ts }) => {
@@ -514,8 +534,9 @@ export default function Pedidos() {
               const numero = p.numeroPedido ?? `#${p.id.slice(0, 8)}`;
               const email = p.compradorEmail ?? "—";
               return (
-                <Link href={`/pedidos/${p.id}`} key={p.id}>
+                <Link href={`/pedidos/${p.id}`} key={p.id} data-testid={`pedidos-link-row-${p.id}`}>
                   <div
+                    data-testid={`pedidos-row-${p.id}`}
                     style={{
                       display: "grid",
                       gridTemplateColumns:
@@ -536,8 +557,9 @@ export default function Pedidos() {
                         "";
                     }}
                   >
-                    <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                    <div data-testid={`pedidos-row-${p.id}-pedido`} style={{ display: "flex", flexDirection: "column", gap: 2 }}>
                       <span
+                        data-testid={`pedidos-row-${p.id}-numero`}
                         style={{
                           fontFamily: "var(--font-mono)",
                           fontWeight: 600,
@@ -546,11 +568,12 @@ export default function Pedidos() {
                       >
                         {numero}
                       </span>
-                      <span style={{ fontSize: 11, color: "var(--ink-500)" }}>
+                      <span data-testid={`pedidos-row-${p.id}-time`} style={{ fontSize: 11, color: "var(--ink-500)" }}>
                         {relativeTime(ts)}
                       </span>
                     </div>
                     <div
+                      data-testid={`pedidos-row-${p.id}-cliente`}
                       style={{
                         display: "flex",
                         alignItems: "center",
@@ -559,6 +582,7 @@ export default function Pedidos() {
                       }}
                     >
                       <div
+                        data-testid={`pedidos-row-${p.id}-cliente-avatar`}
                         style={{
                           width: 28,
                           height: 28,
@@ -576,6 +600,7 @@ export default function Pedidos() {
                         {initials(email)}
                       </div>
                       <span
+                        data-testid={`pedidos-row-${p.id}-cliente-email`}
                         style={{
                           fontWeight: 500,
                           fontSize: 14,
@@ -588,6 +613,7 @@ export default function Pedidos() {
                       </span>
                     </div>
                     <div
+                      data-testid={`pedidos-row-${p.id}-produto`}
                       style={{
                         fontSize: 13,
                         color: "var(--ink-700)",
@@ -602,6 +628,7 @@ export default function Pedidos() {
                         : ""}
                     </div>
                     <div
+                      data-testid={`pedidos-row-${p.id}-valor`}
                       style={{
                         fontFamily: "var(--font-mono)",
                         fontWeight: 600,
@@ -610,10 +637,11 @@ export default function Pedidos() {
                     >
                       {fmtBRL(p.valorTotal ?? 0)}
                     </div>
-                    <div title={labelStatus}>
+                    <div data-testid={`pedidos-row-${p.id}-status-badge`} title={labelStatus}>
                       <StatusBadge status={STATUS_TO_BADGE[ui]} />
                     </div>
                     <div
+                      data-testid={`pedidos-row-${p.id}-tracking`}
                       style={{
                         fontSize: 12,
                         color: "var(--ink-600)",
@@ -625,7 +653,7 @@ export default function Pedidos() {
                     >
                       {p.trackingCode ?? "—"}
                     </div>
-                    <div style={{ display: "flex", justifyContent: "center" }}>
+                    <div data-testid={`pedidos-row-${p.id}-chevron`} style={{ display: "flex", justifyContent: "center" }}>
                       <ChevronRight size={16} style={{ color: "var(--ink-400)" }} />
                     </div>
                   </div>
@@ -635,6 +663,7 @@ export default function Pedidos() {
 
             {slice.length === 0 && (
               <div
+                data-testid="pedidos-state-no-results"
                 style={{
                   padding: "48px 20px",
                   textAlign: "center",
@@ -645,10 +674,10 @@ export default function Pedidos() {
                   size={32}
                   style={{ margin: "0 auto 12px", color: "var(--ink-300)" }}
                 />
-                <p style={{ fontWeight: 600, fontSize: 14 }}>
+                <p data-testid="pedidos-state-no-results-title" style={{ fontWeight: 600, fontSize: 14 }}>
                   Nenhum pedido encontrado
                 </p>
-                <p style={{ fontSize: 13 }}>
+                <p data-testid="pedidos-state-no-results-subtitle" style={{ fontSize: 13 }}>
                   Tente ajustar os filtros ou a busca.
                 </p>
               </div>

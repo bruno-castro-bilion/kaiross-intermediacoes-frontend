@@ -45,6 +45,7 @@ function CopyCode({ code }: { code: string }) {
   };
   return (
     <button
+      data-testid={`marketing-cupons-button-copy-${code}`}
       onClick={copy}
       style={{
         width: 32,
@@ -144,6 +145,7 @@ export default function Cupons() {
 
   return (
     <motion.div
+      data-testid="marketing-cupons-page"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.4 }}
@@ -154,6 +156,7 @@ export default function Cupons() {
         subtitle="Crie códigos promocionais para acelerar conversão."
         actions={
           <button
+            data-testid="marketing-cupons-button-create"
             onClick={() => setOpen((v) => !v)}
             style={{
               display: "flex",
@@ -177,6 +180,7 @@ export default function Cupons() {
       />
 
       <div
+        data-testid="marketing-cupons-banner-warning"
         style={{
           display: "flex",
           gap: 10,
@@ -190,7 +194,7 @@ export default function Cupons() {
         }}
       >
         <Info size={16} style={{ flexShrink: 0, marginTop: 2 }} />
-        <div>
+        <div data-testid="marketing-cupons-banner-warning-text">
           <strong>Configuração local.</strong> O backend Kaiross ainda não
           expõe endpoints para cupons — os códigos cadastrados aqui ficam
           salvos só no seu navegador e <em>não</em> são aplicados no
@@ -200,6 +204,7 @@ export default function Cupons() {
 
       {open && (
         <motion.div
+          data-testid="marketing-cupons-modal-create"
           initial={{ opacity: 0, y: -8 }}
           animate={{ opacity: 1, y: 0 }}
           style={{
@@ -210,10 +215,11 @@ export default function Cupons() {
             marginBottom: 20,
           }}
         >
-          <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 16 }}>
+          <h3 data-testid="marketing-cupons-modal-create-title" style={{ fontSize: 16, fontWeight: 700, marginBottom: 16 }}>
             Novo cupom
           </h3>
           <div
+            data-testid="marketing-cupons-modal-grid-1"
             style={{
               display: "grid",
               gridTemplateColumns: "1fr 1fr 1fr",
@@ -221,35 +227,37 @@ export default function Cupons() {
               marginBottom: 12,
             }}
           >
-            <div>
-              <label style={{ fontSize: 12, fontWeight: 600, color: "var(--ink-600)", display: "block", marginBottom: 5 }}>
+            <div data-testid="marketing-cupons-field-code">
+              <label data-testid="marketing-cupons-label-code" style={{ fontSize: 12, fontWeight: 600, color: "var(--ink-600)", display: "block", marginBottom: 5 }}>
                 Código
               </label>
               <input
+                data-testid="marketing-cupons-input-code"
                 value={form.code}
                 onChange={(e) => setForm((p) => ({ ...p, code: e.target.value }))}
                 placeholder="BEMVINDO10"
                 style={{ ...inputStyle, fontFamily: "var(--font-mono)" }}
               />
             </div>
-            <div>
-              <label style={{ fontSize: 12, fontWeight: 600, color: "var(--ink-600)", display: "block", marginBottom: 5 }}>
+            <div data-testid="marketing-cupons-field-kind">
+              <label data-testid="marketing-cupons-label-kind" style={{ fontSize: 12, fontWeight: 600, color: "var(--ink-600)", display: "block", marginBottom: 5 }}>
                 Tipo
               </label>
               <select
+                data-testid="marketing-cupons-select-kind"
                 value={form.kind}
                 onChange={(e) =>
                   setForm((p) => ({ ...p, kind: e.target.value as CupomKind }))
                 }
                 style={inputStyle}
               >
-                <option value="PERCENT">Percentual (% OFF)</option>
-                <option value="FIXED">Valor fixo (R$ OFF)</option>
-                <option value="FRETE_GRATIS">Frete grátis</option>
+                <option data-testid="marketing-cupons-select-kind-option-percent" value="PERCENT">Percentual (% OFF)</option>
+                <option data-testid="marketing-cupons-select-kind-option-fixed" value="FIXED">Valor fixo (R$ OFF)</option>
+                <option data-testid="marketing-cupons-select-kind-option-frete-gratis" value="FRETE_GRATIS">Frete grátis</option>
               </select>
             </div>
-            <div>
-              <label style={{ fontSize: 12, fontWeight: 600, color: "var(--ink-600)", display: "block", marginBottom: 5 }}>
+            <div data-testid="marketing-cupons-field-discount">
+              <label data-testid="marketing-cupons-label-discount" style={{ fontSize: 12, fontWeight: 600, color: "var(--ink-600)", display: "block", marginBottom: 5 }}>
                 {form.kind === "PERCENT"
                   ? "Desconto (%)"
                   : form.kind === "FIXED"
@@ -257,6 +265,7 @@ export default function Cupons() {
                     : "Sem valor"}
               </label>
               <input
+                data-testid="marketing-cupons-input-discount"
                 type="number"
                 min={0}
                 step={form.kind === "PERCENT" ? 1 : 0.01}
@@ -276,6 +285,7 @@ export default function Cupons() {
             </div>
           </div>
           <div
+            data-testid="marketing-cupons-modal-grid-2"
             style={{
               display: "grid",
               gridTemplateColumns: "2fr 1fr",
@@ -283,11 +293,12 @@ export default function Cupons() {
               marginBottom: 16,
             }}
           >
-            <div>
-              <label style={{ fontSize: 12, fontWeight: 600, color: "var(--ink-600)", display: "block", marginBottom: 5 }}>
+            <div data-testid="marketing-cupons-field-applies-to">
+              <label data-testid="marketing-cupons-label-applies-to" style={{ fontSize: 12, fontWeight: 600, color: "var(--ink-600)", display: "block", marginBottom: 5 }}>
                 Aplica em
               </label>
               <input
+                data-testid="marketing-cupons-input-applies-to"
                 value={form.appliesTo}
                 onChange={(e) =>
                   setForm((p) => ({ ...p, appliesTo: e.target.value }))
@@ -296,11 +307,12 @@ export default function Cupons() {
                 style={inputStyle}
               />
             </div>
-            <div>
-              <label style={{ fontSize: 12, fontWeight: 600, color: "var(--ink-600)", display: "block", marginBottom: 5 }}>
+            <div data-testid="marketing-cupons-field-max-uses">
+              <label data-testid="marketing-cupons-label-max-uses" style={{ fontSize: 12, fontWeight: 600, color: "var(--ink-600)", display: "block", marginBottom: 5 }}>
                 Limite de usos
               </label>
               <input
+                data-testid="marketing-cupons-input-max-uses"
                 type="number"
                 min={1}
                 value={form.maxUses}
@@ -314,8 +326,9 @@ export default function Cupons() {
               />
             </div>
           </div>
-          <div style={{ display: "flex", gap: 8 }}>
+          <div data-testid="marketing-cupons-modal-actions" style={{ display: "flex", gap: 8 }}>
             <button
+              data-testid="marketing-cupons-button-cancel"
               onClick={() => setOpen(false)}
               style={{
                 height: 38,
@@ -333,6 +346,7 @@ export default function Cupons() {
               Cancelar
             </button>
             <button
+              data-testid="marketing-cupons-button-save"
               onClick={handleSave}
               style={{
                 height: 38,
@@ -355,6 +369,7 @@ export default function Cupons() {
 
       {sorted.length === 0 ? (
         <div
+          data-testid="marketing-cupons-empty"
           style={{
             padding: "60px 20px",
             textAlign: "center",
@@ -364,15 +379,16 @@ export default function Cupons() {
             color: "var(--ink-500)",
           }}
         >
-          <p style={{ fontWeight: 600, fontSize: 14, marginBottom: 6 }}>
+          <p data-testid="marketing-cupons-empty-title" style={{ fontWeight: 600, fontSize: 14, marginBottom: 6 }}>
             Nenhum cupom cadastrado
           </p>
-          <p style={{ fontSize: 13 }}>
+          <p data-testid="marketing-cupons-empty-desc" style={{ fontSize: 13 }}>
             Crie seu primeiro código clicando em <strong>Novo cupom</strong>.
           </p>
         </div>
       ) : (
         <div
+          data-testid="marketing-cupons-list"
           style={{
             display: "grid",
             gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))",
@@ -384,6 +400,7 @@ export default function Cupons() {
             const color = c.active ? KIND_COLORS[c.kind] : "var(--ink-500)";
             return (
               <motion.div
+                data-testid={`marketing-cupons-row-${c.id}`}
                 key={c.id}
                 initial={{ opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -395,6 +412,7 @@ export default function Cupons() {
                 }}
               >
                 <div
+                  data-testid={`marketing-cupons-row-${c.id}-header`}
                   style={{
                     padding: 20,
                     background: color,
@@ -403,6 +421,7 @@ export default function Cupons() {
                   }}
                 >
                   <div
+                    data-testid={`marketing-cupons-row-${c.id}-status-badge`}
                     style={{
                       fontSize: 11,
                       fontWeight: 600,
@@ -416,6 +435,7 @@ export default function Cupons() {
                     {!c.active ? " · pausado" : ""}
                   </div>
                   <div
+                    data-testid={`marketing-cupons-row-${c.id}-code-row`}
                     style={{
                       display: "flex",
                       justifyContent: "space-between",
@@ -423,6 +443,7 @@ export default function Cupons() {
                     }}
                   >
                     <span
+                      data-testid={`marketing-cupons-row-${c.id}-code`}
                       style={{
                         fontFamily: "var(--font-mono)",
                         fontSize: 22,
@@ -435,6 +456,7 @@ export default function Cupons() {
                     <CopyCode code={c.code} />
                   </div>
                   <div
+                    data-testid={`marketing-cupons-row-${c.id}-discount`}
                     style={{
                       fontSize: 24,
                       fontWeight: 800,
@@ -446,19 +468,22 @@ export default function Cupons() {
                   </div>
                 </div>
 
-                <div style={{ padding: 16, background: "var(--ink-0)" }}>
+                <div data-testid={`marketing-cupons-row-${c.id}-body`} style={{ padding: 16, background: "var(--ink-0)" }}>
                   <div
+                    data-testid={`marketing-cupons-row-${c.id}-applies-label`}
                     style={{ fontSize: 12, color: "var(--ink-500)", marginBottom: 4 }}
                   >
                     Aplica em
                   </div>
                   <div
+                    data-testid={`marketing-cupons-row-${c.id}-applies-value`}
                     style={{ fontWeight: 600, marginBottom: 14, fontSize: 14 }}
                   >
                     {c.appliesTo}
                   </div>
 
                   <div
+                    data-testid={`marketing-cupons-row-${c.id}-uses-row`}
                     style={{
                       display: "flex",
                       justifyContent: "space-between",
@@ -466,12 +491,13 @@ export default function Cupons() {
                       marginBottom: 6,
                     }}
                   >
-                    <span style={{ color: "var(--ink-600)" }}>Usos</span>
-                    <span style={{ fontWeight: 600, fontFamily: "var(--font-mono)" }}>
+                    <span data-testid={`marketing-cupons-row-${c.id}-uses-label`} style={{ color: "var(--ink-600)" }}>Usos</span>
+                    <span data-testid={`marketing-cupons-row-${c.id}-uses-value`} style={{ fontWeight: 600, fontFamily: "var(--font-mono)" }}>
                       {c.uses} / {c.maxUses}
                     </span>
                   </div>
                   <div
+                    data-testid={`marketing-cupons-row-${c.id}-progress-track`}
                     style={{
                       height: 6,
                       background: "var(--ink-100)",
@@ -480,6 +506,7 @@ export default function Cupons() {
                     }}
                   >
                     <div
+                      data-testid={`marketing-cupons-row-${c.id}-progress-bar`}
                       style={{
                         height: "100%",
                         width: `${Math.min(100, usePct)}%`,
@@ -490,8 +517,9 @@ export default function Cupons() {
                     />
                   </div>
 
-                  <div style={{ display: "flex", gap: 8, marginTop: 14 }}>
+                  <div data-testid={`marketing-cupons-row-${c.id}-actions`} style={{ display: "flex", gap: 8, marginTop: 14 }}>
                     <button
+                      data-testid={`marketing-cupons-row-${c.id}-button-toggle`}
                       onClick={() => toggleCupom(c.id)}
                       style={{
                         flex: 1,
@@ -509,6 +537,7 @@ export default function Cupons() {
                       {c.active ? "Pausar" : "Ativar"}
                     </button>
                     <button
+                      data-testid={`marketing-cupons-row-${c.id}-button-remove`}
                       onClick={() => handleRemove(c)}
                       style={{
                         flex: 1,

@@ -48,6 +48,8 @@ const ConfirmEmailPage = ({ params }: PageProps) => {
   return (
     <AnimatePresence>
       <motion.div
+        data-testid="confirm-email-page"
+        data-status={status}
         initial={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         transition={{ duration: 0.4, ease: "easeInOut" }}
@@ -55,16 +57,33 @@ const ConfirmEmailPage = ({ params }: PageProps) => {
       >
         <BackgroundEffects />
 
-        <div className="relative z-10 flex w-full flex-col items-center justify-center">
-          <div className="w-full max-w-md">
+        <div
+          data-testid="confirm-email-page-content"
+          className="relative z-10 flex w-full flex-col items-center justify-center"
+        >
+          <div
+            data-testid="confirm-email-page-card-wrapper"
+            className="w-full max-w-md"
+          >
             <div
+              data-testid="confirm-email-page-card-animated"
               className="animate-fade-in-up w-full opacity-0"
               style={{ animationFillMode: "forwards", animationDelay: "0.1s" }}
             >
-              <div className="border-border bg-card/95 overflow-hidden rounded-2xl border shadow-2xl backdrop-blur-xl">
-                <div className="flex flex-col items-center p-8 text-center">
-                  <div className="mb-4 flex justify-center">
+              <div
+                data-testid="confirm-email-page-card"
+                className="border-border bg-card/95 overflow-hidden rounded-2xl border shadow-2xl backdrop-blur-xl"
+              >
+                <div
+                  data-testid="confirm-email-page-card-body"
+                  className="flex flex-col items-center p-8 text-center"
+                >
+                  <div
+                    data-testid="confirm-email-page-logo-wrapper"
+                    className="mb-4 flex justify-center"
+                  >
                     <Image
+                      data-testid="confirm-email-page-logo"
                       src="/LOGO-MENU.png"
                       alt="Kaiross"
                       width={120}
@@ -76,13 +95,25 @@ const ConfirmEmailPage = ({ params }: PageProps) => {
 
                   {status === "pending" && (
                     <>
-                      <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-blue-100">
-                        <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+                      <div
+                        data-testid="confirm-email-page-icon-wrapper-pending"
+                        className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-blue-100"
+                      >
+                        <Loader2
+                          data-testid="confirm-email-page-icon-pending"
+                          className="h-8 w-8 animate-spin text-blue-500"
+                        />
                       </div>
-                      <h1 className="text-foreground mb-2 text-xl font-semibold">
+                      <h1
+                        data-testid="confirm-email-page-title-pending"
+                        className="text-foreground mb-2 text-xl font-semibold"
+                      >
                         Confirmando seu email...
                       </h1>
-                      <p className="text-muted-foreground text-sm">
+                      <p
+                        data-testid="confirm-email-page-description-pending"
+                        className="text-muted-foreground text-sm"
+                      >
                         Isso leva apenas um instante.
                       </p>
                     </>
@@ -90,16 +121,29 @@ const ConfirmEmailPage = ({ params }: PageProps) => {
 
                   {status === "success" && (
                     <>
-                      <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
-                        <CheckCircle2 className="h-8 w-8 text-green-500" />
+                      <div
+                        data-testid="confirm-email-page-icon-wrapper-success"
+                        className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100"
+                      >
+                        <CheckCircle2
+                          data-testid="confirm-email-page-icon-success"
+                          className="h-8 w-8 text-green-500"
+                        />
                       </div>
-                      <h1 className="text-foreground mb-2 text-xl font-semibold">
+                      <h1
+                        data-testid="confirm-email-page-title-success"
+                        className="text-foreground mb-2 text-xl font-semibold"
+                      >
                         Email confirmado!
                       </h1>
-                      <p className="text-muted-foreground mb-6 text-sm">
+                      <p
+                        data-testid="confirm-email-page-description-success"
+                        className="text-muted-foreground mb-6 text-sm"
+                      >
                         Sua conta foi ativada. Faça login para começar.
                       </p>
                       <Button
+                        data-testid="confirm-email-page-button-go-to-login"
                         asChild
                         className="bg-primary text-primary-foreground hover:bg-primary/90 w-full"
                       >
@@ -110,17 +154,33 @@ const ConfirmEmailPage = ({ params }: PageProps) => {
 
                   {status === "error" && (
                     <>
-                      <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-red-100">
-                        <XCircle className="h-8 w-8 text-red-500" />
+                      <div
+                        data-testid="confirm-email-page-icon-wrapper-error"
+                        className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-red-100"
+                      >
+                        <XCircle
+                          data-testid="confirm-email-page-icon-error"
+                          className="h-8 w-8 text-red-500"
+                        />
                       </div>
-                      <h1 className="text-foreground mb-2 text-xl font-semibold">
+                      <h1
+                        data-testid="confirm-email-page-title-error"
+                        className="text-foreground mb-2 text-xl font-semibold"
+                      >
                         Não foi possível confirmar
                       </h1>
-                      <p className="text-muted-foreground mb-6 text-sm">
+                      <p
+                        data-testid="confirm-email-page-description-error"
+                        className="text-muted-foreground mb-6 text-sm"
+                      >
                         {errorMessage}
                       </p>
-                      <div className="flex w-full flex-col gap-2">
+                      <div
+                        data-testid="confirm-email-page-actions-error"
+                        className="flex w-full flex-col gap-2"
+                      >
                         <Button
+                          data-testid="confirm-email-page-button-try-login"
                           asChild
                           variant="outline"
                           className="w-full"
@@ -128,6 +188,7 @@ const ConfirmEmailPage = ({ params }: PageProps) => {
                           <Link href="/login">Tentar fazer login</Link>
                         </Button>
                         <Button
+                          data-testid="confirm-email-page-button-create-account"
                           asChild
                           className="bg-primary text-primary-foreground hover:bg-primary/90 w-full"
                         >
@@ -141,7 +202,10 @@ const ConfirmEmailPage = ({ params }: PageProps) => {
             </div>
           </div>
 
-          <div className="mt-6 w-full max-w-md">
+          <div
+            data-testid="confirm-email-page-footer-wrapper"
+            className="mt-6 w-full max-w-md"
+          >
             <AuthFooter actionText="Iniciar sessão" />
           </div>
         </div>

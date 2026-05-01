@@ -68,6 +68,15 @@ function fmtDate(ts: number | null): string {
   });
 }
 
+function slugifyId(value: string | undefined | null): string {
+  if (!value) return "unknown";
+  return String(value)
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 40) || "unknown";
+}
+
 export default function RelatoriosEstornos() {
   const [periodLabel, setPeriodLabel] = useState("30 dias");
   const period =
@@ -187,6 +196,7 @@ export default function RelatoriosEstornos() {
 
   return (
     <motion.div
+      data-testid="relatorios-estornos-page"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.4 }}
@@ -197,6 +207,7 @@ export default function RelatoriosEstornos() {
         subtitle="Acompanhe estornos processados e dispare reembolsos para pedidos pagos."
         actions={
           <div
+            data-testid="relatorios-estornos-period-selector"
             style={{
               display: "flex",
               gap: 4,
@@ -208,6 +219,7 @@ export default function RelatoriosEstornos() {
           >
             {PERIODS.map((p) => (
               <button
+                data-testid={`relatorios-estornos-button-period-${slugifyId(p.label)}`}
                 key={p.label}
                 onClick={() => setPeriodLabel(p.label)}
                 style={{
@@ -234,6 +246,7 @@ export default function RelatoriosEstornos() {
 
       {!userId ? (
         <div
+          data-testid="relatorios-estornos-state-no-session"
           style={{
             padding: 32,
             background: "var(--ink-0)",
@@ -247,6 +260,7 @@ export default function RelatoriosEstornos() {
         </div>
       ) : isLoading ? (
         <div
+          data-testid="relatorios-estornos-state-loading"
           style={{
             padding: 80,
             display: "flex",
@@ -256,12 +270,13 @@ export default function RelatoriosEstornos() {
           }}
         >
           <Loader2 size={28} className="animate-spin" style={{ color: "var(--kai-orange)" }} />
-          <span style={{ fontSize: 13, color: "var(--ink-500)" }}>
+          <span data-testid="relatorios-estornos-loading-text" style={{ fontSize: 13, color: "var(--ink-500)" }}>
             Carregando estornos…
           </span>
         </div>
       ) : isError ? (
         <div
+          data-testid="relatorios-estornos-state-error"
           style={{
             padding: 32,
             background: "var(--ink-0)",
@@ -275,13 +290,14 @@ export default function RelatoriosEstornos() {
           }}
         >
           <AlertCircle size={28} style={{ color: "var(--kai-danger, #dc2626)" }} />
-          <p className="font-semibold text-[var(--ink-900)]">
+          <p data-testid="relatorios-estornos-error-title" className="font-semibold text-[var(--ink-900)]">
             Não foi possível carregar os estornos
           </p>
-          <p className="text-sm text-[var(--ink-500)]">
+          <p data-testid="relatorios-estornos-error-message" className="text-sm text-[var(--ink-500)]">
             {error?.message ?? "Tente novamente em instantes."}
           </p>
           <button
+            data-testid="relatorios-estornos-button-retry"
             onClick={() => {
               relatorio.refetch();
               pedidos.refetch();
@@ -304,7 +320,7 @@ export default function RelatoriosEstornos() {
         </div>
       ) : (
         <>
-          <div className="grid grid-cols-2 gap-4 lg:grid-cols-4 mb-6">
+          <div data-testid="relatorios-estornos-section-kpis" className="grid grid-cols-2 gap-4 lg:grid-cols-4 mb-6">
             <StatCard
               icon={RefreshCcw}
               label="Estornos no período"
@@ -329,6 +345,7 @@ export default function RelatoriosEstornos() {
           </div>
 
           <div
+            data-testid="relatorios-estornos-section-chart"
             style={{
               padding: 24,
               background: "var(--ink-0)",
@@ -337,11 +354,12 @@ export default function RelatoriosEstornos() {
               marginBottom: 20,
             }}
           >
-            <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 20 }}>
+            <h3 data-testid="relatorios-estornos-chart-title" style={{ fontSize: 16, fontWeight: 700, marginBottom: 20 }}>
               Estornos por dia
             </h3>
             {chartData.length === 0 ? (
               <div
+                data-testid="relatorios-estornos-chart-empty"
                 style={{
                   padding: 40,
                   textAlign: "center",
@@ -390,6 +408,7 @@ export default function RelatoriosEstornos() {
           </div>
 
           <div
+            data-testid="relatorios-estornos-section-historico"
             style={{
               borderRadius: "var(--r-lg)",
               border: "1px solid var(--ink-200)",
@@ -399,16 +418,18 @@ export default function RelatoriosEstornos() {
             }}
           >
             <div
+              data-testid="relatorios-estornos-historico-header"
               style={{
                 padding: "16px 20px",
                 borderBottom: "1px solid var(--ink-200)",
               }}
             >
-              <h3 style={{ fontSize: 16, fontWeight: 700 }}>
+              <h3 data-testid="relatorios-estornos-historico-title" style={{ fontSize: 16, fontWeight: 700 }}>
                 Histórico de estornos
               </h3>
             </div>
             <div
+              data-testid="relatorios-estornos-historico-table-head"
               style={{
                 display: "grid",
                 gridTemplateColumns: "1.2fr 1.5fr 2fr 1fr 1fr",
@@ -422,14 +443,15 @@ export default function RelatoriosEstornos() {
                 borderBottom: "1px solid var(--ink-200)",
               }}
             >
-              <div>Pedido</div>
-              <div>Cliente</div>
-              <div>Produto</div>
-              <div>Valor</div>
-              <div>Data</div>
+              <div data-testid="relatorios-estornos-historico-th-pedido">Pedido</div>
+              <div data-testid="relatorios-estornos-historico-th-cliente">Cliente</div>
+              <div data-testid="relatorios-estornos-historico-th-produto">Produto</div>
+              <div data-testid="relatorios-estornos-historico-th-valor">Valor</div>
+              <div data-testid="relatorios-estornos-historico-th-data">Data</div>
             </div>
             {lista.length === 0 ? (
               <div
+                data-testid="relatorios-estornos-historico-empty"
                 style={{
                   padding: 40,
                   textAlign: "center",
@@ -443,8 +465,10 @@ export default function RelatoriosEstornos() {
               lista.map((p) => {
                 const principalItem = p.itens?.[0];
                 const ts = pedidoTimestamp(p);
+                const rowId = slugifyId(p.id);
                 return (
                   <div
+                    data-testid={`relatorios-estornos-row-${rowId}`}
                     key={p.id}
                     style={{
                       display: "grid",
@@ -455,8 +479,9 @@ export default function RelatoriosEstornos() {
                       borderBottom: "1px solid var(--ink-100)",
                     }}
                   >
-                    <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                    <div data-testid={`relatorios-estornos-row-${rowId}-pedido-cell`} style={{ display: "flex", flexDirection: "column", gap: 2 }}>
                       <span
+                        data-testid={`relatorios-estornos-row-${rowId}-numero-pedido`}
                         style={{
                           fontFamily: "var(--font-mono)",
                           fontWeight: 600,
@@ -466,6 +491,7 @@ export default function RelatoriosEstornos() {
                         {p.numeroPedido ?? `#${p.id.slice(0, 8)}`}
                       </span>
                       <span
+                        data-testid={`relatorios-estornos-row-${rowId}-status-badge`}
                         style={{
                           display: "inline-flex",
                           alignItems: "center",
@@ -483,6 +509,7 @@ export default function RelatoriosEstornos() {
                       </span>
                     </div>
                     <span
+                      data-testid={`relatorios-estornos-row-${rowId}-cliente`}
                       style={{
                         fontWeight: 600,
                         fontSize: 13,
@@ -494,6 +521,7 @@ export default function RelatoriosEstornos() {
                       {p.compradorEmail ?? "—"}
                     </span>
                     <span
+                      data-testid={`relatorios-estornos-row-${rowId}-produto`}
                       style={{
                         fontSize: 13,
                         color: "var(--ink-700)",
@@ -508,6 +536,7 @@ export default function RelatoriosEstornos() {
                         : ""}
                     </span>
                     <span
+                      data-testid={`relatorios-estornos-row-${rowId}-valor`}
                       style={{
                         fontFamily: "var(--font-mono)",
                         fontWeight: 600,
@@ -516,7 +545,7 @@ export default function RelatoriosEstornos() {
                     >
                       {fmtBRL(p.valorTotal ?? 0)}
                     </span>
-                    <span style={{ fontSize: 12, color: "var(--ink-500)" }}>
+                    <span data-testid={`relatorios-estornos-row-${rowId}-data`} style={{ fontSize: 12, color: "var(--ink-500)" }}>
                       {fmtDate(ts)}
                     </span>
                   </div>
@@ -526,6 +555,7 @@ export default function RelatoriosEstornos() {
           </div>
 
           <div
+            data-testid="relatorios-estornos-section-elegiveis"
             style={{
               borderRadius: "var(--r-lg)",
               border: "1px solid var(--ink-200)",
@@ -534,6 +564,7 @@ export default function RelatoriosEstornos() {
             }}
           >
             <div
+              data-testid="relatorios-estornos-elegiveis-header"
               style={{
                 padding: "16px 20px",
                 borderBottom: "1px solid var(--ink-200)",
@@ -544,11 +575,12 @@ export default function RelatoriosEstornos() {
                 flexWrap: "wrap",
               }}
             >
-              <div>
-                <h3 style={{ fontSize: 16, fontWeight: 700 }}>
+              <div data-testid="relatorios-estornos-elegiveis-header-text">
+                <h3 data-testid="relatorios-estornos-elegiveis-title" style={{ fontSize: 16, fontWeight: 700 }}>
                   Pedidos pagos elegíveis para reembolso
                 </h3>
                 <p
+                  data-testid="relatorios-estornos-elegiveis-subtitle"
                   style={{
                     fontSize: 12,
                     color: "var(--ink-500)",
@@ -561,6 +593,7 @@ export default function RelatoriosEstornos() {
               </div>
             </div>
             <div
+              data-testid="relatorios-estornos-elegiveis-table-head"
               style={{
                 display: "grid",
                 gridTemplateColumns: "1.2fr 1.5fr 2fr 1fr 1fr 1fr",
@@ -574,15 +607,16 @@ export default function RelatoriosEstornos() {
                 borderBottom: "1px solid var(--ink-200)",
               }}
             >
-              <div>Pedido</div>
-              <div>Cliente</div>
-              <div>Produto</div>
-              <div>Valor</div>
-              <div>Pago em</div>
-              <div />
+              <div data-testid="relatorios-estornos-elegiveis-th-pedido">Pedido</div>
+              <div data-testid="relatorios-estornos-elegiveis-th-cliente">Cliente</div>
+              <div data-testid="relatorios-estornos-elegiveis-th-produto">Produto</div>
+              <div data-testid="relatorios-estornos-elegiveis-th-valor">Valor</div>
+              <div data-testid="relatorios-estornos-elegiveis-th-pago-em">Pago em</div>
+              <div data-testid="relatorios-estornos-elegiveis-th-acoes" />
             </div>
             {pagosReembolsaveis.length === 0 ? (
               <div
+                data-testid="relatorios-estornos-elegiveis-empty"
                 style={{
                   padding: 40,
                   textAlign: "center",
@@ -598,8 +632,10 @@ export default function RelatoriosEstornos() {
                 const ts = p.pagoEm ? new Date(p.pagoEm).getTime() : null;
                 const isThisOne =
                   reembolsar.isPending && reembolsar.variables === p.id;
+                const rowId = slugifyId(p.id);
                 return (
                   <div
+                    data-testid={`relatorios-estornos-elegivel-row-${rowId}`}
                     key={p.id}
                     style={{
                       display: "grid",
@@ -611,6 +647,7 @@ export default function RelatoriosEstornos() {
                     }}
                   >
                     <span
+                      data-testid={`relatorios-estornos-elegivel-row-${rowId}-numero-pedido`}
                       style={{
                         fontFamily: "var(--font-mono)",
                         fontWeight: 600,
@@ -620,6 +657,7 @@ export default function RelatoriosEstornos() {
                       {p.numeroPedido ?? `#${p.id.slice(0, 8)}`}
                     </span>
                     <span
+                      data-testid={`relatorios-estornos-elegivel-row-${rowId}-cliente`}
                       style={{
                         fontWeight: 600,
                         fontSize: 13,
@@ -631,6 +669,7 @@ export default function RelatoriosEstornos() {
                       {p.compradorEmail ?? "—"}
                     </span>
                     <span
+                      data-testid={`relatorios-estornos-elegivel-row-${rowId}-produto`}
                       style={{
                         fontSize: 13,
                         color: "var(--ink-700)",
@@ -645,6 +684,7 @@ export default function RelatoriosEstornos() {
                         : ""}
                     </span>
                     <span
+                      data-testid={`relatorios-estornos-elegivel-row-${rowId}-valor`}
                       style={{
                         fontFamily: "var(--font-mono)",
                         fontWeight: 600,
@@ -653,10 +693,11 @@ export default function RelatoriosEstornos() {
                     >
                       {fmtBRL(p.valorTotal ?? 0)}
                     </span>
-                    <span style={{ fontSize: 12, color: "var(--ink-500)" }}>
+                    <span data-testid={`relatorios-estornos-elegivel-row-${rowId}-pago-em`} style={{ fontSize: 12, color: "var(--ink-500)" }}>
                       {fmtDate(ts)}
                     </span>
                     <button
+                      data-testid={`relatorios-estornos-elegivel-row-${rowId}-button-reembolsar`}
                       onClick={() => handleReembolsar(p)}
                       disabled={reembolsar.isPending}
                       style={{

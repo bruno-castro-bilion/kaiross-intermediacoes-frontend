@@ -39,6 +39,7 @@ const fmtBRL = (n: number) =>
 function ProductThumb({ src, name }: { src: string; name: string }) {
   return (
     <div
+      data-testid="meus-produtos-product-thumb"
       style={{
         width: 56,
         height: 56,
@@ -50,6 +51,7 @@ function ProductThumb({ src, name }: { src: string; name: string }) {
       }}
     >
       <img
+        data-testid="meus-produtos-product-thumb-image"
         src={src || PLACEHOLDER_IMG}
         alt={name}
         referrerPolicy="no-referrer"
@@ -136,8 +138,9 @@ function RowMenu({
   };
 
   return (
-    <div style={{ position: "relative" }}>
+    <div data-testid={`meus-produtos-row-menu-${item.id}`} style={{ position: "relative" }}>
       <button
+        data-testid={`meus-produtos-row-menu-${item.id}-toggle`}
         onClick={(e) => {
           e.preventDefault();
           e.stopPropagation();
@@ -161,6 +164,7 @@ function RowMenu({
       {open && (
         <>
           <div
+            data-testid={`meus-produtos-row-menu-${item.id}-overlay`}
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
@@ -169,6 +173,7 @@ function RowMenu({
             style={{ position: "fixed", inset: 0, zIndex: 30 }}
           />
           <div
+            data-testid={`meus-produtos-row-menu-${item.id}-popover`}
             style={{
               position: "absolute",
               top: 36,
@@ -183,6 +188,7 @@ function RowMenu({
             }}
           >
             <button
+              data-testid={`meus-produtos-row-menu-${item.id}-button-copy-checkout`}
               onClick={handleCopy}
               style={{
                 display: "flex",
@@ -204,6 +210,7 @@ function RowMenu({
             </button>
             {isPaused ? (
               <button
+                data-testid={`meus-produtos-row-menu-${item.id}-button-reactivate`}
                 onClick={handleReactivate}
                 style={{
                   display: "flex",
@@ -226,6 +233,7 @@ function RowMenu({
               </button>
             ) : (
               <button
+                data-testid={`meus-produtos-row-menu-${item.id}-button-delete`}
                 onClick={handleDelete}
                 style={{
                   display: "flex",
@@ -361,6 +369,7 @@ export default function MeusProdutos() {
 
   return (
     <motion.div
+      data-testid="meus-produtos-page"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.4 }}
@@ -370,8 +379,9 @@ export default function MeusProdutos() {
         title="Meus Produtos"
         subtitle="Os produtos que você está vendendo, com performance em tempo real."
         actions={
-          <Link href="/vitrine-de-produtos">
+          <Link data-testid="meus-produtos-link-vitrine" href="/vitrine-de-produtos">
             <button
+              data-testid="meus-produtos-button-buscar-vitrine"
               style={{
                 height: 38,
                 padding: "0 16px",
@@ -394,18 +404,21 @@ export default function MeusProdutos() {
         }
       />
 
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4 mb-6">
+      <div data-testid="meus-produtos-stats-grid" className="grid grid-cols-2 gap-4 lg:grid-cols-4 mb-6">
         <StatCard
+          data-testid="meus-produtos-stat-ativos"
           icon={Package}
           label="Produtos ativos"
           value={String(stats.ativos)}
         />
         <StatCard
+          data-testid="meus-produtos-stat-total"
           icon={ShoppingCart}
           label="Total na vitrine"
           value={String(items.length)}
         />
         <StatCard
+          data-testid="meus-produtos-stat-receita"
           icon={TrendingUp}
           label="Soma dos preços"
           value={
@@ -414,6 +427,7 @@ export default function MeusProdutos() {
           highlight
         />
         <StatCard
+          data-testid="meus-produtos-stat-best-seller"
           icon={Flame}
           label="Maior margem"
           value={stats.bestSeller}
@@ -421,6 +435,7 @@ export default function MeusProdutos() {
       </div>
 
       <div
+        data-testid="meus-produtos-section-list"
         style={{
           borderRadius: "var(--r-lg)",
           border: "1px solid var(--ink-200)",
@@ -429,6 +444,7 @@ export default function MeusProdutos() {
         }}
       >
         <div
+          data-testid="meus-produtos-toolbar"
           style={{
             padding: 16,
             borderBottom: "1px solid var(--ink-200)",
@@ -440,6 +456,7 @@ export default function MeusProdutos() {
           }}
         >
           <div
+            data-testid="meus-produtos-search-wrapper"
             style={{
               flex: 1,
               maxWidth: 360,
@@ -455,6 +472,7 @@ export default function MeusProdutos() {
           >
             <Search size={15} style={{ color: "var(--ink-500)", flexShrink: 0 }} />
             <input
+              data-testid="meus-produtos-input-search"
               value={search}
               onChange={(e) => {
                 setSearch(e.target.value);
@@ -474,6 +492,7 @@ export default function MeusProdutos() {
           </div>
 
           <div
+            data-testid="meus-produtos-tabs"
             style={{
               display: "flex",
               gap: 4,
@@ -485,6 +504,7 @@ export default function MeusProdutos() {
           >
             {tabs.map((t, i) => (
               <button
+                data-testid={`meus-produtos-tab-${i}`}
                 key={i}
                 onClick={() => {
                   setTab(i);
@@ -511,6 +531,7 @@ export default function MeusProdutos() {
 
         {isLoading ? (
           <div
+            data-testid="meus-produtos-loading"
             style={{
               padding: "80px 20px",
               display: "flex",
@@ -524,12 +545,13 @@ export default function MeusProdutos() {
               className="animate-spin"
               style={{ color: "var(--kai-orange)" }}
             />
-            <span style={{ fontSize: 13, color: "var(--ink-500)" }}>
+            <span data-testid="meus-produtos-loading-text" style={{ fontSize: 13, color: "var(--ink-500)" }}>
               Carregando seus produtos…
             </span>
           </div>
         ) : isError ? (
           <div
+            data-testid="meus-produtos-error"
             style={{
               padding: "80px 20px",
               display: "flex",
@@ -540,15 +562,16 @@ export default function MeusProdutos() {
             }}
           >
             <AlertCircle size={28} style={{ color: "var(--kai-danger, #dc2626)" }} />
-            <div>
-              <p className="font-semibold text-[var(--ink-900)]">
+            <div data-testid="meus-produtos-error-text-wrapper">
+              <p data-testid="meus-produtos-error-title" className="font-semibold text-[var(--ink-900)]">
                 Não foi possível carregar a sua vitrine
               </p>
-              <p className="text-sm text-[var(--ink-500)] mt-1">
+              <p data-testid="meus-produtos-error-message" className="text-sm text-[var(--ink-500)] mt-1">
                 {error?.message ?? "Tente novamente em instantes."}
               </p>
             </div>
             <button
+              data-testid="meus-produtos-button-retry"
               onClick={() => refetch()}
               disabled={isFetching}
               style={{
@@ -570,6 +593,7 @@ export default function MeusProdutos() {
           </div>
         ) : items.length === 0 ? (
           <div
+            data-testid="meus-produtos-empty"
             style={{
               padding: "80px 20px",
               textAlign: "center",
@@ -580,14 +604,15 @@ export default function MeusProdutos() {
               size={36}
               style={{ margin: "0 auto 16px", color: "var(--ink-300)" }}
             />
-            <p style={{ fontWeight: 600, fontSize: 15, marginBottom: 6, color: "var(--ink-900)" }}>
+            <p data-testid="meus-produtos-empty-title" style={{ fontWeight: 600, fontSize: 15, marginBottom: 6, color: "var(--ink-900)" }}>
               Sua vitrine está vazia
             </p>
-            <p style={{ fontSize: 13, marginBottom: 16 }}>
+            <p data-testid="meus-produtos-empty-message" style={{ fontSize: 13, marginBottom: 16 }}>
               Comece afiliando produtos do catálogo dos fornecedores.
             </p>
-            <Link href="/vitrine-de-produtos">
+            <Link data-testid="meus-produtos-empty-link-vitrine" href="/vitrine-de-produtos">
               <button
+                data-testid="meus-produtos-empty-button-vitrine"
                 style={{
                   height: 38,
                   padding: "0 18px",
@@ -611,6 +636,7 @@ export default function MeusProdutos() {
         ) : (
           <>
             <div
+              data-testid="meus-produtos-list-header"
               style={{
                 display: "grid",
                 gridTemplateColumns: "3fr 1fr 1fr 1fr 1.2fr 0.5fr",
@@ -624,12 +650,12 @@ export default function MeusProdutos() {
                 borderBottom: "1px solid var(--ink-200)",
               }}
             >
-              <div>Produto</div>
-              <div>Preço de venda</div>
-              <div>Sugerido</div>
-              <div>Margem</div>
-              <div>Status</div>
-              <div />
+              <div data-testid="meus-produtos-list-header-produto">Produto</div>
+              <div data-testid="meus-produtos-list-header-preco">Preço de venda</div>
+              <div data-testid="meus-produtos-list-header-sugerido">Sugerido</div>
+              <div data-testid="meus-produtos-list-header-margem">Margem</div>
+              <div data-testid="meus-produtos-list-header-status">Status</div>
+              <div data-testid="meus-produtos-list-header-actions" />
             </div>
 
             {slice.map((m) => {
@@ -642,8 +668,9 @@ export default function MeusProdutos() {
                 m.ativo === false ? "pausado" : "ativo";
 
               return (
-                <Link href={`/meus-produtos/${m.id}`} key={m.id}>
+                <Link data-testid={`meus-produtos-link-card-${m.id}`} href={`/meus-produtos/${m.id}`} key={m.id}>
                   <div
+                    data-testid={`meus-produtos-card-${m.id}`}
                     style={{
                       display: "grid",
                       gridTemplateColumns: "3fr 1fr 1fr 1fr 1.2fr 0.5fr",
@@ -662,10 +689,11 @@ export default function MeusProdutos() {
                       (e.currentTarget as HTMLDivElement).style.background = "";
                     }}
                   >
-                    <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                    <div data-testid={`meus-produtos-card-${m.id}-info`} style={{ display: "flex", alignItems: "center", gap: 12 }}>
                       <ProductThumb src={img} name={nome} />
-                      <div style={{ display: "flex", flexDirection: "column", gap: 2, minWidth: 0 }}>
+                      <div data-testid={`meus-produtos-card-${m.id}-info-text`} style={{ display: "flex", flexDirection: "column", gap: 2, minWidth: 0 }}>
                         <span
+                          data-testid={`meus-produtos-card-${m.id}-title`}
                           style={{
                             fontWeight: 600,
                             fontSize: 14,
@@ -676,7 +704,7 @@ export default function MeusProdutos() {
                         >
                           {nome}
                         </span>
-                        <span style={{ fontSize: 12, color: "var(--ink-500)" }}>
+                        <span data-testid={`meus-produtos-card-${m.id}-meta`} style={{ fontSize: 12, color: "var(--ink-500)" }}>
                           Estoque {stockLabel(m.produto?.estoque)} ·{" "}
                           {m.produto?.fornecedor ?? "Fornecedor"}
                         </span>
@@ -684,6 +712,7 @@ export default function MeusProdutos() {
                     </div>
 
                     <div
+                      data-testid={`meus-produtos-card-${m.id}-price`}
                       style={{
                         fontFamily: "var(--font-mono)",
                         fontWeight: 600,
@@ -694,6 +723,7 @@ export default function MeusProdutos() {
                     </div>
 
                     <div
+                      data-testid={`meus-produtos-card-${m.id}-suggested`}
                       style={{
                         fontFamily: "var(--font-mono)",
                         fontWeight: 500,
@@ -705,6 +735,7 @@ export default function MeusProdutos() {
                     </div>
 
                     <div
+                      data-testid={`meus-produtos-card-${m.id}-margin`}
                       style={{
                         fontFamily: "var(--font-mono)",
                         fontWeight: 700,
@@ -718,7 +749,7 @@ export default function MeusProdutos() {
                       {fmtBRL(margem)}
                     </div>
 
-                    <div>
+                    <div data-testid={`meus-produtos-card-${m.id}-status-badge`}>
                       <StatusBadge status={status} />
                     </div>
 
@@ -734,6 +765,7 @@ export default function MeusProdutos() {
 
             {slice.length === 0 && (
               <div
+                data-testid="meus-produtos-no-results"
                 style={{
                   padding: "48px 20px",
                   textAlign: "center",
@@ -744,14 +776,15 @@ export default function MeusProdutos() {
                   size={32}
                   style={{ margin: "0 auto 12px", color: "var(--ink-300)" }}
                 />
-                <p style={{ fontWeight: 600, fontSize: 14, marginBottom: 4 }}>
+                <p data-testid="meus-produtos-no-results-title" style={{ fontWeight: 600, fontSize: 14, marginBottom: 4 }}>
                   Nenhum produto encontrado
                 </p>
-                <p style={{ fontSize: 13 }}>Tente ajustar os filtros ou a busca.</p>
+                <p data-testid="meus-produtos-no-results-message" style={{ fontSize: 13 }}>Tente ajustar os filtros ou a busca.</p>
               </div>
             )}
 
             <Pagination
+              data-testid="meus-produtos-pagination"
               page={page}
               totalPages={totalPages}
               total={total}

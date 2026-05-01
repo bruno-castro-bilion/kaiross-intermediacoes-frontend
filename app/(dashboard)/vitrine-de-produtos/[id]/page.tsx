@@ -34,6 +34,7 @@ function PricingCard({
   title,
   desc,
   tone,
+  testIdSlug,
 }: {
   active: boolean;
   onClick: () => void;
@@ -41,6 +42,7 @@ function PricingCard({
   title: string;
   desc: string;
   tone: PricingTone;
+  testIdSlug: string;
 }) {
   const s = {
     dark: {
@@ -65,6 +67,7 @@ function PricingCard({
 
   return (
     <div
+      data-testid={`vitrine-detail-pricing-card-${testIdSlug}`}
       onClick={onClick}
       style={{
         padding: 14,
@@ -84,6 +87,7 @@ function PricingCard({
       }}
     >
       <div
+        data-testid={`vitrine-detail-pricing-card-${testIdSlug}-check`}
         style={{
           position: "absolute",
           top: 10,
@@ -100,6 +104,7 @@ function PricingCard({
         <Check size={10} strokeWidth={3} color="white" />
       </div>
       <span
+        data-testid={`vitrine-detail-pricing-card-${testIdSlug}-kicker`}
         style={{
           fontSize: 10,
           fontWeight: 700,
@@ -110,10 +115,16 @@ function PricingCard({
       >
         {kicker}
       </span>
-      <span style={{ fontSize: 18, fontWeight: 800, letterSpacing: "-0.02em" }}>
+      <span
+        data-testid={`vitrine-detail-pricing-card-${testIdSlug}-title`}
+        style={{ fontSize: 18, fontWeight: 800, letterSpacing: "-0.02em" }}
+      >
         {title}
       </span>
-      <span style={{ fontSize: 11, color: s.dFg, lineHeight: 1.4, marginTop: "auto" }}>
+      <span
+        data-testid={`vitrine-detail-pricing-card-${testIdSlug}-desc`}
+        style={{ fontSize: 11, color: s.dFg, lineHeight: 1.4, marginTop: "auto" }}
+      >
         {desc}
       </span>
     </div>
@@ -124,13 +135,17 @@ function DescTab({ p }: { p: ProdutoView }) {
   const desc = p.descricao?.trim();
   if (!desc) {
     return (
-      <p style={{ fontSize: 14, color: "var(--ink-500)" }}>
+      <p
+        data-testid="vitrine-detail-tab-descricao-empty"
+        style={{ fontSize: 14, color: "var(--ink-500)" }}
+      >
         Este produto ainda não possui descrição cadastrada pelo fornecedor.
       </p>
     );
   }
   return (
     <div
+      data-testid="vitrine-detail-tab-descricao-content"
       style={{
         maxWidth: 760,
         fontSize: 14,
@@ -168,7 +183,10 @@ function SpecsTab({ p }: { p: ProdutoView }) {
 
   if (filled.length === 0) {
     return (
-      <p style={{ fontSize: 14, color: "var(--ink-500)" }}>
+      <p
+        data-testid="vitrine-detail-tab-specs-empty"
+        style={{ fontSize: 14, color: "var(--ink-500)" }}
+      >
         Especificações ainda não disponíveis.
       </p>
     );
@@ -176,6 +194,7 @@ function SpecsTab({ p }: { p: ProdutoView }) {
 
   return (
     <div
+      data-testid="vitrine-detail-tab-specs-grid"
       style={{
         display: "grid",
         gridTemplateColumns: "repeat(2, 1fr)",
@@ -183,20 +202,34 @@ function SpecsTab({ p }: { p: ProdutoView }) {
         maxWidth: 720,
       }}
     >
-      {filled.map(([k, v]) => (
-        <div
-          key={k}
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            padding: "12px 0",
-            borderBottom: "1px dashed var(--ink-200)",
-          }}
-        >
-          <span style={{ color: "var(--ink-600)", fontSize: 13 }}>{k}</span>
-          <span style={{ fontWeight: 600, fontSize: 13 }}>{String(v)}</span>
-        </div>
-      ))}
+      {filled.map(([k, v]) => {
+        const slug = String(k).toLowerCase().replace(/\s+/g, "-");
+        return (
+          <div
+            data-testid={`vitrine-detail-spec-${slug}`}
+            key={k}
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              padding: "12px 0",
+              borderBottom: "1px dashed var(--ink-200)",
+            }}
+          >
+            <span
+              data-testid={`vitrine-detail-spec-${slug}-key`}
+              style={{ color: "var(--ink-600)", fontSize: 13 }}
+            >
+              {k}
+            </span>
+            <span
+              data-testid={`vitrine-detail-spec-${slug}-value`}
+              style={{ fontWeight: 600, fontSize: 13 }}
+            >
+              {String(v)}
+            </span>
+          </div>
+        );
+      })}
     </div>
   );
 }
@@ -225,9 +258,13 @@ function ComoVenderTab() {
     },
   ];
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 16 }}>
+    <div
+      data-testid="vitrine-detail-tab-comovender-grid"
+      style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 16 }}
+    >
       {steps.map((s) => (
         <div
+          data-testid={`vitrine-detail-step-${s.n}`}
           key={s.n}
           style={{
             padding: 18,
@@ -238,6 +275,7 @@ function ComoVenderTab() {
           }}
         >
           <div
+            data-testid={`vitrine-detail-step-${s.n}-number`}
             style={{
               width: 32,
               height: 32,
@@ -253,9 +291,22 @@ function ComoVenderTab() {
           >
             {s.n}
           </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-            <h4 style={{ fontSize: 14, fontWeight: 600 }}>{s.t}</h4>
-            <p style={{ fontSize: 13, lineHeight: 1.5, color: "var(--ink-600)" }}>{s.d}</p>
+          <div
+            data-testid={`vitrine-detail-step-${s.n}-content`}
+            style={{ display: "flex", flexDirection: "column", gap: 4 }}
+          >
+            <h4
+              data-testid={`vitrine-detail-step-${s.n}-title`}
+              style={{ fontSize: 14, fontWeight: 600 }}
+            >
+              {s.t}
+            </h4>
+            <p
+              data-testid={`vitrine-detail-step-${s.n}-desc`}
+              style={{ fontSize: 13, lineHeight: 1.5, color: "var(--ink-600)" }}
+            >
+              {s.d}
+            </p>
           </div>
         </div>
       ))}
@@ -266,6 +317,7 @@ function ComoVenderTab() {
 function LoadingState() {
   return (
     <div
+      data-testid="vitrine-detail-loading-state"
       style={{
         display: "flex",
         flexDirection: "column",
@@ -275,8 +327,18 @@ function LoadingState() {
         padding: "120px 0",
       }}
     >
-      <Loader2 size={28} className="animate-spin" style={{ color: "var(--kai-orange)" }} />
-      <span style={{ fontSize: 13, color: "var(--ink-500)" }}>Carregando produto…</span>
+      <Loader2
+        data-testid="vitrine-detail-loading-spinner"
+        size={28}
+        className="animate-spin"
+        style={{ color: "var(--kai-orange)" }}
+      />
+      <span
+        data-testid="vitrine-detail-loading-message"
+        style={{ fontSize: 13, color: "var(--ink-500)" }}
+      >
+        Carregando produto…
+      </span>
     </div>
   );
 }
@@ -284,6 +346,7 @@ function LoadingState() {
 function ErrorState({ message, onRetry }: { message: string; onRetry: () => void }) {
   return (
     <div
+      data-testid="vitrine-detail-error-state"
       style={{
         display: "flex",
         flexDirection: "column",
@@ -294,6 +357,7 @@ function ErrorState({ message, onRetry }: { message: string; onRetry: () => void
       }}
     >
       <div
+        data-testid="vitrine-detail-error-icon-wrapper"
         style={{
           width: 64,
           height: 64,
@@ -306,13 +370,30 @@ function ErrorState({ message, onRetry }: { message: string; onRetry: () => void
       >
         <AlertCircle size={28} style={{ color: "var(--kai-error, #dc2626)" }} />
       </div>
-      <div>
-        <p className="font-semibold text-[var(--ink-900)]">Produto indisponível</p>
-        <p className="text-sm text-[var(--ink-500)] mt-1">{message}</p>
+      <div data-testid="vitrine-detail-error-text">
+        <p
+          data-testid="vitrine-detail-error-title"
+          className="font-semibold text-[var(--ink-900)]"
+        >
+          Produto indisponível
+        </p>
+        <p
+          data-testid="vitrine-detail-error-message"
+          className="text-sm text-[var(--ink-500)] mt-1"
+        >
+          {message}
+        </p>
       </div>
-      <div style={{ display: "flex", gap: 8 }}>
-        <Link href="/vitrine-de-produtos">
+      <div
+        data-testid="vitrine-detail-error-actions"
+        style={{ display: "flex", gap: 8 }}
+      >
+        <Link
+          data-testid="vitrine-detail-error-back-link"
+          href="/vitrine-de-produtos"
+        >
           <button
+            data-testid="vitrine-detail-button-back-vitrine"
             style={{
               height: 36,
               padding: "0 16px",
@@ -330,6 +411,7 @@ function ErrorState({ message, onRetry }: { message: string; onRetry: () => void
           </button>
         </Link>
         <button
+          data-testid="vitrine-detail-button-retry"
           onClick={onRetry}
           style={{
             height: 36,
@@ -409,13 +491,18 @@ export default function VitrineProductDetail() {
 
   return (
     <motion.div
+      data-testid="vitrine-detail-page"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.4 }}
       style={{ padding: "32px", maxWidth: 1240, margin: "0 auto", width: "100%" }}
     >
-      <Link href="/vitrine-de-produtos">
+      <Link
+        data-testid="vitrine-detail-back-link"
+        href="/vitrine-de-produtos"
+      >
         <button
+          data-testid="vitrine-detail-button-back"
           style={{
             display: "flex",
             alignItems: "center",
@@ -438,6 +525,7 @@ export default function VitrineProductDetail() {
       </Link>
 
       <div
+        data-testid="vitrine-detail-section-main"
         style={{
           display: "grid",
           gridTemplateColumns: "1.1fr 1fr",
@@ -445,8 +533,12 @@ export default function VitrineProductDetail() {
           marginBottom: 32,
         }}
       >
-        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+        <div
+          data-testid="vitrine-detail-gallery"
+          style={{ display: "flex", flexDirection: "column", gap: 12 }}
+        >
           <div
+            data-testid="vitrine-detail-main-image-wrapper"
             style={{
               background: "var(--ink-100)",
               borderRadius: "var(--r-lg)",
@@ -456,6 +548,7 @@ export default function VitrineProductDetail() {
             }}
           >
             <img
+              data-testid="vitrine-detail-main-image"
               src={img}
               alt={produto.nome}
               referrerPolicy="no-referrer"
@@ -467,9 +560,13 @@ export default function VitrineProductDetail() {
                 objectFit: "cover",
               }}
             />
-            <div style={{ position: "absolute", top: 16, left: 16, display: "flex", gap: 8 }}>
+            <div
+              data-testid="vitrine-detail-image-badges"
+              style={{ position: "absolute", top: 16, left: 16, display: "flex", gap: 8 }}
+            >
               {estoque > 0 && estoque <= 10 && (
                 <span
+                  data-testid="vitrine-detail-badge-last-units"
                   style={{
                     display: "inline-flex",
                     alignItems: "center",
@@ -488,6 +585,7 @@ export default function VitrineProductDetail() {
               )}
               {produto.ativo !== false && (
                 <span
+                  data-testid="vitrine-detail-badge-ativo"
                   style={{
                     display: "inline-flex",
                     alignItems: "center",
@@ -505,6 +603,7 @@ export default function VitrineProductDetail() {
               )}
             </div>
             <div
+              data-testid="vitrine-detail-image-sku"
               style={{
                 position: "absolute",
                 bottom: 16,
@@ -521,9 +620,13 @@ export default function VitrineProductDetail() {
               {produto.sku ?? "PRODUCT IMAGE"}
             </div>
           </div>
-          <div style={{ display: "flex", gap: 8 }}>
+          <div
+            data-testid="vitrine-detail-thumbs"
+            style={{ display: "flex", gap: 8 }}
+          >
             {thumbImages.map((src, i) => (
               <div
+                data-testid={`vitrine-detail-thumb-${i}`}
                 key={i}
                 style={{
                   flex: 1,
@@ -537,6 +640,7 @@ export default function VitrineProductDetail() {
                 }}
               >
                 <img
+                  data-testid={`vitrine-detail-thumb-${i}-image`}
                   src={src}
                   alt={`${produto.nome} thumb ${i + 1}`}
                   referrerPolicy="no-referrer"
@@ -553,9 +657,13 @@ export default function VitrineProductDetail() {
           </div>
         </div>
 
-        <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-          <div>
+        <div
+          data-testid="vitrine-detail-section-info"
+          style={{ display: "flex", flexDirection: "column", gap: 20 }}
+        >
+          <div data-testid="vitrine-detail-info-header">
             <div
+              data-testid="vitrine-detail-info-category"
               style={{
                 fontSize: 11,
                 fontWeight: 700,
@@ -567,33 +675,57 @@ export default function VitrineProductDetail() {
             >
               {cat}
             </div>
-            <h1 style={{ fontSize: 30, fontWeight: 800, marginBottom: 10, lineHeight: 1.2 }}>
+            <h1
+              data-testid="vitrine-detail-section-info-title"
+              style={{ fontSize: 30, fontWeight: 800, marginBottom: 10, lineHeight: 1.2 }}
+            >
               {produto.nome}
             </h1>
-            <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 14 }}>
-              <div style={{ display: "flex", gap: 2 }}>
+            <div
+              data-testid="vitrine-detail-info-meta"
+              style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 14 }}
+            >
+              <div
+                data-testid="vitrine-detail-info-stars"
+                style={{ display: "flex", gap: 2 }}
+              >
                 {[1, 2, 3, 4, 5].map((s) => (
                   <Star
+                    data-testid={`vitrine-detail-info-star-${s}`}
                     key={s}
                     size={14}
                     style={{ color: "var(--kai-orange)", fill: "var(--kai-orange)" }}
                   />
                 ))}
               </div>
-              <span style={{ fontWeight: 700 }}>
+              <span
+                data-testid="vitrine-detail-info-brand"
+                style={{ fontWeight: 700 }}
+              >
                 {produto.marca ?? "Kaiross"}
               </span>
               {produto.sku ? (
                 <>
-                  <span style={{ color: "var(--ink-300)" }}>·</span>
-                  <span style={{ color: "var(--ink-500)" }}>SKU {produto.sku}</span>
+                  <span
+                    data-testid="vitrine-detail-info-divider"
+                    style={{ color: "var(--ink-300)" }}
+                  >
+                    ·
+                  </span>
+                  <span
+                    data-testid="vitrine-detail-info-sku"
+                    style={{ color: "var(--ink-500)" }}
+                  >
+                    SKU {produto.sku}
+                  </span>
                 </>
               ) : null}
             </div>
           </div>
 
-          <div>
+          <div data-testid="vitrine-detail-section-pricing">
             <div
+              data-testid="vitrine-detail-pricing-label"
               style={{
                 fontSize: 11,
                 fontWeight: 700,
@@ -605,8 +737,12 @@ export default function VitrineProductDetail() {
             >
               Como você quer precificar
             </div>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 10 }}>
+            <div
+              data-testid="vitrine-detail-pricing-grid"
+              style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 10 }}
+            >
               <PricingCard
+                testIdSlug="sugerido"
                 active={pricingMode === "sugerido"}
                 onClick={() => setPricingMode("sugerido")}
                 kicker="Preço de custo"
@@ -615,6 +751,7 @@ export default function VitrineProductDetail() {
                 tone="dark"
               />
               <PricingCard
+                testIdSlug="decide"
                 active={pricingMode === "decide"}
                 onClick={() => setPricingMode("decide")}
                 kicker="Você decide"
@@ -623,6 +760,7 @@ export default function VitrineProductDetail() {
                 tone="orange"
               />
               <PricingCard
+                testIdSlug="zero"
                 active={pricingMode === "zero"}
                 onClick={() => setPricingMode("zero")}
                 kicker="Zero risco"
@@ -635,6 +773,7 @@ export default function VitrineProductDetail() {
           </div>
 
           <div
+            data-testid="vitrine-detail-section-stock"
             style={{
               padding: 16,
               background: "var(--ink-50)",
@@ -642,9 +781,16 @@ export default function VitrineProductDetail() {
               borderRadius: "var(--r-md)",
             }}
           >
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+            <div
+              data-testid="vitrine-detail-stock-row"
+              style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}
+            >
+              <div
+                data-testid="vitrine-detail-stock-text"
+                style={{ display: "flex", flexDirection: "column", gap: 2 }}
+              >
                 <span
+                  data-testid="vitrine-detail-stock-label"
                   style={{
                     fontSize: 11,
                     fontWeight: 700,
@@ -655,13 +801,17 @@ export default function VitrineProductDetail() {
                 >
                   Estoque disponível
                 </span>
-                <span style={{ fontSize: 12, color: "var(--ink-600)" }}>
+                <span
+                  data-testid="vitrine-detail-stock-message"
+                  style={{ fontSize: 12, color: "var(--ink-600)" }}
+                >
                   {estoque > 0
                     ? `${estoque.toLocaleString("pt-BR")} unidades prontas para venda`
                     : "Sem estoque no momento"}
                 </span>
               </div>
               <span
+                data-testid="vitrine-detail-stock-value"
                 style={{
                   fontSize: 22,
                   fontWeight: 800,
@@ -671,12 +821,18 @@ export default function VitrineProductDetail() {
                 }}
               >
                 {estoque.toLocaleString("pt-BR")}{" "}
-                <span style={{ fontSize: 12, fontWeight: 500, color: "var(--ink-500)" }}>un</span>
+                <span
+                  data-testid="vitrine-detail-stock-unit"
+                  style={{ fontSize: 12, fontWeight: 500, color: "var(--ink-500)" }}
+                >
+                  un
+                </span>
               </span>
             </div>
           </div>
 
           <button
+            data-testid="vitrine-detail-button-buy"
             onClick={handleAfiliar}
             disabled={afiliar.isPending || estoque === 0 || produto.ativo === false}
             style={{
@@ -721,6 +877,7 @@ export default function VitrineProductDetail() {
           </button>
 
           <div
+            data-testid="vitrine-detail-benefits"
             style={{
               display: "flex",
               justifyContent: "center",
@@ -731,20 +888,25 @@ export default function VitrineProductDetail() {
             }}
           >
             {["Sem mensalidade", "Despacho pelo fornecedor", "Split automático"].map(
-              (item, i) => (
-                <span
-                  key={i}
-                  style={{ display: "flex", alignItems: "center", gap: 4 }}
-                >
-                  <Check size={13} style={{ color: "var(--kai-success)" }} /> {item}
-                </span>
-              ),
+              (item, i) => {
+                const slug = item.toLowerCase().replace(/\s+/g, "-");
+                return (
+                  <span
+                    data-testid={`vitrine-detail-benefit-${slug}`}
+                    key={i}
+                    style={{ display: "flex", alignItems: "center", gap: 4 }}
+                  >
+                    <Check size={13} style={{ color: "var(--kai-success)" }} /> {item}
+                  </span>
+                );
+              },
             )}
           </div>
         </div>
       </div>
 
       <div
+        data-testid="vitrine-detail-section-tabs"
         style={{
           borderRadius: "var(--r-lg)",
           border: "1px solid var(--ink-200)",
@@ -752,13 +914,17 @@ export default function VitrineProductDetail() {
           overflow: "hidden",
         }}
       >
-        <div style={{ display: "flex", borderBottom: "1px solid var(--ink-200)" }}>
+        <div
+          data-testid="vitrine-detail-tabs-list"
+          style={{ display: "flex", borderBottom: "1px solid var(--ink-200)" }}
+        >
           {[
             { k: "descricao", l: "Descrição" },
             { k: "specs", l: "Especificações" },
             { k: "comovender", l: "Como vender" },
           ].map((t) => (
             <button
+              data-testid={`vitrine-detail-tab-${t.k}`}
               key={t.k}
               onClick={() => setTab(t.k as typeof tab)}
               style={{
@@ -780,7 +946,10 @@ export default function VitrineProductDetail() {
             </button>
           ))}
         </div>
-        <div style={{ padding: 28 }}>
+        <div
+          data-testid="vitrine-detail-tabs-content"
+          style={{ padding: 28 }}
+        >
           {tab === "descricao" && <DescTab p={produto} />}
           {tab === "specs" && <SpecsTab p={produto} />}
           {tab === "comovender" && <ComoVenderTab />}

@@ -70,6 +70,15 @@ function bucketDate(ts: number, days: number): string {
   return d.toLocaleDateString("pt-BR", { month: "2-digit", year: "2-digit" });
 }
 
+function slugifyId(value: string | undefined | null): string {
+  if (!value) return "unknown";
+  return String(value)
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 40) || "unknown";
+}
+
 export default function RelatoriosVendas() {
   const [periodLabel, setPeriodLabel] = useState("30 dias");
   const period =
@@ -227,6 +236,7 @@ export default function RelatoriosVendas() {
 
   return (
     <motion.div
+      data-testid="relatorios-vendas-page"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.4 }}
@@ -236,8 +246,9 @@ export default function RelatoriosVendas() {
         title="Relatório de Vendas"
         subtitle="Acompanhe o desempenho das suas vendas ao longo do tempo."
         actions={
-          <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+          <div data-testid="relatorios-vendas-actions" style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
             <div
+              data-testid="relatorios-vendas-period-selector"
               style={{
                 display: "flex",
                 gap: 4,
@@ -249,6 +260,7 @@ export default function RelatoriosVendas() {
             >
               {PERIODS.map((p) => (
                 <button
+                  data-testid={`relatorios-vendas-button-period-${slugifyId(p.label)}`}
                   key={p.label}
                   onClick={() => setPeriodLabel(p.label)}
                   style={{
@@ -271,6 +283,7 @@ export default function RelatoriosVendas() {
               ))}
             </div>
             <button
+              data-testid="relatorios-vendas-button-export"
               onClick={handleExportPdf}
               disabled={exporting || isLoading || !pedidos.data}
               style={{
@@ -303,6 +316,7 @@ export default function RelatoriosVendas() {
 
       {!userId ? (
         <div
+          data-testid="relatorios-vendas-state-no-session"
           style={{
             padding: 32,
             background: "var(--ink-0)",
@@ -316,6 +330,7 @@ export default function RelatoriosVendas() {
         </div>
       ) : isLoading ? (
         <div
+          data-testid="relatorios-vendas-state-loading"
           style={{
             padding: 80,
             display: "flex",
@@ -329,12 +344,13 @@ export default function RelatoriosVendas() {
             className="animate-spin"
             style={{ color: "var(--kai-orange)" }}
           />
-          <span style={{ fontSize: 13, color: "var(--ink-500)" }}>
+          <span data-testid="relatorios-vendas-loading-text" style={{ fontSize: 13, color: "var(--ink-500)" }}>
             Carregando seus pedidos…
           </span>
         </div>
       ) : isError ? (
         <div
+          data-testid="relatorios-vendas-state-error"
           style={{
             padding: 32,
             background: "var(--ink-0)",
@@ -348,13 +364,14 @@ export default function RelatoriosVendas() {
           }}
         >
           <AlertCircle size={28} style={{ color: "var(--kai-danger, #dc2626)" }} />
-          <p className="font-semibold text-[var(--ink-900)]">
+          <p data-testid="relatorios-vendas-error-title" className="font-semibold text-[var(--ink-900)]">
             Não foi possível carregar o relatório
           </p>
-          <p className="text-sm text-[var(--ink-500)]">
+          <p data-testid="relatorios-vendas-error-message" className="text-sm text-[var(--ink-500)]">
             {error?.message ?? "Tente novamente em instantes."}
           </p>
           <button
+            data-testid="relatorios-vendas-button-retry"
             onClick={() => {
               relatorio.refetch();
               pedidos.refetch();
@@ -377,7 +394,7 @@ export default function RelatoriosVendas() {
         </div>
       ) : (
         <>
-          <div className="grid grid-cols-2 gap-4 lg:grid-cols-4 mb-6">
+          <div data-testid="relatorios-vendas-section-kpis" className="grid grid-cols-2 gap-4 lg:grid-cols-4 mb-6">
             <StatCard
               icon={DollarSign}
               label="Receita total"
@@ -402,6 +419,7 @@ export default function RelatoriosVendas() {
           </div>
 
           <div
+            data-testid="relatorios-vendas-section-chart"
             style={{
               padding: 24,
               background: "var(--ink-0)",
@@ -411,6 +429,7 @@ export default function RelatoriosVendas() {
             }}
           >
             <div
+              data-testid="relatorios-vendas-chart-header"
               style={{
                 display: "flex",
                 justifyContent: "space-between",
@@ -420,10 +439,10 @@ export default function RelatoriosVendas() {
                 flexWrap: "wrap",
               }}
             >
-              <h3 style={{ fontSize: 16, fontWeight: 700 }}>
+              <h3 data-testid="relatorios-vendas-chart-title" style={{ fontSize: 16, fontWeight: 700 }}>
                 Evolução da receita
               </h3>
-              <span style={{ fontSize: 12, color: "var(--ink-500)" }}>
+              <span data-testid="relatorios-vendas-chart-points-info" style={{ fontSize: 12, color: "var(--ink-500)" }}>
                 {chartData.length === 0
                   ? "Nenhum pedido pago no período."
                   : `${chartData.length} ${chartData.length === 1 ? "ponto" : "pontos"} no gráfico`}
@@ -431,6 +450,7 @@ export default function RelatoriosVendas() {
             </div>
             {chartData.length === 0 ? (
               <div
+                data-testid="relatorios-vendas-chart-empty"
                 style={{
                   padding: 40,
                   textAlign: "center",
@@ -497,6 +517,7 @@ export default function RelatoriosVendas() {
           </div>
 
           <div
+            data-testid="relatorios-vendas-section-performance"
             style={{
               borderRadius: "var(--r-lg)",
               border: "1px solid var(--ink-200)",
@@ -505,16 +526,18 @@ export default function RelatoriosVendas() {
             }}
           >
             <div
+              data-testid="relatorios-vendas-performance-header"
               style={{
                 padding: "16px 20px",
                 borderBottom: "1px solid var(--ink-200)",
               }}
             >
-              <h3 style={{ fontSize: 16, fontWeight: 700 }}>
+              <h3 data-testid="relatorios-vendas-performance-title" style={{ fontSize: 16, fontWeight: 700 }}>
                 Performance por produto
               </h3>
             </div>
             <div
+              data-testid="relatorios-vendas-performance-table-head"
               style={{
                 display: "grid",
                 gridTemplateColumns: "2.5fr 1fr 1fr 1fr",
@@ -528,13 +551,14 @@ export default function RelatoriosVendas() {
                 borderBottom: "1px solid var(--ink-200)",
               }}
             >
-              <div>Produto</div>
-              <div>Unidades</div>
-              <div>Receita</div>
-              <div>Preço médio</div>
+              <div data-testid="relatorios-vendas-performance-th-produto">Produto</div>
+              <div data-testid="relatorios-vendas-performance-th-unidades">Unidades</div>
+              <div data-testid="relatorios-vendas-performance-th-receita">Receita</div>
+              <div data-testid="relatorios-vendas-performance-th-preco-medio">Preço médio</div>
             </div>
             {performancePorProduto.length === 0 ? (
               <div
+                data-testid="relatorios-vendas-performance-empty"
                 style={{
                   padding: 40,
                   textAlign: "center",
@@ -545,41 +569,47 @@ export default function RelatoriosVendas() {
                 Sem dados de produtos vendidos no período.
               </div>
             ) : (
-              performancePorProduto.map((row) => (
-                <div
-                  key={row.prod}
-                  style={{
-                    display: "grid",
-                    gridTemplateColumns: "2.5fr 1fr 1fr 1fr",
-                    gap: 16,
-                    padding: "14px 20px",
-                    alignItems: "center",
-                    borderBottom: "1px solid var(--ink-100)",
-                  }}
-                >
-                  <span style={{ fontWeight: 600 }}>{row.prod}</span>
-                  <span style={{ fontFamily: "var(--font-mono)", fontWeight: 600 }}>
-                    {row.sales}
-                  </span>
-                  <span
+              performancePorProduto.map((row) => {
+                const rowId = slugifyId(row.prod);
+                return (
+                  <div
+                    data-testid={`relatorios-vendas-row-${rowId}`}
+                    key={row.prod}
                     style={{
-                      fontFamily: "var(--font-mono)",
-                      fontWeight: 600,
-                      color: "var(--kai-success)",
+                      display: "grid",
+                      gridTemplateColumns: "2.5fr 1fr 1fr 1fr",
+                      gap: 16,
+                      padding: "14px 20px",
+                      alignItems: "center",
+                      borderBottom: "1px solid var(--ink-100)",
                     }}
                   >
-                    {fmtBRL(row.revenue)}
-                  </span>
-                  <span style={{ fontFamily: "var(--font-mono)", fontWeight: 600 }}>
-                    {fmtBRL(row.ticket)}
-                  </span>
-                </div>
-              ))
+                    <span data-testid={`relatorios-vendas-row-${rowId}-produto`} style={{ fontWeight: 600 }}>{row.prod}</span>
+                    <span data-testid={`relatorios-vendas-row-${rowId}-unidades`} style={{ fontFamily: "var(--font-mono)", fontWeight: 600 }}>
+                      {row.sales}
+                    </span>
+                    <span
+                      data-testid={`relatorios-vendas-row-${rowId}-receita`}
+                      style={{
+                        fontFamily: "var(--font-mono)",
+                        fontWeight: 600,
+                        color: "var(--kai-success)",
+                      }}
+                    >
+                      {fmtBRL(row.revenue)}
+                    </span>
+                    <span data-testid={`relatorios-vendas-row-${rowId}-preco-medio`} style={{ fontFamily: "var(--font-mono)", fontWeight: 600 }}>
+                      {fmtBRL(row.ticket)}
+                    </span>
+                  </div>
+                );
+              })
             )}
           </div>
 
           {relatorio.data && (
             <div
+              data-testid="relatorios-vendas-section-historico"
               style={{
                 marginTop: 16,
                 padding: 16,
@@ -593,13 +623,13 @@ export default function RelatoriosVendas() {
                 flexWrap: "wrap",
               }}
             >
-              <span>
-                <strong>Histórico total</strong> (todos os tempos): pagos{" "}
-                <strong>{relatorio.data.pagos ?? 0}</strong> · pendentes{" "}
-                <strong>{relatorio.data.pendentes ?? 0}</strong> · falhas{" "}
-                <strong>{relatorio.data.falhas ?? 0}</strong> · reembolsados{" "}
-                <strong>{relatorio.data.reembolsados ?? 0}</strong> ·
-                abandonados <strong>{relatorio.data.abandonados ?? 0}</strong>
+              <span data-testid="relatorios-vendas-historico-text">
+                <strong data-testid="relatorios-vendas-historico-label">Histórico total</strong> (todos os tempos): pagos{" "}
+                <strong data-testid="relatorios-vendas-historico-pagos">{relatorio.data.pagos ?? 0}</strong> · pendentes{" "}
+                <strong data-testid="relatorios-vendas-historico-pendentes">{relatorio.data.pendentes ?? 0}</strong> · falhas{" "}
+                <strong data-testid="relatorios-vendas-historico-falhas">{relatorio.data.falhas ?? 0}</strong> · reembolsados{" "}
+                <strong data-testid="relatorios-vendas-historico-reembolsados">{relatorio.data.reembolsados ?? 0}</strong> ·
+                abandonados <strong data-testid="relatorios-vendas-historico-abandonados">{relatorio.data.abandonados ?? 0}</strong>
               </span>
             </div>
           )}

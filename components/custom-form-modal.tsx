@@ -115,6 +115,7 @@ interface ModalProps {
   trigger?: React.ReactNode;
   triggerLabel?: string;
   triggerClassName?: string;
+  testId?: string;
   submitButton?: ModalButton;
   cancelButton?: ModalButton;
   defaultValues?: Record<string, unknown>;
@@ -144,6 +145,7 @@ export function CustomModalForm({
   iconType,
   triggerLabel = "Open",
   triggerClassName,
+  testId,
   submitButton = { buttonType: "submit", label: "Enviar", variant: "default" },
   cancelButton = { buttonType: "cancel", label: "Cancelar", variant: "link" },
   defaultValues,
@@ -165,6 +167,8 @@ export function CustomModalForm({
   onSelectChange,
 }: ModalProps): React.JSX.Element {
   type FormValues = Record<string, unknown> & FieldValues;
+
+  const baseId = testId || "custom-modal-form";
 
   const resolver: Resolver<FormValues> | undefined = schema
     ? (zodResolver as unknown as (s: unknown) => Resolver<FormValues>)(
@@ -361,12 +365,17 @@ export function CustomModalForm({
         }}
       >
         {trigger !== undefined ? (
-          <DialogTrigger asChild>
+          <DialogTrigger asChild data-testid={`${baseId}-trigger`}>
             {(trigger as React.ReactNode) || <></>}
           </DialogTrigger>
         ) : (
-          <DialogTrigger asChild>
-            <Button className={cn("", triggerClassName)}>{triggerLabel}</Button>
+          <DialogTrigger asChild data-testid={`${baseId}-trigger`}>
+            <Button
+              className={cn("", triggerClassName)}
+              data-testid={`${baseId}-trigger-button`}
+            >
+              {triggerLabel}
+            </Button>
           </DialogTrigger>
         )}
 
@@ -378,24 +387,38 @@ export function CustomModalForm({
           )}
           style={{ width: 410, maxWidth: "95vw" }}
           showCloseButton={!forceConfirm}
+          data-testid={`${baseId}-dialog`}
         >
           {showSuccessScreen ? (
             <>
-              <DialogHeader className="items-center">
+              <DialogHeader
+                className="items-center"
+                data-testid={`${baseId}-success`}
+              >
                 {variant === "default" && <FormHeader type="success" />}
-                <DialogTitle className="text-foreground text-center text-lg">
+                <DialogTitle
+                  className="text-foreground text-center text-lg"
+                  data-testid={`${baseId}-success-title`}
+                >
                   {successTitle}
                 </DialogTitle>
-                <p className="text-muted-foreground text-center text-sm">
+                <p
+                  className="text-muted-foreground text-center text-sm"
+                  data-testid={`${baseId}-success-description`}
+                >
                   {successDescription}
                 </p>
               </DialogHeader>
 
-              <DialogFooter className="mt-8 flex w-full flex-col gap-4 sm:flex-row sm:space-x-4">
+              <DialogFooter
+                className="mt-8 flex w-full flex-col gap-4 sm:flex-row sm:space-x-4"
+                data-testid={`${baseId}-success-footer`}
+              >
                 <DialogClose asChild>
                   <Button
                     variant="default"
                     className="w-full rounded-lg py-3 sm:flex-1"
+                    data-testid={`${baseId}-success-button-ok`}
                     onClick={() => {
                       setSuppressFormOnClose(true);
 
@@ -427,24 +450,37 @@ export function CustomModalForm({
                   "items-center",
                   variant === "clean" ? "items-start" : "",
                 )}
+                data-testid={`${baseId}-header`}
               >
                 {isAccountRemove || horizontalHeader ? (
-                  <div className="w-full">
+                  <div
+                    className="w-full"
+                    data-testid={`${baseId}-header-horizontal`}
+                  >
                     <div className="flex items-start gap-4">
                       {iconType === "warning" && (
-                        <div className="bg-primary/40 flex h-12 w-12 items-center justify-center rounded-xl">
+                        <div
+                          className="bg-primary/40 flex h-12 w-12 items-center justify-center rounded-xl"
+                          data-testid={`${baseId}-header-icon-warning`}
+                        >
                           <TriangleAlert className="text-primary" />
                         </div>
                       )}
 
                       {iconType === "error" && (
-                        <div className="bg-error/40 flex h-12 w-12 items-center justify-center rounded-xl">
+                        <div
+                          className="bg-error/40 flex h-12 w-12 items-center justify-center rounded-xl"
+                          data-testid={`${baseId}-header-icon-error`}
+                        >
                           <AlertCircle className="text-error" />
                         </div>
                       )}
 
                       {!iconType && (
-                        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#3a2326]">
+                        <div
+                          className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#3a2326]"
+                          data-testid={`${baseId}-header-icon-default`}
+                        >
                           <div className="flex h-7 w-7 items-center justify-center rounded-full bg-[#EF4444]">
                             <AlertCircle className="text-foreground h-4 w-4" />
                           </div>
@@ -452,12 +488,18 @@ export function CustomModalForm({
                       )}
                       <div className="flex-1">
                         {title && (
-                          <DialogTitle className="text-foreground text-left text-lg">
+                          <DialogTitle
+                            className="text-foreground text-left text-lg"
+                            data-testid={`${baseId}-title`}
+                          >
                             {title}
                           </DialogTitle>
                         )}
                         {description && (
-                          <p className="text-muted-foreground mt-2 text-sm whitespace-pre-line">
+                          <p
+                            className="text-muted-foreground mt-2 text-sm whitespace-pre-line"
+                            data-testid={`${baseId}-description`}
+                          >
                             {description
                               .split(/(\*\*[^*]+\*\*)/g)
                               .map((part, i) => {
@@ -467,11 +509,19 @@ export function CustomModalForm({
                                     <span
                                       key={i}
                                       className="text-muted-foreground mt-1 block text-base font-semibold"
+                                      data-testid={`${baseId}-description-bold-${i}`}
                                     >
                                       {match[1]}
                                     </span>
                                   );
-                                return <span key={i}>{part}</span>;
+                                return (
+                                  <span
+                                    key={i}
+                                    data-testid={`${baseId}-description-text-${i}`}
+                                  >
+                                    {part}
+                                  </span>
+                                );
                               })}
                           </p>
                         )}
@@ -487,13 +537,22 @@ export function CustomModalForm({
                           "text-foreground text-center text-lg",
                           variant === "clean" ? "text-start! font-medium" : "",
                         )}
+                        data-testid={`${baseId}-title`}
                       >
                         {title}
                       </DialogTitle>
                     )}
-                    {variant === "clean" && <hr className="mt-3 mb-3 w-full" />}
+                    {variant === "clean" && (
+                      <hr
+                        className="mt-3 mb-3 w-full"
+                        data-testid={`${baseId}-header-divider`}
+                      />
+                    )}
                     {description && (
-                      <p className="text-muted-foreground text-center text-sm">
+                      <p
+                        className="text-muted-foreground text-center text-sm"
+                        data-testid={`${baseId}-description`}
+                      >
                         {description}
                       </p>
                     )}
@@ -505,14 +564,22 @@ export function CustomModalForm({
                 id="modal-form"
                 onSubmit={handleSubmit(internalSubmit)}
                 className="flex min-h-0 flex-1 flex-col px-0"
+                data-testid={`${baseId}-form`}
               >
                 <div
                   ref={innerScrollRef}
                   className={cn("min-h-0 flex-1 overflow-y-auto pr-1")}
+                  data-testid={`${baseId}-scroll`}
                 >
                   {isAccountRemove ? (
-                    <div className="mt-4 space-y-4">
-                      <label className="text-muted-foreground mb-2 text-sm">
+                    <div
+                      className="mt-4 space-y-4"
+                      data-testid={`${baseId}-confirm-text-wrapper`}
+                    >
+                      <label
+                        className="text-muted-foreground mb-2 text-sm"
+                        data-testid={`${baseId}-confirm-text-label`}
+                      >
                         Para confirma disse &quot;Encerrar conta&quot;
                       </label>
                       <Input
@@ -527,9 +594,13 @@ export function CustomModalForm({
                         aria-invalid={
                           !!(errors as FieldErrors<FormValues>).confirmText
                         }
+                        data-testid={`${baseId}-input-confirm-text`}
                       />
                       {(errors as FieldErrors<FormValues>).confirmText && (
-                        <p className="text-xs text-red-500">
+                        <p
+                          className="text-xs text-red-500"
+                          data-testid={`${baseId}-error-confirm-text`}
+                        >
                           {
                             (
                               (errors as FieldErrors<FormValues>)
@@ -555,6 +626,7 @@ export function CustomModalForm({
                             "mb-5",
                             isMultiColumn && "grid grid-cols-2 gap-4",
                           )}
+                          data-testid={`${baseId}-row-${rowIndex}`}
                         >
                           {inputsArray.map((inp) => {
                             const nameKey = inp.name as keyof FormValues &
@@ -575,6 +647,7 @@ export function CustomModalForm({
                                     !ativoValidade &&
                                     "gap-0",
                                 )}
+                                data-testid={`${baseId}-field-${inp.name}`}
                               >
                                 {inp.ativo ? (
                                   <Controller
@@ -583,8 +656,14 @@ export function CustomModalForm({
                                     render={({
                                       field: { value = true, onChange },
                                     }) => (
-                                      <div className="flex items-center justify-between py-2">
-                                        <label className="text-foreground text-sm font-medium">
+                                      <div
+                                        className="flex items-center justify-between py-2"
+                                        data-testid={`${baseId}-field-${inp.name}-switch-row`}
+                                      >
+                                        <label
+                                          className="text-foreground text-sm font-medium"
+                                          data-testid={`${baseId}-field-${inp.name}-label`}
+                                        >
                                           {inp.label}
                                           {inp.required && (
                                             <span className="text-primary ml-1">
@@ -598,12 +677,16 @@ export function CustomModalForm({
                                             onChange(checked);
                                             setAtivoValidade(checked);
                                           }}
+                                          data-testid={`${baseId}-switch-${inp.name}`}
                                         />
                                       </div>
                                     )}
                                   />
                                 ) : (
-                                  <label className="text-foreground text-sm">
+                                  <label
+                                    className="text-foreground text-sm"
+                                    data-testid={`${baseId}-field-${inp.name}-label`}
+                                  >
                                     {inp.label}
                                     {inp.required && (
                                       <span className="text-primary ml-1">
@@ -623,6 +706,7 @@ export function CustomModalForm({
                                         ? "border border-red-500 focus-visible:ring-1 focus-visible:ring-red-500"
                                         : "border-input border",
                                     )}
+                                    data-testid={`${baseId}-textarea-${inp.name}`}
                                   />
                                 ) : String(inp.inputType) === "phone" ? (
                                   (() => {
@@ -706,6 +790,7 @@ export function CustomModalForm({
                                                   field.onChange(digitsOnly);
                                                 }
                                               }}
+                                              data-testid={`${baseId}-phone-${inp.name}`}
                                             />
                                           );
                                         }}
@@ -736,6 +821,7 @@ export function CustomModalForm({
                                           }
                                           className={commonClass}
                                           maxLength={18}
+                                          data-testid={`${baseId}-input-${inp.name}`}
                                         />
                                       );
                                     }}
@@ -798,6 +884,7 @@ export function CustomModalForm({
                                                 ? "border border-red-500 focus-visible:ring-1 focus-visible:ring-red-500"
                                                 : "border-border focus-visible:ring-ring focus-visible:ring-1",
                                             )}
+                                            data-testid={`${baseId}-select-${inp.name}`}
                                           >
                                             <SelectValue
                                               placeholder={
@@ -806,11 +893,14 @@ export function CustomModalForm({
                                               }
                                             />
                                           </SelectTrigger>
-                                          <SelectContent>
+                                          <SelectContent
+                                            data-testid={`${baseId}-select-${inp.name}-content`}
+                                          >
                                             {options.map((opt) => (
                                               <SelectItem
                                                 key={opt.value}
                                                 value={opt.value}
+                                                data-testid={`${baseId}-select-${inp.name}-option-${opt.value}`}
                                               >
                                                 {opt.label}
                                               </SelectItem>
@@ -821,7 +911,10 @@ export function CustomModalForm({
                                     }}
                                   />
                                 ) : String(inp.inputType) === "columns" ? (
-                                  <div className="flex w-full flex-wrap gap-2">
+                                  <div
+                                    className="flex w-full flex-wrap gap-2"
+                                    data-testid={`${baseId}-columns-${inp.name}`}
+                                  >
                                     {inp.columns?.map((col) => {
                                       const reg = register(col.name);
                                       return (
@@ -834,8 +927,12 @@ export function CustomModalForm({
                                               !ativoValidade &&
                                               "hidden",
                                           )}
+                                          data-testid={`${baseId}-field-${col.name}`}
                                         >
-                                          <label className="text-foreground text-sm">
+                                          <label
+                                            className="text-foreground text-sm"
+                                            data-testid={`${baseId}-field-${col.name}-label`}
+                                          >
                                             {col.label}
                                             {col.required && (
                                               <span className="text-primary ml-1">
@@ -877,6 +974,7 @@ export function CustomModalForm({
                                                           ? "border border-red-500 focus-visible:ring-1 focus-visible:ring-red-500"
                                                           : "border-border focus-visible:ring-ring focus-visible:ring-1",
                                                       )}
+                                                      data-testid={`${baseId}-select-${col.name}`}
                                                     >
                                                       <SelectValue
                                                         placeholder={
@@ -885,11 +983,14 @@ export function CustomModalForm({
                                                         }
                                                       />
                                                     </SelectTrigger>
-                                                    <SelectContent>
+                                                    <SelectContent
+                                                      data-testid={`${baseId}-select-${col.name}-content`}
+                                                    >
                                                       {options.map((opt) => (
                                                         <SelectItem
                                                           key={opt.value}
                                                           value={opt.value}
+                                                          data-testid={`${baseId}-select-${col.name}-option-${opt.value}`}
                                                         >
                                                           {opt.label}
                                                         </SelectItem>
@@ -916,11 +1017,15 @@ export function CustomModalForm({
                                                       ? "border border-red-500 focus-visible:ring-1 focus-visible:ring-red-500"
                                                       : "border-border focus-visible:ring-ring focus-visible:ring-1",
                                                   )}
+                                                  data-testid={`${baseId}-input-${col.name}`}
                                                 />
                                               )}
                                             />
                                           ) : (
-                                            <div className="relative">
+                                            <div
+                                              className="relative"
+                                              data-testid={`${baseId}-input-${col.name}-wrapper`}
+                                            >
                                               <Input
                                                 {...reg}
                                                 placeholder={col.placeholder}
@@ -931,9 +1036,13 @@ export function CustomModalForm({
                                                     ? "border border-red-500 focus-visible:ring-1 focus-visible:ring-red-500"
                                                     : "border-border focus-visible:ring-ring focus-visible:ring-1",
                                                 )}
+                                                data-testid={`${baseId}-input-${col.name}`}
                                               />
                                               {col.iconInput && (
-                                                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                                                <div
+                                                  className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3"
+                                                  data-testid={`${baseId}-input-${col.name}-icon`}
+                                                >
                                                   <span className="text-muted-foreground mt-2 text-sm">
                                                     {IconInput(col.iconInput)}
                                                   </span>
@@ -981,6 +1090,7 @@ export function CustomModalForm({
                                               ? 2
                                               : 100
                                         }
+                                        data-testid={`${baseId}-input-${inp.name}`}
                                         onChange={(
                                           e: React.ChangeEvent<HTMLInputElement>,
                                         ) => {
@@ -1075,7 +1185,10 @@ export function CustomModalForm({
                                 )}
 
                                 {fieldError && (
-                                  <p className="text-xs text-red-500">
+                                  <p
+                                    className="text-xs text-red-500"
+                                    data-testid={`${baseId}-error-${inp.name}`}
+                                  >
                                     {fieldError.message}
                                   </p>
                                 )}
@@ -1089,10 +1202,24 @@ export function CustomModalForm({
 
                   {orderBump && (
                     <>
-                      <div className="mt-6 mb-2">
-                        <p className="text-foreground mb-2 text-sm">Prévia</p>
-                        <div className="rounded-md border p-5">
-                          <p className="bg-error text-foreground rounded-t-md p-2 text-center text-sm font-medium break-all">
+                      <div
+                        className="mt-6 mb-2"
+                        data-testid={`${baseId}-orderbump-preview`}
+                      >
+                        <p
+                          className="text-foreground mb-2 text-sm"
+                          data-testid={`${baseId}-orderbump-preview-title`}
+                        >
+                          Prévia
+                        </p>
+                        <div
+                          className="rounded-md border p-5"
+                          data-testid={`${baseId}-orderbump-preview-card`}
+                        >
+                          <p
+                            className="bg-error text-foreground rounded-t-md p-2 text-center text-sm font-medium break-all"
+                            data-testid={`${baseId}-orderbump-preview-description`}
+                          >
                             {watch("descricao") || "Descrição"}
                           </p>
                           <div className="rounded-b-md bg-gray-200 p-3">
@@ -1100,19 +1227,27 @@ export function CustomModalForm({
                               <Checkbox
                                 checked={false}
                                 className="border-muted-foreground h-4 w-4 bg-gray-100!"
+                                data-testid={`${baseId}-orderbump-preview-checkbox`}
                               />
                               <div className="flex flex-col gap-1">
-                                <p className="text-error text-xs break-all">
+                                <p
+                                  className="text-error text-xs break-all"
+                                  data-testid={`${baseId}-orderbump-preview-name-offer`}
+                                >
                                   {nameOffer ||
                                     "DE R$197,00 POR APENAS R$97,00"}
                                 </p>
                                 <p
                                   className={`text-xs break-all ${isLightTheme ? "text-white" : "text-black"}`}
+                                  data-testid={`${baseId}-orderbump-preview-cta`}
                                 >
                                   {watch("cta") ||
                                     "Adquira o acelerador de resultados preço exclusivo nessa oferta"}
                                 </p>
-                                <p className="text-muted-foreground text-xs">
+                                <p
+                                  className="text-muted-foreground text-xs"
+                                  data-testid={`${baseId}-orderbump-preview-price`}
+                                >
                                   R${" "}
                                   {new Intl.NumberFormat("pt-BR", {
                                     minimumFractionDigits: 2,
@@ -1129,8 +1264,14 @@ export function CustomModalForm({
 
                   {passwordStrength && (
                     <>
-                      <div className="mt-6 mb-2">
-                        <h2 className="text-md text-foreground flex items-center justify-between font-bold">
+                      <div
+                        className="mt-6 mb-2"
+                        data-testid={`${baseId}-password-section`}
+                      >
+                        <h2
+                          className="text-md text-foreground flex items-center justify-between font-bold"
+                          data-testid={`${baseId}-password-section-title`}
+                        >
                           Senha
                           <button
                             type="button"
@@ -1139,6 +1280,7 @@ export function CustomModalForm({
                               setShowConfirmPassword(!showConfirmPassword);
                             }}
                             className="text-foreground hover:text-muted-foreground flex items-center gap-1.5 text-xs transition-colors"
+                            data-testid={`${baseId}-button-toggle-password-visibility`}
                           >
                             {showPassword ? (
                               <Eye className="size-4" />
@@ -1167,6 +1309,7 @@ export function CustomModalForm({
                             aria-invalid={
                               !!(errors as FieldErrors<FormValues>).password
                             }
+                            data-testid={`${baseId}-input-password`}
                           />
                         </div>
                       </div>
@@ -1190,11 +1333,15 @@ export function CustomModalForm({
                               !!(errors as FieldErrors<FormValues>)
                                 .passwordConfirmation
                             }
+                            data-testid={`${baseId}-input-password-confirmation`}
                           />
                         </div>
                         {(errors as FieldErrors<FormValues>)
                           .passwordConfirmation && (
-                          <p className="text-xs text-red-500">
+                          <p
+                            className="text-xs text-red-500"
+                            data-testid={`${baseId}-error-password-confirmation`}
+                          >
                             {
                               (
                                 (errors as FieldErrors<FormValues>)
@@ -1206,7 +1353,10 @@ export function CustomModalForm({
                       </div>
 
                       {password && (
-                        <div className="mt-5">
+                        <div
+                          className="mt-5"
+                          data-testid={`${baseId}-password-strength`}
+                        >
                           <PasswordStrength password={password} />
                         </div>
                       )}
@@ -1219,6 +1369,7 @@ export function CustomModalForm({
                     "border-border mt-4 flex w-full shrink-0 flex-col gap-4 border-t pt-4 sm:flex-row sm:space-x-4",
                     variant === "clean" && "border-none",
                   )}
+                  data-testid={`${baseId}-footer`}
                 >
                   {cancelButton && !forceConfirm && (
                     <DialogClose asChild>
@@ -1227,6 +1378,7 @@ export function CustomModalForm({
                         className={cn(
                           "bg-muted/80 text-foreground w-full rounded-lg py-3 no-underline hover:no-underline sm:flex-1",
                         )}
+                        data-testid={`${baseId}-button-cancel`}
                       >
                         {cancelButton.label}
                       </Button>
@@ -1244,10 +1396,17 @@ export function CustomModalForm({
                           : "bg-primary text-primary-foreground",
                       )}
                       disabled={!isValid || isSubmitting || isPending}
+                      data-testid={`${baseId}-button-submit`}
                     >
                       {isSubmitting || isPending ? (
-                        <div className="flex items-center gap-2">
-                          <div className="h-4 w-4 animate-spin rounded-full border-2 border-black/30 border-t-black" />
+                        <div
+                          className="flex items-center gap-2"
+                          data-testid={`${baseId}-button-submit-loading`}
+                        >
+                          <div
+                            className="h-4 w-4 animate-spin rounded-full border-2 border-black/30 border-t-black"
+                            data-testid={`${baseId}-button-submit-spinner`}
+                          />
                           {getLoadingLabel()}
                         </div>
                       ) : (

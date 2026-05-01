@@ -10,9 +10,10 @@ interface SparklineProps {
   color?: string;
   w?: number;
   h?: number;
+  testId?: string;
 }
 
-function Sparkline({ data, color = "var(--kai-orange)", w = 100, h = 40 }: SparklineProps) {
+function Sparkline({ data, color = "var(--kai-orange)", w = 100, h = 40, testId }: SparklineProps) {
   const max = Math.max(...data);
   const min = Math.min(...data);
   const range = max - min || 1;
@@ -26,6 +27,7 @@ function Sparkline({ data, color = "var(--kai-orange)", w = 100, h = 40 }: Spark
 
   return (
     <svg
+      data-testid={testId}
       width={w}
       height={h}
       viewBox={`0 0 ${w} ${h}`}
@@ -67,6 +69,12 @@ interface StatsCardsProps {
   showBalance?: boolean;
 }
 
+const slug = (s: string) =>
+  s
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+
 /* ─── Componente ─────────────────────────────────────────────────────────── */
 
 export function StatsCards({
@@ -76,13 +84,18 @@ export function StatsCards({
   showBalance = true,
 }: StatsCardsProps) {
   return (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+    <div
+      data-testid="stats-cards"
+      data-loading={loading ? "true" : "false"}
+      className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4"
+    >
       {(loading ? (Array.from({ length: 4 }) as undefined[]) : data).map(
         (card, index) => {
           if (loading || !card) {
             return (
               <div
                 key={index}
+                data-testid={`stats-cards-skeleton-${index}`}
                 className="relative overflow-hidden rounded-[var(--r-lg)] border border-[var(--ink-200)] bg-[var(--ink-0)] p-[22px] shadow-[var(--sh-xs)]"
               >
                 <Skeleton className="mb-3 h-4 w-28" />
@@ -94,25 +107,38 @@ export function StatsCards({
 
           const isNegative = card.percent.startsWith("-");
           const sparkColor = card.sparkColor ?? "var(--kai-orange)";
+          const cardId = `stats-card-${slug(card.title)}`;
 
           return (
             <motion.div
               key={card.title}
+              data-testid={cardId}
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3, delay: index * 0.08 }}
               className="relative overflow-hidden rounded-[var(--r-lg)] border border-[var(--ink-200)] bg-[var(--ink-0)] p-[22px] shadow-[var(--sh-xs)] transition-all hover:-translate-y-px hover:shadow-[var(--sh-md)]"
             >
               {/* Label com ícone */}
-              <div className="mb-[14px] flex items-center gap-2.5 text-[14px] font-medium text-[var(--ink-600)]">
-                <span className="flex h-8 w-8 items-center justify-center rounded-[10px] bg-[var(--kai-orange-50)] text-[var(--kai-orange-600)]">
-                  <card.icon size={16} />
+              <div
+                data-testid={`${cardId}-header`}
+                className="mb-[14px] flex items-center gap-2.5 text-[14px] font-medium text-[var(--ink-600)]"
+              >
+                <span
+                  data-testid={`${cardId}-icon-wrapper`}
+                  className="flex h-8 w-8 items-center justify-center rounded-[10px] bg-[var(--kai-orange-50)] text-[var(--kai-orange-600)]"
+                >
+                  <card.icon
+                    data-testid={`${cardId}-icon`}
+                    size={16}
+                  />
                 </span>
-                {card.title}
+                <span data-testid={`${cardId}-title`}>{card.title}</span>
               </div>
 
               {/* Valor principal */}
               <div
+                data-testid={`${cardId}-value`}
+                data-balance-hidden={!showBalance ? "true" : "false"}
                 className="mono-num mb-[6px] text-[30px] font-extrabold leading-none tracking-[-0.03em] text-[var(--ink-900)]"
                 style={{
                   filter: !showBalance ? "blur(8px)" : "none",
@@ -125,8 +151,13 @@ export function StatsCards({
 
               {/* Delta */}
               {!hideBadge && (
-                <div className="flex items-center gap-2">
+                <div
+                  data-testid={`${cardId}-delta`}
+                  className="flex items-center gap-2"
+                >
                   <span
+                    data-testid={`${cardId}-delta-badge`}
+                    data-negative={isNegative ? "true" : "false"}
                     className={[
                       "inline-flex items-center gap-1 rounded-[var(--r-pill)] px-2.5 py-1 text-[12px] font-semibold",
                       isNegative
@@ -136,13 +167,22 @@ export function StatsCards({
                   >
                     {isNegative ? "↓" : "↑"} {card.percent.replace("-", "")}%
                   </span>
-                  <span className="text-[12px] text-[var(--ink-500)]">vs. ontem</span>
+                  <span
+                    data-testid={`${cardId}-delta-caption`}
+                    className="text-[12px] text-[var(--ink-500)]"
+                  >
+                    vs. ontem
+                  </span>
                 </div>
               )}
 
               {/* Sparkline */}
               {card.sparkData && (
-                <Sparkline data={card.sparkData} color={sparkColor} />
+                <Sparkline
+                  testId={`${cardId}-sparkline`}
+                  data={card.sparkData}
+                  color={sparkColor}
+                />
               )}
             </motion.div>
           );

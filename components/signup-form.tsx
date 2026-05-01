@@ -90,15 +90,25 @@ const SignUp = ({ onTransition }: SignUpProps) => {
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-3.5">
-      <div className="mb-4">
-        <h2 className="text-md text-foreground font-bold">Informações</h2>
+    <form
+      data-testid="signup-form"
+      onSubmit={handleSubmit(onSubmit)}
+      className="space-y-3.5"
+    >
+      <div data-testid="signup-section-info-header" className="mb-4">
+        <h2
+          data-testid="signup-section-info-title"
+          className="text-md text-foreground font-bold"
+        >
+          Informações
+        </h2>
       </div>
 
-      <div className="space-y-1.5">
-        <div className="relative">
+      <div data-testid="signup-field-name" className="space-y-1.5">
+        <div data-testid="signup-field-name-wrapper" className="relative">
           <User className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
           <Input
+            data-testid="signup-input-name"
             id="name"
             type="text"
             placeholder="Nome Completo"
@@ -112,14 +122,17 @@ const SignUp = ({ onTransition }: SignUpProps) => {
           />
         </div>
         {errors.name && (
-          <p className="text-xs text-red-500">{errors.name.message}</p>
+          <p data-testid="signup-error-name" className="text-xs text-red-500">
+            {errors.name.message}
+          </p>
         )}
       </div>
 
-      <div className="space-y-1.5">
-        <div className="relative">
+      <div data-testid="signup-field-email" className="space-y-1.5">
+        <div data-testid="signup-field-email-wrapper" className="relative">
           <Mail className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
           <Input
+            data-testid="signup-input-email"
             id="email"
             type="email"
             placeholder="E-mail"
@@ -133,14 +146,20 @@ const SignUp = ({ onTransition }: SignUpProps) => {
           />
         </div>
         {errors.email && (
-          <p className="text-xs text-red-500">{errors.email.message}</p>
+          <p data-testid="signup-error-email" className="text-xs text-red-500">
+            {errors.email.message}
+          </p>
         )}
       </div>
 
-      <div className="space-y-1.5">
-        <div className="relative">
+      <div data-testid="signup-field-email-confirmation" className="space-y-1.5">
+        <div
+          data-testid="signup-field-email-confirmation-wrapper"
+          className="relative"
+        >
           <Mail className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
           <Input
+            data-testid="signup-input-email-confirmation"
             id="emailConfirmation"
             type="email"
             placeholder="Confirme seu e-mail"
@@ -154,14 +173,23 @@ const SignUp = ({ onTransition }: SignUpProps) => {
           />
         </div>
         {errors.emailConfirmation && (
-          <p className="text-xs text-red-500">{errors.emailConfirmation.message}</p>
+          <p
+            data-testid="signup-error-email-confirmation"
+            className="text-xs text-red-500"
+          >
+            {errors.emailConfirmation.message}
+          </p>
         )}
       </div>
 
-      <div className="mt-6 mb-2">
-        <h2 className="text-md text-foreground flex items-center justify-between font-bold">
+      <div data-testid="signup-section-password-header" className="mt-6 mb-2">
+        <h2
+          data-testid="signup-section-password-title"
+          className="text-md text-foreground flex items-center justify-between font-bold"
+        >
           Senha
           <button
+            data-testid="signup-button-toggle-password-visibility"
             type="button"
             onClick={() => {
               setShowPassword(!showPassword);
@@ -175,10 +203,11 @@ const SignUp = ({ onTransition }: SignUpProps) => {
         </h2>
       </div>
 
-      <div className="space-y-1.5">
-        <div className="relative">
+      <div data-testid="signup-field-password" className="space-y-1.5">
+        <div data-testid="signup-field-password-wrapper" className="relative">
           <Lock className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
           <Input
+            data-testid="signup-input-password"
             id="password"
             type={showPassword ? "text" : "password"}
             placeholder="Senha"
@@ -193,10 +222,14 @@ const SignUp = ({ onTransition }: SignUpProps) => {
         </div>
       </div>
 
-      <div className="space-y-1.5">
-        <div className="relative">
+      <div data-testid="signup-field-password-confirmation" className="space-y-1.5">
+        <div
+          data-testid="signup-field-password-confirmation-wrapper"
+          className="relative"
+        >
           <Lock className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
           <Input
+            data-testid="signup-input-password-confirmation"
             id="passwordConfirmation"
             type={showConfirmPassword ? "text" : "password"}
             placeholder="Confirmar senha"
@@ -210,39 +243,66 @@ const SignUp = ({ onTransition }: SignUpProps) => {
           />
         </div>
         {errors.passwordConfirmation && (
-          <p className="text-xs text-red-500">{errors.passwordConfirmation.message}</p>
+          <p
+            data-testid="signup-error-password-confirmation"
+            className="text-xs text-red-500"
+          >
+            {errors.passwordConfirmation.message}
+          </p>
         )}
       </div>
 
       {password && <PasswordStrength password={password} />}
 
-      <div className="flex items-start gap-3 pt-2">
+      <div
+        data-testid="signup-terms-wrapper"
+        className="flex items-start gap-3 pt-2"
+      >
         <Switch
+          data-testid="signup-switch-accept-terms"
           checked={acceptedTerms}
           onCheckedChange={setAcceptedTerms}
           className="data-[state=unchecked]:bg-muted-foreground mt-0.5 data-[state=checked]:bg-green-500"
         />
-        <p className="text-muted-foreground text-xs leading-relaxed">
+        <p
+          data-testid="signup-terms-text"
+          className="text-muted-foreground text-xs leading-relaxed"
+        >
           Confirmo que tenho +18 anos e aceito os{" "}
-          <Link href="/termos" className="text-foreground hover:text-muted-foreground underline">
+          <Link
+            data-testid="signup-link-terms"
+            href="/termos"
+            className="text-foreground hover:text-muted-foreground underline"
+          >
             Termos e Condições
           </Link>
           ,{" "}
-          <Link href="/privacidade" className="text-foreground hover:text-muted-foreground underline">
+          <Link
+            data-testid="signup-link-privacy"
+            href="/privacidade"
+            className="text-foreground hover:text-muted-foreground underline"
+          >
             Política de Privacidade.
           </Link>
         </p>
       </div>
 
-      <div className="pt-4">
+      <div data-testid="signup-submit-wrapper" className="pt-4">
         <Button
+          data-testid="signup-button-submit"
           type="submit"
           className="bg-primary text-primary-foreground hover:bg-primary/90 h-10 w-full"
           disabled={!isFormValid || isPending}
         >
           {isPending ? (
-            <div className="flex items-center gap-2">
-              <div className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+            <div
+              data-testid="signup-button-submit-loading"
+              className="flex items-center gap-2"
+            >
+              <div
+                data-testid="signup-button-submit-spinner"
+                className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white"
+              />
               Criando conta...
             </div>
           ) : (

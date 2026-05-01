@@ -68,20 +68,38 @@ export function showToast({
     style: { border: "none" },
     unstyled: false,
     description: (
-      <div className="flex h-full w-full flex-col">
-        <div className="absolute top-3 right-3 z-60">
+      <div
+        data-testid={`custom-toast-${type}`}
+        data-toast-type={type}
+        className="flex h-full w-full flex-col"
+      >
+        <div
+          data-testid={`custom-toast-${type}-close-wrapper`}
+          className="absolute top-3 right-3 z-60"
+        >
           <button
+            data-testid={`custom-toast-${type}-button-close`}
             aria-label="Fechar"
             onClick={() => toast.dismiss()}
             className="text-muted-foreground hover:bg-muted/30 cursor-pointer rounded-md p-1 transition-colors"
           >
-            <CircleX className="h-4 w-4 cursor-pointer" />
+            <CircleX
+              data-testid={`custom-toast-${type}-button-close-icon`}
+              className="h-4 w-4 cursor-pointer"
+            />
           </button>
         </div>
 
-        <div className="flex flex-1 items-center gap-4 pr-8">
-          <div className="relative ml-4 flex shrink-0 items-center justify-center">
+        <div
+          data-testid={`custom-toast-${type}-body`}
+          className="flex flex-1 items-center gap-4 pr-8"
+        >
+          <div
+            data-testid={`custom-toast-${type}-icon-wrapper`}
+            className="relative ml-4 flex shrink-0 items-center justify-center"
+          >
             <div
+              data-testid={`custom-toast-${type}-icon-glow`}
               className="absolute rounded-full"
               style={{
                 backgroundColor: borderHex,
@@ -91,26 +109,40 @@ export function showToast({
               }}
             />
             <Icon
+              data-testid={`custom-toast-${type}-icon`}
               className={`h-6 w-6 shrink-0 ${config.iconColor} relative z-10`}
               style={{
                 animation: "iconPop 0.3s ease-out",
               }}
             />
           </div>
-          <div className="flex min-w-0 flex-1 flex-col justify-center">
-            <div className="text-foreground text-[15px] leading-tight font-semibold wrap-break-word">
+          <div
+            data-testid={`custom-toast-${type}-text`}
+            className="flex min-w-0 flex-1 flex-col justify-center"
+          >
+            <div
+              data-testid={`custom-toast-${type}-title`}
+              className="text-foreground text-[15px] leading-tight font-semibold wrap-break-word"
+            >
               {title}
             </div>
             {description && (
-              <div className="text-muted-foreground mt-1.5 text-[13px] leading-snug wrap-break-word">
+              <div
+                data-testid={`custom-toast-${type}-description`}
+                className="text-muted-foreground mt-1.5 text-[13px] leading-snug wrap-break-word"
+              >
                 {sanitizedDescription}
               </div>
             )}
           </div>
         </div>
 
-        <div className="bg-muted/20 absolute right-0 bottom-0 left-0 h-1 overflow-hidden rounded-b-lg">
+        <div
+          data-testid={`custom-toast-${type}-progress-track`}
+          className="bg-muted/20 absolute right-0 bottom-0 left-0 h-1 overflow-hidden rounded-b-lg"
+        >
           <div
+            data-testid={`custom-toast-${type}-progress-fill`}
             className="h-full transition-all ease-linear"
             style={{
               backgroundColor: borderHex,

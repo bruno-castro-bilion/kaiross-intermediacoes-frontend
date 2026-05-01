@@ -69,6 +69,15 @@ function bucketDate(ts: number): string {
   });
 }
 
+function slugifyId(value: string | undefined | null): string {
+  if (!value) return "unknown";
+  return String(value)
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 40) || "unknown";
+}
+
 export default function RelatoriosAbandono() {
   const [periodLabel, setPeriodLabel] = useState("30 dias");
   const period =
@@ -153,6 +162,7 @@ export default function RelatoriosAbandono() {
 
   return (
     <motion.div
+      data-testid="relatorios-abandono-page"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.4 }}
@@ -163,6 +173,7 @@ export default function RelatoriosAbandono() {
         subtitle="Identifique e recupere clientes que não finalizaram a compra."
         actions={
           <div
+            data-testid="relatorios-abandono-period-selector"
             style={{
               display: "flex",
               gap: 4,
@@ -174,6 +185,7 @@ export default function RelatoriosAbandono() {
           >
             {PERIODS.map((p) => (
               <button
+                data-testid={`relatorios-abandono-button-period-${slugifyId(p.label)}`}
                 key={p.label}
                 onClick={() => setPeriodLabel(p.label)}
                 style={{
@@ -200,6 +212,7 @@ export default function RelatoriosAbandono() {
 
       {!userId ? (
         <div
+          data-testid="relatorios-abandono-state-no-session"
           style={{
             padding: 32,
             background: "var(--ink-0)",
@@ -213,6 +226,7 @@ export default function RelatoriosAbandono() {
         </div>
       ) : isLoading ? (
         <div
+          data-testid="relatorios-abandono-state-loading"
           style={{
             padding: 80,
             display: "flex",
@@ -222,12 +236,13 @@ export default function RelatoriosAbandono() {
           }}
         >
           <Loader2 size={28} className="animate-spin" style={{ color: "var(--kai-orange)" }} />
-          <span style={{ fontSize: 13, color: "var(--ink-500)" }}>
+          <span data-testid="relatorios-abandono-loading-text" style={{ fontSize: 13, color: "var(--ink-500)" }}>
             Carregando carrinhos abandonados…
           </span>
         </div>
       ) : isError ? (
         <div
+          data-testid="relatorios-abandono-state-error"
           style={{
             padding: 32,
             background: "var(--ink-0)",
@@ -241,13 +256,14 @@ export default function RelatoriosAbandono() {
           }}
         >
           <AlertCircle size={28} style={{ color: "var(--kai-danger, #dc2626)" }} />
-          <p className="font-semibold text-[var(--ink-900)]">
+          <p data-testid="relatorios-abandono-error-title" className="font-semibold text-[var(--ink-900)]">
             Não foi possível carregar o relatório
           </p>
-          <p className="text-sm text-[var(--ink-500)]">
+          <p data-testid="relatorios-abandono-error-message" className="text-sm text-[var(--ink-500)]">
             {error?.message ?? "Tente novamente em instantes."}
           </p>
           <button
+            data-testid="relatorios-abandono-button-retry"
             onClick={() => {
               relatorio.refetch();
               pedidos.refetch();
@@ -270,7 +286,7 @@ export default function RelatoriosAbandono() {
         </div>
       ) : (
         <>
-          <div className="grid grid-cols-2 gap-4 lg:grid-cols-4 mb-6">
+          <div data-testid="relatorios-abandono-section-kpis" className="grid grid-cols-2 gap-4 lg:grid-cols-4 mb-6">
             <StatCard
               icon={ShoppingCart}
               label="Carrinhos abandonados"
@@ -295,6 +311,7 @@ export default function RelatoriosAbandono() {
           </div>
 
           <div
+            data-testid="relatorios-abandono-section-chart"
             style={{
               padding: 24,
               background: "var(--ink-0)",
@@ -303,11 +320,12 @@ export default function RelatoriosAbandono() {
               marginBottom: 20,
             }}
           >
-            <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 20 }}>
+            <h3 data-testid="relatorios-abandono-chart-title" style={{ fontSize: 16, fontWeight: 700, marginBottom: 20 }}>
               Abandonados vs. Pagos
             </h3>
             {chartData.length === 0 ? (
               <div
+                data-testid="relatorios-abandono-chart-empty"
                 style={{
                   padding: 40,
                   textAlign: "center",
@@ -361,6 +379,7 @@ export default function RelatoriosAbandono() {
           </div>
 
           <div
+            data-testid="relatorios-abandono-section-recent"
             style={{
               borderRadius: "var(--r-lg)",
               border: "1px solid var(--ink-200)",
@@ -369,16 +388,18 @@ export default function RelatoriosAbandono() {
             }}
           >
             <div
+              data-testid="relatorios-abandono-recent-header"
               style={{
                 padding: "16px 20px",
                 borderBottom: "1px solid var(--ink-200)",
               }}
             >
-              <h3 style={{ fontSize: 16, fontWeight: 700 }}>
+              <h3 data-testid="relatorios-abandono-recent-title" style={{ fontSize: 16, fontWeight: 700 }}>
                 Carrinhos abandonados recentes
               </h3>
             </div>
             <div
+              data-testid="relatorios-abandono-recent-table-head"
               style={{
                 display: "grid",
                 gridTemplateColumns: "1.5fr 2.5fr 1fr 1fr 1fr",
@@ -392,14 +413,15 @@ export default function RelatoriosAbandono() {
                 borderBottom: "1px solid var(--ink-200)",
               }}
             >
-              <div>Cliente</div>
-              <div>Produto</div>
-              <div>Valor</div>
-              <div>Quantidade</div>
-              <div>Quando</div>
+              <div data-testid="relatorios-abandono-recent-th-cliente">Cliente</div>
+              <div data-testid="relatorios-abandono-recent-th-produto">Produto</div>
+              <div data-testid="relatorios-abandono-recent-th-valor">Valor</div>
+              <div data-testid="relatorios-abandono-recent-th-quantidade">Quantidade</div>
+              <div data-testid="relatorios-abandono-recent-th-quando">Quando</div>
             </div>
             {recent.length === 0 ? (
               <div
+                data-testid="relatorios-abandono-recent-empty"
                 style={{
                   padding: 40,
                   textAlign: "center",
@@ -413,8 +435,10 @@ export default function RelatoriosAbandono() {
               recent.map((p) => {
                 const principalItem = p.itens?.[0];
                 const ts = pedidoTimestamp(p);
+                const rowId = slugifyId(p.id);
                 return (
                   <div
+                    data-testid={`relatorios-abandono-row-${rowId}`}
                     key={p.id}
                     style={{
                       display: "grid",
@@ -426,6 +450,7 @@ export default function RelatoriosAbandono() {
                     }}
                   >
                     <span
+                      data-testid={`relatorios-abandono-row-${rowId}-cliente`}
                       style={{
                         fontWeight: 600,
                         overflow: "hidden",
@@ -436,6 +461,7 @@ export default function RelatoriosAbandono() {
                       {p.compradorEmail ?? "—"}
                     </span>
                     <span
+                      data-testid={`relatorios-abandono-row-${rowId}-produto`}
                       style={{
                         fontSize: 13,
                         color: "var(--ink-700)",
@@ -450,16 +476,18 @@ export default function RelatoriosAbandono() {
                         : ""}
                     </span>
                     <span
+                      data-testid={`relatorios-abandono-row-${rowId}-valor`}
                       style={{ fontFamily: "var(--font-mono)", fontWeight: 600 }}
                     >
                       {fmtBRL(p.valorTotal ?? 0)}
                     </span>
                     <span
+                      data-testid={`relatorios-abandono-row-${rowId}-quantidade`}
                       style={{ fontFamily: "var(--font-mono)", fontWeight: 500 }}
                     >
                       {p.quantidadeTotal ?? 0}
                     </span>
-                    <span style={{ fontSize: 12, color: "var(--ink-500)" }}>
+                    <span data-testid={`relatorios-abandono-row-${rowId}-quando`} style={{ fontSize: 12, color: "var(--ink-500)" }}>
                       {ts ? relativeTime(ts) : "—"}
                     </span>
                   </div>
@@ -470,6 +498,7 @@ export default function RelatoriosAbandono() {
 
           {relatorio.data && (
             <div
+              data-testid="relatorios-abandono-section-historico"
               style={{
                 marginTop: 16,
                 padding: 16,
@@ -480,7 +509,7 @@ export default function RelatoriosAbandono() {
                 color: "var(--ink-600)",
               }}
             >
-              <strong>Histórico total:</strong>{" "}
+              <strong data-testid="relatorios-abandono-historico-label">Histórico total:</strong>{" "}
               {relatorio.data.abandonados ?? 0} carrinhos abandonados em todos
               os tempos.
             </div>

@@ -30,12 +30,14 @@ const BackgroundEffects = () => {
 
   return (
     <div
+      data-testid="background-effects"
       className="pointer-events-none fixed inset-0 overflow-hidden"
       suppressHydrationWarning
     >
-      <div className="absolute inset-0 bg-white" />
+      <div data-testid="background-effects-base" className="absolute inset-0 bg-white" />
 
       <div
+        data-testid="background-effects-glow-top"
         className="absolute top-0 left-1/2 h-[600px] w-[800px] -translate-x-1/2 opacity-[0.12]"
         style={{
           background:
@@ -45,6 +47,7 @@ const BackgroundEffects = () => {
       />
 
       <motion.div
+        data-testid="background-effects-orb-top-left"
         className="absolute top-1/4 left-1/4 h-96 w-96 rounded-full opacity-[0.10]"
         animate={{ y: [0, -30, 0], x: [0, 20, 0], scale: [1, 1.1, 1] }}
         transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
@@ -56,6 +59,7 @@ const BackgroundEffects = () => {
       />
 
       <motion.div
+        data-testid="background-effects-orb-bottom-right"
         className="absolute right-1/4 bottom-1/4 h-80 w-80 rounded-full opacity-[0.08]"
         animate={{ y: [0, 40, 0], x: [0, -30, 0], scale: [1, 1.2, 1] }}
         transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 1 }}
@@ -69,6 +73,7 @@ const BackgroundEffects = () => {
       {particles.map((particle) => (
         <motion.div
           key={particle.id}
+          data-testid={`background-effects-particle-${particle.id}`}
           className="absolute rounded-full bg-orange-400/10"
           style={{
             width: particle.size,

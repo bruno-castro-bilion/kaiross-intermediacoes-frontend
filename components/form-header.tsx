@@ -110,6 +110,7 @@ export default function FormHeader({ type }: FormHeaderProps) {
   return (
     <>
       <div
+        data-testid="form-header-glow-corner"
         className="pointer-events-none absolute top-0 left-0"
         style={{
           width: "200px",
@@ -119,9 +120,14 @@ export default function FormHeader({ type }: FormHeaderProps) {
         }}
       />
 
-      <div className="animate-in fade-in relative mb-6 flex items-center justify-center duration-500">
-        <div className="relative">
+      <div
+        data-testid="form-header"
+        data-type={type}
+        className="animate-in fade-in relative mb-6 flex items-center justify-center duration-500"
+      >
+        <div data-testid="form-header-icon-wrapper" className="relative">
           <div
+            data-testid="form-header-glow-icon"
             className="pointer-events-none absolute"
             style={{
               width: "150px",
@@ -138,6 +144,8 @@ export default function FormHeader({ type }: FormHeaderProps) {
 
           {StatusIcon && (
             <div
+              data-testid="form-header-icon-box"
+              data-edit-variant={isEditVariant ? "true" : "false"}
               className={
                 "border-border absolute flex items-center justify-center overflow-visible rounded-xl border bg-linear-to-b from-[#f5f5f5] to-[#e8e8e8] shadow-[0_6px_18px_rgba(0,0,0,0.1)] dark:bg-linear-to-b dark:from-[#121214] dark:to-[#0b0b0d] dark:shadow-[0_6px_18px_rgba(2,6,23,0.6)]" +
                 (isEditVariant ? " h-16 w-16 p-1.5" : " h-16 w-16")
@@ -152,14 +160,27 @@ export default function FormHeader({ type }: FormHeaderProps) {
             >
               {isEditVariant && (
                 <>
-                  <div className="absolute top-1.5 left-1.5 h-2 w-2 rounded-full bg-[radial-gradient(circle_at_30%_30%,rgba(255,255,255,0.14),rgba(0,0,0,0.6))] shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]" />
-                  <div className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-[radial-gradient(circle_at_30%_30%,rgba(255,255,255,0.14),rgba(0,0,0,0.6))] shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]" />
-                  <div className="absolute bottom-1.5 left-1.5 h-2 w-2 rounded-full bg-[radial-gradient(circle_at_30%_30%,rgba(255,255,255,0.14),rgba(0,0,0,0.6))] shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]" />
-                  <div className="absolute right-1.5 bottom-1.5 h-2 w-2 rounded-full bg-[radial-gradient(circle_at_30%_30%,rgba(255,255,255,0.14),rgba(0,0,0,0.6))] shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]" />
+                  <div
+                    data-testid="form-header-corner-tl"
+                    className="absolute top-1.5 left-1.5 h-2 w-2 rounded-full bg-[radial-gradient(circle_at_30%_30%,rgba(255,255,255,0.14),rgba(0,0,0,0.6))] shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]"
+                  />
+                  <div
+                    data-testid="form-header-corner-tr"
+                    className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-[radial-gradient(circle_at_30%_30%,rgba(255,255,255,0.14),rgba(0,0,0,0.6))] shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]"
+                  />
+                  <div
+                    data-testid="form-header-corner-bl"
+                    className="absolute bottom-1.5 left-1.5 h-2 w-2 rounded-full bg-[radial-gradient(circle_at_30%_30%,rgba(255,255,255,0.14),rgba(0,0,0,0.6))] shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]"
+                  />
+                  <div
+                    data-testid="form-header-corner-br"
+                    className="absolute right-1.5 bottom-1.5 h-2 w-2 rounded-full bg-[radial-gradient(circle_at_30%_30%,rgba(255,255,255,0.14),rgba(0,0,0,0.6))] shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]"
+                  />
                 </>
               )}
 
               <StatusIcon
+                data-testid={`form-header-icon-${type}`}
                 size={46}
                 className={
                   "" +
@@ -172,7 +193,10 @@ export default function FormHeader({ type }: FormHeaderProps) {
             </div>
           )}
 
-          <div style={{ width: "186px", height: "67px" }} />
+          <div
+            data-testid="form-header-spacer"
+            style={{ width: "186px", height: "67px" }}
+          />
         </div>
       </div>
     </>

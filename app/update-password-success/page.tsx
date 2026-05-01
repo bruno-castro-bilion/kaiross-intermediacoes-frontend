@@ -12,6 +12,7 @@ const UpdatePasswordSuccessPage = () => {
   return (
     <AnimatePresence>
       <motion.div
+        data-testid="update-password-success-page"
         initial={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         transition={{ duration: 0.4, ease: "easeInOut" }}
@@ -19,16 +20,33 @@ const UpdatePasswordSuccessPage = () => {
       >
         <BackgroundEffects />
 
-        <div className="relative z-10 flex w-full flex-col items-center justify-center">
-          <div className="w-full max-w-md">
+        <div
+          data-testid="update-password-success-page-content"
+          className="relative z-10 flex w-full flex-col items-center justify-center"
+        >
+          <div
+            data-testid="update-password-success-page-card-wrapper"
+            className="w-full max-w-md"
+          >
             <div
+              data-testid="update-password-success-page-card-animated"
               className="animate-fade-in-up w-full opacity-0"
               style={{ animationFillMode: "forwards", animationDelay: "0.1s" }}
             >
-              <div className="border-border bg-card/95 overflow-hidden rounded-2xl border shadow-2xl backdrop-blur-xl">
-                <div className="flex flex-col items-center p-8 text-center">
-                  <div className="mb-4 flex justify-center">
+              <div
+                data-testid="update-password-success-page-card"
+                className="border-border bg-card/95 overflow-hidden rounded-2xl border shadow-2xl backdrop-blur-xl"
+              >
+                <div
+                  data-testid="update-password-success-page-card-body"
+                  className="flex flex-col items-center p-8 text-center"
+                >
+                  <div
+                    data-testid="update-password-success-page-logo-wrapper"
+                    className="mb-4 flex justify-center"
+                  >
                     <Image
+                      data-testid="update-password-success-page-logo"
                       src="/LOGO-MENU.png"
                       alt="Kaiross"
                       width={120}
@@ -38,19 +56,35 @@ const UpdatePasswordSuccessPage = () => {
                     />
                   </div>
 
-                  <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
-                    <CheckCircle2 className="h-8 w-8 text-green-500" />
+                  <div
+                    data-testid="update-password-success-page-icon-wrapper"
+                    className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100"
+                  >
+                    <CheckCircle2
+                      data-testid="update-password-success-page-icon-success"
+                      className="h-8 w-8 text-green-500"
+                    />
                   </div>
 
-                  <h1 className="text-foreground mb-2 text-xl font-semibold">
+                  <h1
+                    data-testid="update-password-success-page-title"
+                    className="text-foreground mb-2 text-xl font-semibold"
+                  >
                     Sua senha foi redefinida com sucesso!
                   </h1>
 
-                  <p className="text-muted-foreground mb-6 text-sm">
+                  <p
+                    data-testid="update-password-success-page-description"
+                    className="text-muted-foreground mb-6 text-sm"
+                  >
                     Por favor, use sua nova senha para fazer login na sua conta.
                   </p>
 
-                  <Button asChild className="bg-primary text-primary-foreground hover:bg-primary/90 w-full">
+                  <Button
+                    data-testid="update-password-success-page-button-back-to-login"
+                    asChild
+                    className="bg-primary text-primary-foreground hover:bg-primary/90 w-full"
+                  >
                     <Link href="/login">Voltar para o Login</Link>
                   </Button>
                 </div>
@@ -58,7 +92,10 @@ const UpdatePasswordSuccessPage = () => {
             </div>
           </div>
 
-          <div className="mt-6 w-full max-w-md">
+          <div
+            data-testid="update-password-success-page-footer-wrapper"
+            className="mt-6 w-full max-w-md"
+          >
             <AuthFooter actionText="Iniciar sessão" />
           </div>
         </div>

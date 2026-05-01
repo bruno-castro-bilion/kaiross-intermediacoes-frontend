@@ -40,12 +40,13 @@ const fmtBRL = (n: number) =>
 function FinField({ label, required, optional, children }: {
   label: string; required?: boolean; optional?: boolean; children: React.ReactNode;
 }) {
+  const slug = label.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 5, marginBottom: 12 }}>
-      <label style={{ fontSize: 12, fontWeight: 600, color: "var(--ink-600)" }}>
+    <div data-testid={`financeiro-field-${slug}`} style={{ display: "flex", flexDirection: "column", gap: 5, marginBottom: 12 }}>
+      <label data-testid={`financeiro-label-${slug}`} style={{ fontSize: 12, fontWeight: 600, color: "var(--ink-600)" }}>
         {label}
-        {required && <span style={{ color: "var(--kai-danger)", marginLeft: 2 }}>*</span>}
-        {optional && <span style={{ color: "var(--ink-400)", marginLeft: 4 }}>(opcional)</span>}
+        {required && <span data-testid={`financeiro-label-${slug}-required`} style={{ color: "var(--kai-danger)", marginLeft: 2 }}>*</span>}
+        {optional && <span data-testid={`financeiro-label-${slug}-optional`} style={{ color: "var(--ink-400)", marginLeft: 4 }}>(opcional)</span>}
       </label>
       {children}
     </div>
@@ -68,16 +69,17 @@ const inputStyle: React.CSSProperties = {
 /* ─── Carteira ──────────────────────────────────────────────────────────────── */
 function Carteira() {
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+    <div data-testid="financeiro-section-carteira" style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+      <div data-testid="financeiro-grid-saldos" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
         {/* Saldo disponível */}
-        <div style={{ padding: 24, background: "var(--ink-900)", borderRadius: "var(--r-lg)", color: "white" }}>
-          <div style={{ fontSize: 12, fontWeight: 600, color: "rgba(255,255,255,.6)", textTransform: "uppercase", letterSpacing: ".08em", marginBottom: 10 }}>
+        <div data-testid="financeiro-card-saldo-disponivel" style={{ padding: 24, background: "var(--ink-900)", borderRadius: "var(--r-lg)", color: "white" }}>
+          <div data-testid="financeiro-label-saldo-disponivel" style={{ fontSize: 12, fontWeight: 600, color: "rgba(255,255,255,.6)", textTransform: "uppercase", letterSpacing: ".08em", marginBottom: 10 }}>
             Saldo disponível
           </div>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", gap: 12, flexWrap: "wrap" }}>
-            <span style={{ fontSize: 32, fontWeight: 800, fontFamily: "var(--font-mono)", letterSpacing: "-0.02em" }}>R$ 0,00</span>
+          <div data-testid="financeiro-row-saldo-disponivel" style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", gap: 12, flexWrap: "wrap" }}>
+            <span data-testid="financeiro-value-saldo-disponivel" style={{ fontSize: 32, fontWeight: 800, fontFamily: "var(--font-mono)", letterSpacing: "-0.02em" }}>R$ 0,00</span>
             <button
+              data-testid="financeiro-button-withdraw"
               disabled
               style={{ display: "flex", alignItems: "center", gap: 6, height: 34, padding: "0 12px", borderRadius: "var(--r-md)", border: "1px solid rgba(255,255,255,.2)", background: "rgba(255,255,255,.1)", color: "rgba(255,255,255,.5)", fontSize: 13, fontWeight: 600, cursor: "not-allowed", fontFamily: "inherit" }}
             >
@@ -87,24 +89,24 @@ function Carteira() {
         </div>
 
         {/* Saldo pendente */}
-        <div style={{ padding: 24, background: "var(--ink-800)", borderRadius: "var(--r-lg)", color: "white" }}>
-          <div style={{ fontSize: 12, fontWeight: 600, color: "rgba(255,255,255,.5)", textTransform: "uppercase", letterSpacing: ".08em", marginBottom: 10 }}>
+        <div data-testid="financeiro-card-saldo-pendente" style={{ padding: 24, background: "var(--ink-800)", borderRadius: "var(--r-lg)", color: "white" }}>
+          <div data-testid="financeiro-label-saldo-pendente" style={{ fontSize: 12, fontWeight: 600, color: "rgba(255,255,255,.5)", textTransform: "uppercase", letterSpacing: ".08em", marginBottom: 10 }}>
             Saldo pendente
           </div>
-          <span style={{ fontSize: 32, fontWeight: 800, fontFamily: "var(--font-mono)", letterSpacing: "-0.02em" }}>R$ 0,00</span>
+          <span data-testid="financeiro-value-saldo-pendente" style={{ fontSize: 32, fontWeight: 800, fontFamily: "var(--font-mono)", letterSpacing: "-0.02em" }}>R$ 0,00</span>
         </div>
       </div>
 
       {/* Meus saques */}
-      <div style={{ padding: 24, background: "var(--ink-0)", border: "1px solid var(--ink-200)", borderRadius: "var(--r-lg)" }}>
-        <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 16 }}>Meus saques</h3>
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12, padding: "40px 20px", color: "var(--ink-400)" }}>
-          <div style={{ width: 64, height: 64, borderRadius: "50%", background: "var(--ink-50)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+      <div data-testid="financeiro-card-meus-saques" style={{ padding: 24, background: "var(--ink-0)", border: "1px solid var(--ink-200)", borderRadius: "var(--r-lg)" }}>
+        <h3 data-testid="financeiro-heading-meus-saques" style={{ fontSize: 16, fontWeight: 700, marginBottom: 16 }}>Meus saques</h3>
+        <div data-testid="financeiro-empty-meus-saques" style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12, padding: "40px 20px", color: "var(--ink-400)" }}>
+          <div data-testid="financeiro-empty-meus-saques-icon" style={{ width: 64, height: 64, borderRadius: "50%", background: "var(--ink-50)", display: "flex", alignItems: "center", justifyContent: "center" }}>
             <Building size={28} style={{ color: "var(--ink-300)" }} />
           </div>
-          <div style={{ textAlign: "center" }}>
-            <p style={{ fontWeight: 600, fontSize: 14, color: "var(--ink-700)", marginBottom: 4 }}>Nenhum saque encontrado</p>
-            <p style={{ fontSize: 13, color: "var(--ink-500)" }}>Não foi efetuado nenhum saque até o momento</p>
+          <div data-testid="financeiro-empty-meus-saques-text" style={{ textAlign: "center" }}>
+            <p data-testid="financeiro-empty-meus-saques-title" style={{ fontWeight: 600, fontSize: 14, color: "var(--ink-700)", marginBottom: 4 }}>Nenhum saque encontrado</p>
+            <p data-testid="financeiro-empty-meus-saques-desc" style={{ fontSize: 13, color: "var(--ink-500)" }}>Não foi efetuado nenhum saque até o momento</p>
           </div>
         </div>
       </div>
@@ -118,32 +120,32 @@ function DadosBancarios() {
 
   if (editing) {
     return (
-      <div style={{ padding: 24, background: "var(--ink-0)", border: "1px solid var(--ink-200)", borderRadius: "var(--r-lg)" }}>
-        <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 18 }}>Alterar dados bancários</h3>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+      <div data-testid="financeiro-section-bancarios-edit" style={{ padding: 24, background: "var(--ink-0)", border: "1px solid var(--ink-200)", borderRadius: "var(--r-lg)" }}>
+        <h3 data-testid="financeiro-heading-bancarios-edit" style={{ fontSize: 16, fontWeight: 700, marginBottom: 18 }}>Alterar dados bancários</h3>
+        <div data-testid="financeiro-grid-bancarios-edit" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
           <FinField label="Banco" required>
-            <select style={inputStyle} defaultValue="001 - Banco do Brasil S.A.">
-              {BANCOS.map((b) => <option key={b} value={b}>{b}</option>)}
+            <select data-testid="financeiro-select-banco" style={inputStyle} defaultValue="001 - Banco do Brasil S.A.">
+              {BANCOS.map((b) => <option data-testid={`financeiro-select-banco-option-${b.split(" ")[0]}`} key={b} value={b}>{b}</option>)}
             </select>
           </FinField>
           <FinField label="Tipo de conta" required>
-            <select style={inputStyle} defaultValue="Conta corrente">
-              <option>Conta corrente</option>
-              <option>Conta poupança</option>
+            <select data-testid="financeiro-select-tipo-conta" style={inputStyle} defaultValue="Conta corrente">
+              <option data-testid="financeiro-select-tipo-conta-option-corrente">Conta corrente</option>
+              <option data-testid="financeiro-select-tipo-conta-option-poupanca">Conta poupança</option>
             </select>
           </FinField>
           <FinField label="Agência" required>
-            <input style={inputStyle} defaultValue="1231-9" />
+            <input data-testid="financeiro-input-agencia" style={inputStyle} defaultValue="1231-9" />
           </FinField>
           <FinField label="Conta com dígito" required>
-            <input style={inputStyle} defaultValue="4234234234234-3" />
+            <input data-testid="financeiro-input-conta" style={inputStyle} defaultValue="4234234234234-3" />
           </FinField>
         </div>
-        <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
-          <button onClick={() => setEditing(false)} style={{ height: 38, padding: "0 16px", borderRadius: "var(--r-md)", border: "1px solid var(--ink-200)", background: "var(--ink-0)", color: "var(--ink-700)", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
+        <div data-testid="financeiro-actions-bancarios-edit" style={{ display: "flex", gap: 8, marginTop: 8 }}>
+          <button data-testid="financeiro-button-bancarios-cancel" onClick={() => setEditing(false)} style={{ height: 38, padding: "0 16px", borderRadius: "var(--r-md)", border: "1px solid var(--ink-200)", background: "var(--ink-0)", color: "var(--ink-700)", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
             Cancelar
           </button>
-          <button onClick={() => setEditing(false)} style={{ height: 38, padding: "0 16px", borderRadius: "var(--r-md)", border: 0, background: "var(--kai-orange)", color: "white", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
+          <button data-testid="financeiro-button-bancarios-save" onClick={() => setEditing(false)} style={{ height: 38, padding: "0 16px", borderRadius: "var(--r-md)", border: 0, background: "var(--kai-orange)", color: "white", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
             Salvar
           </button>
         </div>
@@ -152,24 +154,24 @@ function DadosBancarios() {
   }
 
   return (
-    <div style={{ padding: 24, background: "var(--ink-0)", border: "1px solid var(--ink-200)", borderRadius: "var(--r-lg)" }}>
-      <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 18 }}>Dados bancários</h3>
-      <div style={{ height: 1, background: "var(--ink-200)", marginBottom: 16 }} />
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-        <strong style={{ fontSize: 14 }}>Conta bancária</strong>
-        <button onClick={() => setEditing(true)} style={{ background: "transparent", border: "none", color: "var(--kai-orange-600)", fontWeight: 600, fontSize: 13, cursor: "pointer" }}>
+    <div data-testid="financeiro-section-bancarios" style={{ padding: 24, background: "var(--ink-0)", border: "1px solid var(--ink-200)", borderRadius: "var(--r-lg)" }}>
+      <h3 data-testid="financeiro-heading-bancarios" style={{ fontSize: 16, fontWeight: 700, marginBottom: 18 }}>Dados bancários</h3>
+      <div data-testid="financeiro-divider-bancarios" style={{ height: 1, background: "var(--ink-200)", marginBottom: 16 }} />
+      <div data-testid="financeiro-row-bancarios-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+        <strong data-testid="financeiro-text-bancarios-title" style={{ fontSize: 14 }}>Conta bancária</strong>
+        <button data-testid="financeiro-button-bancarios-edit" onClick={() => setEditing(true)} style={{ background: "transparent", border: "none", color: "var(--kai-orange-600)", fontWeight: 600, fontSize: 13, cursor: "pointer" }}>
           Alterar
         </button>
       </div>
-      <div style={{ display: "grid", gridTemplateColumns: "120px 1fr", gap: "8px 16px", fontSize: 14 }}>
-        <span style={{ color: "var(--ink-500)" }}>Banco:</span>
-        <span style={{ fontWeight: 500 }}>001 - Banco do Brasil S.A.</span>
-        <span style={{ color: "var(--ink-500)" }}>Tipo:</span>
-        <span style={{ fontWeight: 500 }}>Conta corrente</span>
-        <span style={{ color: "var(--ink-500)" }}>Agência:</span>
-        <span style={{ fontWeight: 500 }}>1231-9</span>
-        <span style={{ color: "var(--ink-500)" }}>Conta:</span>
-        <span style={{ fontWeight: 500 }}>4234234234234-3</span>
+      <div data-testid="financeiro-grid-bancarios-info" style={{ display: "grid", gridTemplateColumns: "120px 1fr", gap: "8px 16px", fontSize: 14 }}>
+        <span data-testid="financeiro-bancarios-banco-label" style={{ color: "var(--ink-500)" }}>Banco:</span>
+        <span data-testid="financeiro-bancarios-banco-value" style={{ fontWeight: 500 }}>001 - Banco do Brasil S.A.</span>
+        <span data-testid="financeiro-bancarios-tipo-label" style={{ color: "var(--ink-500)" }}>Tipo:</span>
+        <span data-testid="financeiro-bancarios-tipo-value" style={{ fontWeight: 500 }}>Conta corrente</span>
+        <span data-testid="financeiro-bancarios-agencia-label" style={{ color: "var(--ink-500)" }}>Agência:</span>
+        <span data-testid="financeiro-bancarios-agencia-value" style={{ fontWeight: 500 }}>1231-9</span>
+        <span data-testid="financeiro-bancarios-conta-label" style={{ color: "var(--ink-500)" }}>Conta:</span>
+        <span data-testid="financeiro-bancarios-conta-value" style={{ fontWeight: 500 }}>4234234234234-3</span>
       </div>
     </div>
   );
@@ -177,31 +179,32 @@ function DadosBancarios() {
 
 /* ─── Taxas ──────────────────────────────────────────────────────────────────── */
 function Taxas() {
+  const slug = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-      <div style={{ padding: 24, background: "var(--ink-0)", border: "1px solid var(--ink-200)", borderRadius: "var(--r-lg)" }}>
-        <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 12 }}>Taxas</h3>
-        <p style={{ fontSize: 14, color: "var(--ink-700)", marginBottom: 16 }}>
+    <div data-testid="financeiro-section-taxas" style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+      <div data-testid="financeiro-card-taxas" style={{ padding: 24, background: "var(--ink-0)", border: "1px solid var(--ink-200)", borderRadius: "var(--r-lg)" }}>
+        <h3 data-testid="financeiro-heading-taxas" style={{ fontSize: 16, fontWeight: 700, marginBottom: 12 }}>Taxas</h3>
+        <p data-testid="financeiro-text-taxas-desc" style={{ fontSize: 14, color: "var(--ink-700)", marginBottom: 16 }}>
           Suas taxas (produtor):{" "}
-          <strong style={{ color: "var(--ink-900)" }}>R$ 2,50</strong>{" "}
+          <strong data-testid="financeiro-text-taxas-custo" style={{ color: "var(--ink-900)" }}>R$ 2,50</strong>{" "}
           (Custo de operação) +{" "}
-          <strong style={{ color: "var(--ink-900)" }}>5,90%</strong>{" "}
+          <strong data-testid="financeiro-text-taxas-percent" style={{ color: "var(--ink-900)" }}>5,90%</strong>{" "}
           por venda aprovada
         </p>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12 }}>
+        <div data-testid="financeiro-grid-prazos" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12 }}>
           {[
             { label: "Pix", value: "2 dias", color: "var(--kai-orange)" },
             { label: "Boleto", value: "3 dias", color: "var(--kai-info)" },
             { label: "Cartão", value: "15 dias", color: "var(--kai-success)" },
           ].map((item) => (
-            <div key={item.label} style={{ padding: 16, background: "var(--ink-50)", borderRadius: "var(--r-md)", borderTop: `3px solid ${item.color}` }}>
-              <div style={{ fontSize: 11, fontWeight: 600, color: "var(--ink-500)", textTransform: "uppercase", letterSpacing: ".08em", marginBottom: 6 }}>
+            <div data-testid={`financeiro-card-prazo-${slug(item.label)}`} key={item.label} style={{ padding: 16, background: "var(--ink-50)", borderRadius: "var(--r-md)", borderTop: `3px solid ${item.color}` }}>
+              <div data-testid={`financeiro-card-prazo-${slug(item.label)}-label`} style={{ fontSize: 11, fontWeight: 600, color: "var(--ink-500)", textTransform: "uppercase", letterSpacing: ".08em", marginBottom: 6 }}>
                 {item.label}
               </div>
-              <div style={{ fontSize: 20, fontWeight: 800, fontFamily: "var(--font-mono)", color: "var(--ink-900)" }}>
+              <div data-testid={`financeiro-card-prazo-${slug(item.label)}-value`} style={{ fontSize: 20, fontWeight: 800, fontFamily: "var(--font-mono)", color: "var(--ink-900)" }}>
                 {item.value}
               </div>
-              <div style={{ fontSize: 11, color: "var(--ink-500)", marginTop: 2 }}>prazo de recebimento</div>
+              <div data-testid={`financeiro-card-prazo-${slug(item.label)}-desc`} style={{ fontSize: 11, color: "var(--ink-500)", marginTop: 2 }}>prazo de recebimento</div>
             </div>
           ))}
         </div>
@@ -219,23 +222,25 @@ function DadosGerais({ accountType }: { accountType: AccountType }) {
   function Section({ icon: Icon, title, open, onToggle, children }: {
     icon: React.ElementType; title: string; open: boolean; onToggle: () => void; children: React.ReactNode;
   }) {
+    const sslug = title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
     return (
-      <div style={{ background: "var(--ink-0)", border: "1px solid var(--ink-200)", borderRadius: "var(--r-lg)", overflow: "hidden" }}>
+      <div data-testid={`financeiro-section-${sslug}`} style={{ background: "var(--ink-0)", border: "1px solid var(--ink-200)", borderRadius: "var(--r-lg)", overflow: "hidden" }}>
         <button
+          data-testid={`financeiro-section-${sslug}-toggle`}
           onClick={onToggle}
           style={{ width: "100%", padding: "16px 20px", display: "flex", alignItems: "center", justifyContent: "space-between", background: "transparent", border: 0, cursor: "pointer", fontFamily: "inherit" }}
         >
-          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <div data-testid={`financeiro-section-${sslug}-header`} style={{ display: "flex", alignItems: "center", gap: 10 }}>
             <Icon size={16} style={{ color: "var(--kai-orange)" }} />
-            <strong style={{ fontSize: 14 }}>{title}</strong>
+            <strong data-testid={`financeiro-section-${sslug}-title`} style={{ fontSize: 14 }}>{title}</strong>
           </div>
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <div data-testid={`financeiro-section-${sslug}-icons`} style={{ display: "flex", alignItems: "center", gap: 8 }}>
             <Pencil size={13} style={{ color: "var(--ink-500)" }} />
             <ChevronDown size={14} style={{ color: "var(--ink-500)", transform: open ? "none" : "rotate(-90deg)", transition: "transform .2s" }} />
           </div>
         </button>
         {open && (
-          <div style={{ padding: "0 20px 20px", display: "grid", gridTemplateColumns: "140px 1fr", gap: "8px 16px", fontSize: 14 }}>
+          <div data-testid={`financeiro-section-${sslug}-body`} style={{ padding: "0 20px 20px", display: "grid", gridTemplateColumns: "140px 1fr", gap: "8px 16px", fontSize: 14 }}>
             {children}
           </div>
         )}
@@ -244,28 +249,29 @@ function DadosGerais({ accountType }: { accountType: AccountType }) {
   }
 
   function KV({ k, v }: { k: string; v: string }) {
+    const kslug = k.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
     return (
       <>
-        <span style={{ color: "var(--ink-500)", paddingTop: 2 }}>{k}</span>
-        <span style={{ fontWeight: 500 }}>{v}</span>
+        <span data-testid={`financeiro-kv-${kslug}-label`} style={{ color: "var(--ink-500)", paddingTop: 2 }}>{k}</span>
+        <span data-testid={`financeiro-kv-${kslug}-value`} style={{ fontWeight: 500 }}>{v}</span>
       </>
     );
   }
 
   if (!editing) {
     return (
-      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-        <div style={{ padding: 20, background: "var(--ink-0)", border: "1px solid var(--ink-200)", borderRadius: "var(--r-lg)" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 8, color: "var(--kai-success)" }}>
+      <div data-testid="financeiro-section-dados" style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+        <div data-testid="financeiro-card-conta-verificada" style={{ padding: 20, background: "var(--ink-0)", border: "1px solid var(--ink-200)", borderRadius: "var(--r-lg)" }}>
+          <div data-testid="financeiro-card-conta-verificada-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
+            <div data-testid="financeiro-card-conta-verificada-title-wrap" style={{ display: "flex", alignItems: "center", gap: 8, color: "var(--kai-success)" }}>
               <CheckCircle size={18} />
-              <h3 style={{ fontSize: 16, fontWeight: 700, margin: 0 }}>Conta verificada</h3>
+              <h3 data-testid="financeiro-heading-conta-verificada" style={{ fontSize: 16, fontWeight: 700, margin: 0 }}>Conta verificada</h3>
             </div>
-            <button onClick={() => setEditing(true)} style={{ display: "flex", alignItems: "center", gap: 6, height: 34, padding: "0 12px", borderRadius: "var(--r-md)", border: "1px solid var(--ink-200)", background: "var(--ink-0)", color: "var(--ink-700)", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
+            <button data-testid="financeiro-button-edit-cadastro" onClick={() => setEditing(true)} style={{ display: "flex", alignItems: "center", gap: 6, height: 34, padding: "0 12px", borderRadius: "var(--r-md)", border: "1px solid var(--ink-200)", background: "var(--ink-0)", color: "var(--ink-700)", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
               <Pencil size={13} /> Editar cadastro
             </button>
           </div>
-          <div style={{ padding: 14, background: "var(--kai-info-bg)", borderRadius: "var(--r-md)", fontSize: 13, color: "var(--kai-info)" }}>
+          <div data-testid="financeiro-banner-revise-info" style={{ padding: 14, background: "var(--kai-info-bg)", borderRadius: "var(--r-md)", fontSize: 13, color: "var(--kai-info)" }}>
             <strong>Revise suas informações</strong> — Confirme os dados antes de efetuar um saque.
           </div>
         </div>
@@ -326,42 +332,42 @@ function DadosGerais({ accountType }: { accountType: AccountType }) {
 
   // Form mode
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-      <div style={{ padding: 24, background: "var(--ink-0)", border: "1px solid var(--ink-200)", borderRadius: "var(--r-lg)" }}>
-        <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 18 }}>Editar cadastro</h3>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+    <div data-testid="financeiro-section-dados-edit" style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+      <div data-testid="financeiro-card-dados-edit" style={{ padding: 24, background: "var(--ink-0)", border: "1px solid var(--ink-200)", borderRadius: "var(--r-lg)" }}>
+        <h3 data-testid="financeiro-heading-dados-edit" style={{ fontSize: 16, fontWeight: 700, marginBottom: 18 }}>Editar cadastro</h3>
+        <div data-testid="financeiro-grid-dados-edit" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
           <FinField label="Nome completo" required>
-            <input style={inputStyle} defaultValue="Bruno Raphael Castro" />
+            <input data-testid="financeiro-input-nome" style={inputStyle} defaultValue="Bruno Raphael Castro" />
           </FinField>
           <FinField label="E-mail" required>
-            <input style={inputStyle} defaultValue="castroeditor18@gmail.com" type="email" />
+            <input data-testid="financeiro-input-email" style={inputStyle} defaultValue="castroeditor18@gmail.com" type="email" />
           </FinField>
           <FinField label="CPF" required>
-            <input style={inputStyle} defaultValue="123.456.789-00" />
+            <input data-testid="financeiro-input-cpf" style={inputStyle} defaultValue="123.456.789-00" />
           </FinField>
           <FinField label="Data de nascimento" required>
-            <input style={inputStyle} defaultValue="01/01/1995" />
+            <input data-testid="financeiro-input-nascimento" style={inputStyle} defaultValue="01/01/1995" />
           </FinField>
           <FinField label="Telefone" required>
-            <input style={inputStyle} defaultValue="(11) 9 8765-4321" />
+            <input data-testid="financeiro-input-telefone" style={inputStyle} defaultValue="(11) 9 8765-4321" />
           </FinField>
           <FinField label="Renda mensal" required>
-            <input style={inputStyle} defaultValue="8500,00" />
+            <input data-testid="financeiro-input-renda" style={inputStyle} defaultValue="8500,00" />
           </FinField>
           <FinField label="CEP" required>
-            <input style={inputStyle} defaultValue="01415-002" />
+            <input data-testid="financeiro-input-cep" style={inputStyle} defaultValue="01415-002" />
           </FinField>
           <FinField label="Estado" required>
-            <select style={inputStyle} defaultValue="SP">
-              {ESTADOS_UF.map((uf) => <option key={uf} value={uf}>{uf}</option>)}
+            <select data-testid="financeiro-select-estado" style={inputStyle} defaultValue="SP">
+              {ESTADOS_UF.map((uf) => <option data-testid={`financeiro-select-estado-option-${uf.toLowerCase()}`} key={uf} value={uf}>{uf}</option>)}
             </select>
           </FinField>
         </div>
-        <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
-          <button onClick={() => setEditing(false)} style={{ height: 38, padding: "0 16px", borderRadius: "var(--r-md)", border: "1px solid var(--ink-200)", background: "var(--ink-0)", color: "var(--ink-700)", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
+        <div data-testid="financeiro-actions-dados-edit" style={{ display: "flex", gap: 8, marginTop: 8 }}>
+          <button data-testid="financeiro-button-dados-cancel" onClick={() => setEditing(false)} style={{ height: 38, padding: "0 16px", borderRadius: "var(--r-md)", border: "1px solid var(--ink-200)", background: "var(--ink-0)", color: "var(--ink-700)", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
             Cancelar
           </button>
-          <button onClick={() => setEditing(false)} style={{ height: 38, padding: "0 16px", borderRadius: "var(--r-md)", border: 0, background: "var(--kai-orange)", color: "white", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
+          <button data-testid="financeiro-button-dados-save" onClick={() => setEditing(false)} style={{ height: 38, padding: "0 16px", borderRadius: "var(--r-md)", border: 0, background: "var(--kai-orange)", color: "white", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
             Salvar alterações
           </button>
         </div>
@@ -385,33 +391,35 @@ export default function Financeiro() {
 
   return (
     <motion.div
+      data-testid="financeiro-page"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.4 }}
       style={{ padding: "32px", maxWidth: 1240, margin: "0 auto", width: "100%" }}
     >
-      <div style={{ marginBottom: 28 }}>
-        <h1 style={{ fontSize: 26, fontWeight: 800, marginBottom: 4 }}>Financeiro</h1>
-        <p style={{ fontSize: 15, color: "var(--ink-600)" }}>Gerencie carteira, saques, dados bancários e cadastro.</p>
+      <div data-testid="financeiro-header" style={{ marginBottom: 28 }}>
+        <h1 data-testid="financeiro-heading-title" style={{ fontSize: 26, fontWeight: 800, marginBottom: 4 }}>Financeiro</h1>
+        <p data-testid="financeiro-text-subtitle" style={{ fontSize: 15, color: "var(--ink-600)" }}>Gerencie carteira, saques, dados bancários e cadastro.</p>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "220px 1fr", gap: 24, alignItems: "start" }}>
+      <div data-testid="financeiro-layout" style={{ display: "grid", gridTemplateColumns: "220px 1fr", gap: 24, alignItems: "start" }}>
         {/* Sidebar */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+        <nav data-testid="financeiro-sidenav" style={{ display: "flex", flexDirection: "column", gap: 4 }}>
           {/* Profile card */}
-          <div style={{ padding: 16, background: "var(--ink-0)", border: "1px solid var(--ink-200)", borderRadius: "var(--r-lg)", marginBottom: 12 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 2, fontSize: 11, fontWeight: 700, color: "var(--kai-success)", marginBottom: 10 }}>
+          <div data-testid="financeiro-card-profile" style={{ padding: 16, background: "var(--ink-0)", border: "1px solid var(--ink-200)", borderRadius: "var(--r-lg)", marginBottom: 12 }}>
+            <div data-testid="financeiro-status-badge-verificado" style={{ display: "flex", alignItems: "center", gap: 2, fontSize: 11, fontWeight: 700, color: "var(--kai-success)", marginBottom: 10 }}>
               <CheckCircle size={12} /> Identidade verificada
             </div>
-            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-              <div style={{ width: 40, height: 40, borderRadius: "50%", background: "linear-gradient(135deg, var(--kai-orange), var(--kai-orange-600))", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800, color: "white", fontSize: 14, flexShrink: 0 }}>
+            <div data-testid="financeiro-profile-row" style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <div data-testid="financeiro-profile-avatar" style={{ width: 40, height: 40, borderRadius: "50%", background: "linear-gradient(135deg, var(--kai-orange), var(--kai-orange-600))", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800, color: "white", fontSize: 14, flexShrink: 0 }}>
                 BR
               </div>
-              <div style={{ display: "flex", flexDirection: "column", gap: 2, minWidth: 0 }}>
-                <strong style={{ fontSize: 13, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>Bruno Raphael C…</strong>
-                <div style={{ display: "flex", gap: 6, fontSize: 11, color: "var(--ink-600)", alignItems: "center" }}>
-                  <span>Conta {accountType}</span>
+              <div data-testid="financeiro-profile-info" style={{ display: "flex", flexDirection: "column", gap: 2, minWidth: 0 }}>
+                <strong data-testid="financeiro-profile-name" style={{ fontSize: 13, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>Bruno Raphael C…</strong>
+                <div data-testid="financeiro-profile-account-row" style={{ display: "flex", gap: 6, fontSize: 11, color: "var(--ink-600)", alignItems: "center" }}>
+                  <span data-testid="financeiro-profile-account-type">Conta {accountType}</span>
                   <button
+                    data-testid="financeiro-button-toggle-account-type"
                     onClick={() => setAccountType((v) => v === "PF" ? "PJ" : "PF")}
                     style={{ background: "none", border: "none", color: "var(--kai-orange-600)", fontWeight: 600, fontSize: 11, cursor: "pointer", padding: 0 }}
                   >
@@ -425,6 +433,7 @@ export default function Financeiro() {
           {/* Nav items */}
           {SECTIONS.map((s) => (
             <button
+              data-testid={`financeiro-tab-${s.key}`}
               key={s.key}
               onClick={() => setSection(s.key)}
               style={{
@@ -448,15 +457,15 @@ export default function Financeiro() {
               {s.label}
             </button>
           ))}
-        </div>
+        </nav>
 
         {/* Content */}
-        <div>
+        <main data-testid="financeiro-content">
           {section === "carteira"  && <Carteira />}
           {section === "bancarios" && <DadosBancarios />}
           {section === "taxas"     && <Taxas />}
           {section === "dados"     && <DadosGerais accountType={accountType} />}
-        </div>
+        </main>
       </div>
     </motion.div>
   );

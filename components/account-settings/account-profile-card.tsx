@@ -66,9 +66,16 @@ export default function AccountProfileCard({
     "US";
 
   return (
-    <div className="border-border bg-card flex w-full flex-col gap-4 self-stretch rounded-lg border p-4 md:p-6">
+    <div
+      data-testid="account-profile-card"
+      data-loading={userQuery.isLoading ? "true" : "false"}
+      className="border-border bg-card flex w-full flex-col gap-4 self-stretch rounded-lg border p-4 md:p-6"
+    >
       {userQuery.isLoading ? (
-        <div className="flex w-full items-center justify-between gap-6">
+        <div
+          data-testid="account-profile-card-loading"
+          className="flex w-full items-center justify-between gap-6"
+        >
           <div className="flex items-center gap-4">
             <div className="relative">
               <div className="bg-primary rounded-full p-px">
@@ -86,12 +93,24 @@ export default function AccountProfileCard({
           </div>
         </div>
       ) : (
-        <div className="flex w-full items-center justify-between gap-6">
-          <div className="flex items-center gap-4">
-            <div className="relative">
+        <div
+          data-testid="account-profile-card-body"
+          className="flex w-full items-center justify-between gap-6"
+        >
+          <div
+            data-testid="account-profile-card-content"
+            className="flex items-center gap-4"
+          >
+            <div
+              data-testid="account-profile-card-avatar-wrapper"
+              className="relative"
+            >
               <div className="bg-primary rounded-full p-px">
                 <div className="bg-card rounded-full p-1">
-                  <Avatar className="size-20">
+                  <Avatar
+                    data-testid="account-profile-card-avatar"
+                    className="size-20"
+                  >
                     {user?.fotoPerfil || user?.avatar ? (
                       <>
                         <AvatarImage
@@ -112,16 +131,22 @@ export default function AccountProfileCard({
               <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
                 <DialogTrigger asChild>
                   <button
+                    data-testid="account-profile-card-button-edit-avatar"
                     aria-label="Editar foto"
                     className="bg-muted/60 text-muted-foreground absolute -right-1 -bottom-1 z-20 flex h-7 w-7 cursor-pointer items-center justify-center rounded-md shadow-sm"
                   >
-                    <SquarePen className="h-4 w-4 cursor-pointer" />
+                    <SquarePen
+                      data-testid="account-profile-card-button-edit-avatar-icon"
+                      className="h-4 w-4 cursor-pointer"
+                    />
                   </button>
                 </DialogTrigger>
 
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>Editar foto</DialogTitle>
+                <DialogContent data-testid="account-profile-card-dialog-edit-avatar">
+                  <DialogHeader data-testid="account-profile-card-dialog-edit-avatar-header">
+                    <DialogTitle data-testid="account-profile-card-dialog-edit-avatar-title">
+                      Editar foto
+                    </DialogTitle>
                   </DialogHeader>
 
                   <ImageUpload
@@ -190,38 +215,73 @@ export default function AccountProfileCard({
               </Dialog>
             </div>
 
-            <div className="flex flex-col">
-              <span className="text-foreground text-2xl font-semibold">
+            <div
+              data-testid="account-profile-card-info"
+              className="flex flex-col"
+            >
+              <span
+                data-testid="account-profile-card-name"
+                className="text-foreground text-2xl font-semibold"
+              >
                 {user?.nomeCompleto || user?.name || "Usuário"}
               </span>
 
-              <div className="mt-1 flex flex-col">
-                <div className="flex items-center gap-2">
-                  <span className="text-foreground max-w-48 truncate text-sm">
+              <div
+                data-testid="account-profile-card-meta"
+                className="mt-1 flex flex-col"
+              >
+                <div
+                  data-testid="account-profile-card-id-row"
+                  className="flex items-center gap-2"
+                >
+                  <span
+                    data-testid="account-profile-card-id"
+                    className="text-foreground max-w-48 truncate text-sm"
+                  >
                     <span className="text-muted-foreground text-sm">ID:</span>{" "}
                     {user?.id || "—"}
                   </span>
                   <button
+                    data-testid="account-profile-card-button-copy-id"
+                    data-copied={copied ? "true" : "false"}
                     onClick={copyId}
                     aria-label="Copiar id"
                     className="text-muted-foreground hover:bg-accent hover:text-foreground flex cursor-pointer items-center justify-center rounded-md p-1 transition-colors"
                   >
                     {copied ? (
-                      <Check className="pointer-events-none h-4 w-4 text-green-600" />
+                      <Check
+                        data-testid="account-profile-card-button-copy-id-icon-check"
+                        className="pointer-events-none h-4 w-4 text-green-600"
+                      />
                     ) : (
-                      <Copy className="pointer-events-none h-4 w-4" />
+                      <Copy
+                        data-testid="account-profile-card-button-copy-id-icon-copy"
+                        className="pointer-events-none h-4 w-4"
+                      />
                     )}
                   </button>
                   {copied && (
-                    <span className="animate-in fade-in slide-in-from-left-1 text-xs text-green-600 duration-200">
+                    <span
+                      data-testid="account-profile-card-copied-indicator"
+                      className="animate-in fade-in slide-in-from-left-1 text-xs text-green-600 duration-200"
+                    >
                       Copiado!
                     </span>
                   )}
                 </div>
 
-                <div className="mt-1 flex items-center gap-2">
-                  <span className="text-muted-foreground text-sm">
-                    <span className="text-muted-foreground text-xs">
+                <div
+                  data-testid="account-profile-card-registration-row"
+                  className="mt-1 flex items-center gap-2"
+                >
+                  <span
+                    data-testid="account-profile-card-registration-wrapper"
+                    className="text-muted-foreground text-sm"
+                  >
+                    <span
+                      data-testid="account-profile-card-registration-text"
+                      className="text-muted-foreground text-xs"
+                    >
                       Data de registro: {formattedDate}
                     </span>
                   </span>

@@ -80,10 +80,17 @@ export default function AccountDetailsCard({
   );
 
   return (
-    <div className="border-border bg-card w-full rounded-lg border p-4 md:p-6">
+    <div
+      data-testid="account-details-card"
+      data-loading={userQuery.isLoading ? "true" : "false"}
+      className="border-border bg-card w-full rounded-lg border p-4 md:p-6"
+    >
       {userQuery.isLoading ? (
-        <div className="flex flex-col gap-6">
-          <section>
+        <div
+          data-testid="account-details-card-loading"
+          className="flex flex-col gap-6"
+        >
+          <section data-testid="account-details-card-loading-personal">
             <h2 className="text-foreground text-md mb-4 font-semibold">
               Informações pessoais
             </h2>
@@ -105,7 +112,7 @@ export default function AccountDetailsCard({
 
           <hr className="border-border" />
 
-          <section>
+          <section data-testid="account-details-card-loading-address">
             <h2 className="text-md text-foreground mb-4 font-semibold">
               Endereço
             </h2>
@@ -134,29 +141,63 @@ export default function AccountDetailsCard({
           </section>
         </div>
       ) : (
-        <div className="flex flex-col gap-6">
-          <section>
-            <h2 className="text-foreground text-md mb-4 font-semibold">
+        <div
+          data-testid="account-details-card-body"
+          className="flex flex-col gap-6"
+        >
+          <section data-testid="account-details-card-section-personal">
+            <h2
+              data-testid="account-details-card-section-personal-title"
+              className="text-foreground text-md mb-4 font-semibold"
+            >
               Informações pessoais
             </h2>
 
-            <div className="text-muted-foreground flex flex-col gap-2 text-sm">
-              <div className="flex flex-wrap items-center gap-3">
-                <span className="text-muted-foreground">Nome:</span>
-                <span className="text-foreground">
+            <div
+              data-testid="account-details-card-personal-fields"
+              className="text-muted-foreground flex flex-col gap-2 text-sm"
+            >
+              <div
+                data-testid="account-details-card-field-name"
+                className="flex flex-wrap items-center gap-3"
+              >
+                <span
+                  data-testid="account-details-card-field-name-label"
+                  className="text-muted-foreground"
+                >
+                  Nome:
+                </span>
+                <span
+                  data-testid="account-details-card-field-name-value"
+                  className="text-foreground"
+                >
                   {userData?.nomeCompleto ?? userData?.name ?? ""}
                 </span>
                 {!(userData?.nomeCompleto || userData?.name) && (
-                  <Badge className="bg-primary/20 text-primary shrink-0 rounded-md">
+                  <Badge
+                    data-testid="account-details-card-field-name-pending"
+                    className="bg-primary/20 text-primary shrink-0 rounded-md"
+                  >
                     Pendente
                   </Badge>
                 )}
               </div>
 
-              <div className="flex flex-wrap items-center gap-3">
-                <span className="text-muted-foreground">CPF/CNPJ:</span>
+              <div
+                data-testid="account-details-card-field-document"
+                className="flex flex-wrap items-center gap-3"
+              >
+                <span
+                  data-testid="account-details-card-field-document-label"
+                  className="text-muted-foreground"
+                >
+                  CPF/CNPJ:
+                </span>
                 {userData?.documento ? (
-                  <span className="text-foreground">
+                  <span
+                    data-testid="account-details-card-field-document-value"
+                    className="text-foreground"
+                  >
                     {(() => {
                       const raw = String(userData.documento || "").replace(
                         /\D/g,
@@ -169,20 +210,44 @@ export default function AccountDetailsCard({
                     })()}
                   </span>
                 ) : (
-                  <Badge className="bg-primary/20 text-primary shrink-0 rounded-md">
+                  <Badge
+                    data-testid="account-details-card-field-document-pending"
+                    className="bg-primary/20 text-primary shrink-0 rounded-md"
+                  >
                     Pendente
                   </Badge>
                 )}
               </div>
 
-              <div className="flex flex-wrap items-center gap-3">
-                <span className="text-muted-foreground">Telefone/Celular:</span>
+              <div
+                data-testid="account-details-card-field-phone"
+                className="flex flex-wrap items-center gap-3"
+              >
+                <span
+                  data-testid="account-details-card-field-phone-label"
+                  className="text-muted-foreground"
+                >
+                  Telefone/Celular:
+                </span>
                 {phoneDisplay ? (
-                  <span className="text-foreground">{phoneDisplay}</span>
+                  <span
+                    data-testid="account-details-card-field-phone-value"
+                    className="text-foreground"
+                  >
+                    {phoneDisplay}
+                  </span>
                 ) : (
                   <>
-                    <span className="text-foreground">{""}</span>
-                    <Badge className="bg-primary/20 text-primary shrink-0 rounded-md">
+                    <span
+                      data-testid="account-details-card-field-phone-empty"
+                      className="text-foreground"
+                    >
+                      {""}
+                    </span>
+                    <Badge
+                      data-testid="account-details-card-field-phone-pending"
+                      className="bg-primary/20 text-primary shrink-0 rounded-md"
+                    >
                       Pendente
                     </Badge>
                   </>
@@ -190,11 +255,19 @@ export default function AccountDetailsCard({
               </div>
             </div>
 
-            <div className="mt-4">
+            <div
+              data-testid="account-details-card-personal-actions"
+              className="mt-4"
+            >
               <CustomModalForm
+                testId="account-details-personal-modal"
                 iconType="userInfoEdit"
                 trigger={
-                  <Button variant="link" className="text-primary p-0">
+                  <Button
+                    data-testid="account-details-card-button-edit-personal"
+                    variant="link"
+                    className="text-primary p-0"
+                  >
                     Editar informações pessoais
                   </Button>
                 }
@@ -256,109 +329,221 @@ export default function AccountDetailsCard({
 
           <hr className="border-border" />
 
-          <section>
-            <h2 className="text-md text-foreground mb-4 font-semibold">
+          <section data-testid="account-details-card-section-address">
+            <h2
+              data-testid="account-details-card-section-address-title"
+              className="text-md text-foreground mb-4 font-semibold"
+            >
               Endereço
             </h2>
 
-            <div className="text-muted-foreground flex flex-col gap-2 text-sm">
-              <div className="flex items-center gap-3">
-                <span className="text-muted-foreground">Cep:</span>
-                <span className="text-foreground">
+            <div
+              data-testid="account-details-card-address-fields"
+              className="text-muted-foreground flex flex-col gap-2 text-sm"
+            >
+              <div
+                data-testid="account-details-card-field-cep"
+                className="flex items-center gap-3"
+              >
+                <span
+                  data-testid="account-details-card-field-cep-label"
+                  className="text-muted-foreground"
+                >
+                  Cep:
+                </span>
+                <span
+                  data-testid="account-details-card-field-cep-value"
+                  className="text-foreground"
+                >
                   {addressData?.cep ?? userData?.cep ?? ""}
                 </span>
                 {!addressData?.cep && !userData?.cep && (
-                  <Badge className="bg-primary/20 text-primary shrink-0 rounded-md">
+                  <Badge
+                    data-testid="account-details-card-field-cep-pending"
+                    className="bg-primary/20 text-primary shrink-0 rounded-md"
+                  >
                     Pendente
                   </Badge>
                 )}
               </div>
-              <div className="flex items-center gap-3">
-                <span className="text-muted-foreground">País:</span>
-                <span className="text-foreground">
+              <div
+                data-testid="account-details-card-field-country"
+                className="flex items-center gap-3"
+              >
+                <span
+                  data-testid="account-details-card-field-country-label"
+                  className="text-muted-foreground"
+                >
+                  País:
+                </span>
+                <span
+                  data-testid="account-details-card-field-country-value"
+                  className="text-foreground"
+                >
                   {addressData?.pais ??
                     resolveCountryDisplay(userData?.codigoPais) ??
                     ""}
                 </span>
                 {!addressData?.pais && !userData?.codigoPais && (
-                  <Badge className="bg-primary/20 text-primary shrink-0 rounded-md">
+                  <Badge
+                    data-testid="account-details-card-field-country-pending"
+                    className="bg-primary/20 text-primary shrink-0 rounded-md"
+                  >
                     Pendente
                   </Badge>
                 )}
               </div>
 
-              <div className="flex items-center gap-3">
-                <span className="text-muted-foreground">Estado:</span>
-                <span className="text-foreground">
+              <div
+                data-testid="account-details-card-field-state"
+                className="flex items-center gap-3"
+              >
+                <span
+                  data-testid="account-details-card-field-state-label"
+                  className="text-muted-foreground"
+                >
+                  Estado:
+                </span>
+                <span
+                  data-testid="account-details-card-field-state-value"
+                  className="text-foreground"
+                >
                   {addressData?.estado ?? userData?.state ?? ""}
                 </span>
                 {!addressData?.estado && !userData?.state && (
-                  <Badge className="bg-primary/20 text-primary shrink-0 rounded-md">
+                  <Badge
+                    data-testid="account-details-card-field-state-pending"
+                    className="bg-primary/20 text-primary shrink-0 rounded-md"
+                  >
                     Pendente
                   </Badge>
                 )}
               </div>
 
-              <div className="flex items-center gap-3">
-                <span className="text-muted-foreground">Cidade:</span>
-                <span className="text-foreground">
+              <div
+                data-testid="account-details-card-field-city"
+                className="flex items-center gap-3"
+              >
+                <span
+                  data-testid="account-details-card-field-city-label"
+                  className="text-muted-foreground"
+                >
+                  Cidade:
+                </span>
+                <span
+                  data-testid="account-details-card-field-city-value"
+                  className="text-foreground"
+                >
                   {addressData?.cidade ?? userData?.city ?? ""}
                 </span>
                 {!addressData?.cidade && !userData?.city && (
-                  <Badge className="bg-primary/20 text-primary shrink-0 rounded-md">
+                  <Badge
+                    data-testid="account-details-card-field-city-pending"
+                    className="bg-primary/20 text-primary shrink-0 rounded-md"
+                  >
                     Pendente
                   </Badge>
                 )}
               </div>
 
-              <div className="flex items-center gap-3">
-                <span className="text-muted-foreground">Endereço:</span>
-                <span className="text-foreground">
+              <div
+                data-testid="account-details-card-field-street"
+                className="flex items-center gap-3"
+              >
+                <span
+                  data-testid="account-details-card-field-street-label"
+                  className="text-muted-foreground"
+                >
+                  Endereço:
+                </span>
+                <span
+                  data-testid="account-details-card-field-street-value"
+                  className="text-foreground"
+                >
                   {addressData?.rua ?? userData?.address ?? ""}
                 </span>
                 {!addressData?.rua && !userData?.address && (
-                  <Badge className="bg-primary/20 text-primary shrink-0 rounded-md">
+                  <Badge
+                    data-testid="account-details-card-field-street-pending"
+                    className="bg-primary/20 text-primary shrink-0 rounded-md"
+                  >
                     Pendente
                   </Badge>
                 )}
               </div>
 
-              <div className="flex items-center gap-3">
-                <span className="text-muted-foreground">Número:</span>
-                <span className="text-foreground">
+              <div
+                data-testid="account-details-card-field-number"
+                className="flex items-center gap-3"
+              >
+                <span
+                  data-testid="account-details-card-field-number-label"
+                  className="text-muted-foreground"
+                >
+                  Número:
+                </span>
+                <span
+                  data-testid="account-details-card-field-number-value"
+                  className="text-foreground"
+                >
                   {addressData?.numero ??
                     (userData as User & { numero?: number })?.numero ??
                     ""}
                 </span>
                 {!addressData?.numero &&
                   !(userData as User & { numero?: number })?.numero && (
-                    <Badge className="bg-primary/20 text-primary shrink-0 rounded-md">
+                    <Badge
+                      data-testid="account-details-card-field-number-pending"
+                      className="bg-primary/20 text-primary shrink-0 rounded-md"
+                    >
                       Pendente
                     </Badge>
                   )}
               </div>
 
-              <div className="flex items-center gap-3">
-                <span className="text-muted-foreground">Bairro:</span>
-                <span className="text-foreground">
+              <div
+                data-testid="account-details-card-field-neighborhood"
+                className="flex items-center gap-3"
+              >
+                <span
+                  data-testid="account-details-card-field-neighborhood-label"
+                  className="text-muted-foreground"
+                >
+                  Bairro:
+                </span>
+                <span
+                  data-testid="account-details-card-field-neighborhood-value"
+                  className="text-foreground"
+                >
                   {addressData?.bairro ??
                     (userData as User & { bairro?: string })?.bairro ??
                     ""}
                 </span>
                 {!addressData?.bairro &&
                   !(userData as User & { bairro?: string })?.bairro && (
-                    <Badge className="bg-primary/20 text-primary shrink-0 rounded-md">
+                    <Badge
+                      data-testid="account-details-card-field-neighborhood-pending"
+                      className="bg-primary/20 text-primary shrink-0 rounded-md"
+                    >
                       Pendente
                     </Badge>
                   )}
               </div>
             </div>
 
-            <div className="mt-4">
+            <div
+              data-testid="account-details-card-address-actions"
+              className="mt-4"
+            >
               <CustomModalForm
+                testId="account-details-address-modal"
                 iconType="userAddressEdit"
                 trigger={
-                  <Button variant="link" className="text-primary p-0">
+                  <Button
+                    data-testid="account-details-card-button-edit-address"
+                    variant="link"
+                    className="text-primary p-0"
+                  >
                     Editar endereço
                   </Button>
                 }

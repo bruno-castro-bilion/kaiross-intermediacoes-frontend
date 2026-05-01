@@ -58,11 +58,19 @@ const ResetForm = ({ onTransition }: ResetFormProps) => {
   const isError = touched && email.length <= 0;
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="space-y-1.5">
-        <div className="relative">
+    <form
+      data-testid="reset-password-form"
+      onSubmit={handleSubmit}
+      className="space-y-4"
+    >
+      <div data-testid="reset-password-field-email" className="space-y-1.5">
+        <div
+          data-testid="reset-password-field-email-wrapper"
+          className="relative"
+        >
           <Mail className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
           <Input
+            data-testid="reset-password-input-email"
             id="email"
             type="email"
             placeholder="E-mail"
@@ -78,21 +86,31 @@ const ResetForm = ({ onTransition }: ResetFormProps) => {
         </div>
 
         {isError && (
-          <p className="animate-in fade-in slide-in-from-top-1 text-xs text-red-500">
+          <p
+            data-testid="reset-password-error-email"
+            className="animate-in fade-in slide-in-from-top-1 text-xs text-red-500"
+          >
             E-mail obrigatório
           </p>
         )}
       </div>
 
-      <div className="pt-4">
+      <div data-testid="reset-password-submit-wrapper" className="pt-4">
         <Button
+          data-testid="reset-password-button-submit"
           type="submit"
           className="bg-primary text-primary-foreground hover:bg-primary/90 w-full"
           disabled={isPending || !enable}
         >
           {isPending ? (
-            <div className="flex items-center gap-2">
-              <div className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+            <div
+              data-testid="reset-password-button-submit-loading"
+              className="flex items-center gap-2"
+            >
+              <div
+                data-testid="reset-password-button-submit-spinner"
+                className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white"
+              />
               Enviando...
             </div>
           ) : (
@@ -101,10 +119,17 @@ const ResetForm = ({ onTransition }: ResetFormProps) => {
         </Button>
       </div>
 
-      <div className="pt-1">
-        <p className="text-muted-foreground text-center text-sm">
+      <div data-testid="reset-password-signup-wrapper" className="pt-1">
+        <p
+          data-testid="reset-password-signup-prompt"
+          className="text-muted-foreground text-center text-sm"
+        >
           Ainda não tem conta?{" "}
-          <Link href="/signup" className="text-foreground text-xs transition-colors hover:underline">
+          <Link
+            data-testid="reset-password-link-signup"
+            href="/signup"
+            className="text-foreground text-xs transition-colors hover:underline"
+          >
             Cadastre-se agora!
           </Link>
         </p>

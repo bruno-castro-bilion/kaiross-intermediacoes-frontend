@@ -77,6 +77,7 @@ const UpdatePasswordPage = ({ params }: PageProps) => {
   return (
     <AnimatePresence>
       <motion.div
+        data-testid="update-password-page"
         initial={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         transition={{ duration: 0.4, ease: "easeInOut" }}
@@ -84,16 +85,33 @@ const UpdatePasswordPage = ({ params }: PageProps) => {
       >
         <BackgroundEffects />
 
-        <div className="relative z-10 flex w-full flex-col items-center justify-center">
-          <div className="w-full max-w-md">
+        <div
+          data-testid="update-password-page-content"
+          className="relative z-10 flex w-full flex-col items-center justify-center"
+        >
+          <div
+            data-testid="update-password-page-card-wrapper"
+            className="w-full max-w-md"
+          >
             <div
+              data-testid="update-password-page-card-animated"
               className="animate-fade-in-up opacity-0"
               style={{ animationFillMode: "forwards", animationDelay: "0.1s" }}
             >
-              <div className="border-border bg-card/95 overflow-hidden rounded-2xl border shadow-2xl backdrop-blur-xl">
-                <div className="relative p-8">
-                  <div className="mb-6 flex justify-center">
+              <div
+                data-testid="update-password-page-card"
+                className="border-border bg-card/95 overflow-hidden rounded-2xl border shadow-2xl backdrop-blur-xl"
+              >
+                <div
+                  data-testid="update-password-page-card-body"
+                  className="relative p-8"
+                >
+                  <div
+                    data-testid="update-password-page-logo-wrapper"
+                    className="mb-6 flex justify-center"
+                  >
                     <Image
+                      data-testid="update-password-page-logo"
                       src="/LOGO-MENU.png"
                       alt="Kaiross"
                       width={120}
@@ -103,15 +121,25 @@ const UpdatePasswordPage = ({ params }: PageProps) => {
                     />
                   </div>
 
-                  <h1 className="text-foreground mb-2 text-center text-xl font-semibold">
+                  <h1
+                    data-testid="update-password-page-title"
+                    className="text-foreground mb-2 text-center text-xl font-semibold"
+                  >
                     Crie uma nova senha!
                   </h1>
 
-                  <div className="mt-6 mb-4 flex items-center justify-between">
-                    <h2 className="text-md text-foreground font-bold">
+                  <div
+                    data-testid="update-password-section-info-header"
+                    className="mt-6 mb-4 flex items-center justify-between"
+                  >
+                    <h2
+                      data-testid="update-password-section-info-title"
+                      className="text-md text-foreground font-bold"
+                    >
                       Informações
                     </h2>
                     <button
+                      data-testid="update-password-button-toggle-password-visibility"
                       type="button"
                       onClick={() => {
                         setShowPassword(!showPassword);
@@ -128,11 +156,22 @@ const UpdatePasswordPage = ({ params }: PageProps) => {
                     </button>
                   </div>
 
-                  <form onSubmit={handleSubmitForm} className="space-y-4">
-                    <div className="space-y-1.5">
-                      <div className="relative">
+                  <form
+                    data-testid="update-password-form"
+                    onSubmit={handleSubmitForm}
+                    className="space-y-4"
+                  >
+                    <div
+                      data-testid="update-password-field-password"
+                      className="space-y-1.5"
+                    >
+                      <div
+                        data-testid="update-password-field-password-wrapper"
+                        className="relative"
+                      >
                         <Lock className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
                         <Input
+                          data-testid="update-password-input-password"
                           id="password"
                           type={showPassword ? "text" : "password"}
                           placeholder="Nova senha"
@@ -147,10 +186,17 @@ const UpdatePasswordPage = ({ params }: PageProps) => {
                       </div>
                     </div>
 
-                    <div className="space-y-1.5">
-                      <div className="relative">
+                    <div
+                      data-testid="update-password-field-password-confirmation"
+                      className="space-y-1.5"
+                    >
+                      <div
+                        data-testid="update-password-field-password-confirmation-wrapper"
+                        className="relative"
+                      >
                         <Lock className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
                         <Input
+                          data-testid="update-password-input-password-confirmation"
                           id="passwordConfirmation"
                           type={showConfirmPassword ? "text" : "password"}
                           placeholder="Confirmar nova senha"
@@ -163,9 +209,15 @@ const UpdatePasswordPage = ({ params }: PageProps) => {
                         />
                       </div>
                       {errors.passwordConfirmation && (
-                        <div className="animate-in fade-in slide-in-from-top-1 flex items-center gap-1.5 text-red-500">
+                        <div
+                          data-testid="update-password-error-password-confirmation"
+                          className="animate-in fade-in slide-in-from-top-1 flex items-center gap-1.5 text-red-500"
+                        >
                           <AlertCircle size={14} fill="currentColor" />
-                          <p className="text-xs font-medium">
+                          <p
+                            data-testid="update-password-error-password-confirmation-message"
+                            className="text-xs font-medium"
+                          >
                             {errors.passwordConfirmation.message}
                           </p>
                         </div>
@@ -175,13 +227,20 @@ const UpdatePasswordPage = ({ params }: PageProps) => {
                     <PasswordStrength password={password} />
 
                     <Button
+                      data-testid="update-password-button-submit"
                       type="submit"
                       disabled={!isFormValid || isPending}
                       className="bg-primary text-primary-foreground hover:bg-primary/90 mt-4 w-full"
                     >
                       {isPending ? (
-                        <div className="flex items-center gap-2">
-                          <div className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+                        <div
+                          data-testid="update-password-button-submit-loading"
+                          className="flex items-center gap-2"
+                        >
+                          <div
+                            data-testid="update-password-button-submit-spinner"
+                            className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white"
+                          />
                           Enviando...
                         </div>
                       ) : (
@@ -194,7 +253,10 @@ const UpdatePasswordPage = ({ params }: PageProps) => {
             </div>
           </div>
 
-          <div className="mt-6 w-full max-w-md">
+          <div
+            data-testid="update-password-page-footer-wrapper"
+            className="mt-6 w-full max-w-md"
+          >
             <AuthFooter actionText="Criar conta" />
           </div>
         </div>

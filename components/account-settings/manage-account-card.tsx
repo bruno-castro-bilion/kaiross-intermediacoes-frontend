@@ -18,36 +18,73 @@ export default function ManageAccountCard({ user: propUser }: { user?: User }) {
   const deleteUser = useDeleteUser();
 
   return (
-    <div className="border-border bg-card w-full rounded-lg border p-4 md:p-6">
-      <div className="flex flex-col gap-6">
-        <section>
-          <h2 className="text-md text-foreground mb-4 font-semibold">
+    <div
+      data-testid="manage-account-card"
+      className="border-border bg-card w-full rounded-lg border p-4 md:p-6"
+    >
+      <div
+        data-testid="manage-account-card-body"
+        className="flex flex-col gap-6"
+      >
+        <section data-testid="manage-account-section-email">
+          <h2
+            data-testid="manage-account-section-email-title"
+            className="text-md text-foreground mb-4 font-semibold"
+          >
             Gerenciar conta
           </h2>
 
-          <div className="text-muted-foreground flex flex-col gap-3 text-sm">
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="text-foreground">Endereço de e-mail:</span>
-              <span className="text-muted-foreground font-semibold break-all">
+          <div
+            data-testid="manage-account-section-email-content"
+            className="text-muted-foreground flex flex-col gap-3 text-sm"
+          >
+            <div
+              data-testid="manage-account-email-row"
+              className="flex flex-wrap items-center gap-2"
+            >
+              <span
+                data-testid="manage-account-email-label"
+                className="text-foreground"
+              >
+                Endereço de e-mail:
+              </span>
+              <span
+                data-testid="manage-account-email-value"
+                className="text-muted-foreground font-semibold break-all"
+              >
                 {user?.email || "usuario@exemplo.com"}
               </span>
               {!user?.email && (
-                <Badge className="bg-primary/20 text-primary shrink-0 rounded-md">
+                <Badge
+                  data-testid="manage-account-email-pending"
+                  className="bg-primary/20 text-primary shrink-0 rounded-md"
+                >
                   Pendente
                 </Badge>
               )}
             </div>
 
-            <p className="text-muted-foreground">
+            <p
+              data-testid="manage-account-email-description"
+              className="text-muted-foreground"
+            >
               Aprimore a segurança da sua conta verificando seu endereço de
               e-mail
             </p>
 
-            <div className="text-left">
+            <div
+              data-testid="manage-account-email-actions"
+              className="text-left"
+            >
               <CustomModalForm
+                testId="manage-account-email-modal"
                 iconType="emailEdit"
                 trigger={
-                  <Button variant="link" className="text-primary p-2">
+                  <Button
+                    data-testid="manage-account-button-change-email"
+                    variant="link"
+                    className="text-primary p-2"
+                  >
                     Alterar email
                   </Button>
                 }
@@ -93,18 +130,31 @@ export default function ManageAccountCard({ user: propUser }: { user?: User }) {
 
         <hr className="border-neutral-800" />
 
-        <section>
-          <h3 className="text-md text-foreground mb-2 font-semibold">
+        <section data-testid="manage-account-section-password">
+          <h3
+            data-testid="manage-account-section-password-title"
+            className="text-md text-foreground mb-2 font-semibold"
+          >
             Alterar senha
           </h3>
-          <p className="text-muted-foreground">
+          <p
+            data-testid="manage-account-section-password-description"
+            className="text-muted-foreground"
+          >
             Aqui você pode alterar a senha de acesso à sua conta.
           </p>
-          <div className="mt-3">
+          <div
+            data-testid="manage-account-section-password-actions"
+            className="mt-3"
+          >
             <CustomModalForm
+              testId="manage-account-password-modal"
               iconType="passwordEdit"
               trigger={
-                <Button variant="outline">
+                <Button
+                  data-testid="manage-account-button-change-password"
+                  variant="outline"
+                >
                   <KeyRound className="mr-2 h-4 w-4" /> Alterar senha
                 </Button>
               }
@@ -142,30 +192,53 @@ export default function ManageAccountCard({ user: propUser }: { user?: User }) {
 
         <hr className="border-neutral-800" />
 
-        <section>
-          <h3 className="text-md text-foregroundmb-2 font-semibold">
+        <section data-testid="manage-account-section-delete">
+          <h3
+            data-testid="manage-account-section-delete-title"
+            className="text-md text-foregroundmb-2 font-semibold"
+          >
             Exclusão de Conta e Informações Pessoais
           </h3>
-          <p className="text-muted-foreground pt-1 text-sm">
+          <p
+            data-testid="manage-account-section-delete-description"
+            className="text-muted-foreground pt-1 text-sm"
+          >
             A exclusão da sua conta e de todos os dados pessoais é permanente.
             Você não poderá acessar sua conta, negociar ou utilizar nenhum dos
             nossos serviços.
           </p>
 
-          <div className="mt-4">
-            <div className="bg-primary/10 text-primary flex items-center gap-3 rounded-md p-3 text-sm">
-              <TriangleAlert className="h-4 w-4" />
-              <span>
+          <div
+            data-testid="manage-account-section-delete-content"
+            className="mt-4"
+          >
+            <div
+              data-testid="manage-account-delete-warning"
+              className="bg-primary/10 text-primary flex items-center gap-3 rounded-md p-3 text-sm"
+            >
+              <TriangleAlert
+                data-testid="manage-account-delete-warning-icon"
+                className="h-4 w-4"
+              />
+              <span data-testid="manage-account-delete-warning-text">
                 Não recomendamos encerrar a sua conta pois não há nenhum custo
                 para manter o cadastro ativo na Kaiross.
               </span>
             </div>
-            <div className="mt-3 text-sm">
+            <div
+              data-testid="manage-account-delete-actions"
+              className="mt-3 text-sm"
+            >
               <CustomModalForm
+                testId="manage-account-delete-modal"
                 iconType="error"
                 isAccountRemove={true}
                 trigger={
-                  <Button variant="link" className="p-0 text-xs text-red-500">
+                  <Button
+                    data-testid="manage-account-button-delete-account"
+                    variant="link"
+                    className="p-0 text-xs text-red-500"
+                  >
                     Solicitar encerramento da conta
                   </Button>
                 }

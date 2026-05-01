@@ -574,9 +574,16 @@ export function ImageUpload({
 
   return (
     <>
-      <div className={cn("w-full", className)}>
+      <div
+        className={cn("w-full", className)}
+        data-testid="image-upload"
+        data-type={isAvatarMode ? "avatar" : "default"}
+      >
         {isAvatarMode && (
-          <div className="mx-auto w-full max-w-45 sm:max-w-50">
+          <div
+            className="mx-auto w-full max-w-45 sm:max-w-50"
+            data-testid="image-upload-avatar-wrapper"
+          >
             {files.length === 0 ? (
               <div
                 {...getRootProps()}
@@ -587,40 +594,78 @@ export function ImageUpload({
                     ? "border-primary bg-muted/50"
                     : "border-muted-foreground/25",
                 )}
+                data-testid="image-upload-dropzone-avatar"
               >
-                <input {...getInputProps()} />
-                <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 p-4">
-                  <div className="bg-muted flex h-12 w-12 items-center justify-center rounded-full sm:h-16 sm:w-16">
+                <input
+                  {...getInputProps()}
+                  data-testid="image-upload-input"
+                />
+                <div
+                  className="absolute inset-0 flex flex-col items-center justify-center gap-2 p-4"
+                  data-testid="image-upload-dropzone-avatar-content"
+                >
+                  <div
+                    className="bg-muted flex h-12 w-12 items-center justify-center rounded-full sm:h-16 sm:w-16"
+                    data-testid="image-upload-dropzone-avatar-icon-wrapper"
+                  >
                     <ImageIcon className="text-muted-foreground h-6 w-6 sm:h-8 sm:w-8" />
                   </div>
-                  <div className="text-center">
-                    <p className="text-foreground text-xs font-medium sm:text-sm">
+                  <div
+                    className="text-center"
+                    data-testid="image-upload-dropzone-avatar-text"
+                  >
+                    <p
+                      className="text-foreground text-xs font-medium sm:text-sm"
+                      data-testid="image-upload-dropzone-avatar-title"
+                    >
                       {isDragActive ? "Solte aqui" : "Upload avatar"}
                     </p>
-                    <p className="text-muted-foreground text-[10px] sm:text-xs">
+                    <p
+                      className="text-muted-foreground text-[10px] sm:text-xs"
+                      data-testid="image-upload-dropzone-avatar-hint"
+                    >
                       Até {maxSize}MB
                     </p>
                   </div>
                 </div>
               </div>
             ) : (
-              <div className="relative">
-                <div className="border-border relative aspect-square overflow-hidden rounded-full border-2">
+              <div
+                className="relative"
+                data-testid="image-upload-avatar-preview"
+              >
+                <div
+                  className="border-border relative aspect-square overflow-hidden rounded-full border-2"
+                  data-testid="image-upload-avatar-preview-frame"
+                >
                   <NextImage
                     src={files[0].preview || "/placeholder.svg"}
                     alt="Avatar"
                     unoptimized
                     fill
                     className="object-cover"
+                    data-testid="image-upload-avatar-image"
                   />
 
                   {(files[0].isLoading || files[0].isUploading) && (
-                    <div className="bg-background/80 absolute inset-0 flex items-center justify-center">
-                      <div className="text-center">
-                        <p className="text-muted-foreground mb-1 text-[10px] sm:text-xs">
+                    <div
+                      className="bg-background/80 absolute inset-0 flex items-center justify-center"
+                      data-testid="image-upload-avatar-progress"
+                    >
+                      <div
+                        className="text-center"
+                        data-testid="image-upload-avatar-progress-content"
+                      >
+                        <p
+                          className="text-muted-foreground mb-1 text-[10px] sm:text-xs"
+                          data-testid="image-upload-avatar-progress-label"
+                        >
                           {files[0].isLoading ? "Carregando..." : "Enviando..."}
                         </p>
-                        <div className="text-foreground text-lg font-bold sm:text-xl">
+                        <div
+                          className="text-foreground text-lg font-bold sm:text-xl"
+                          data-testid="image-upload-avatar-progress-text"
+                        >
                           {files[0].isLoading
                             ? files[0].loadProgress
                             : files[0].uploadProgress}
@@ -633,6 +678,7 @@ export function ImageUpload({
                               : files[0].uploadProgress
                           }
                           className="mt-2 h-1.5 w-20 sm:w-24"
+                          data-testid="image-upload-avatar-progress-bar"
                         />
                       </div>
                     </div>
@@ -640,8 +686,14 @@ export function ImageUpload({
                 </div>
 
                 {files[0].isComplete && (
-                  <div className="mt-2 flex items-center justify-center">
-                    <div className="flex h-8 w-8 animate-pulse items-center justify-center rounded-full bg-green-600 text-white">
+                  <div
+                    className="mt-2 flex items-center justify-center"
+                    data-testid="image-upload-avatar-success"
+                  >
+                    <div
+                      className="flex h-8 w-8 animate-pulse items-center justify-center rounded-full bg-green-600 text-white"
+                      data-testid="image-upload-avatar-success-badge"
+                    >
                       <Check className="h-4 w-4" />
                     </div>
                   </div>
@@ -652,7 +704,10 @@ export function ImageUpload({
         )}
 
         {!isAvatarMode && (
-          <div className="space-y-4">
+          <div
+            className="space-y-4"
+            data-testid="image-upload-default-wrapper"
+          >
             <div
               {...getRootProps()}
               className={cn(
@@ -663,21 +718,40 @@ export function ImageUpload({
                   ? "border-primary bg-muted/50"
                   : "border-muted-foreground/25",
               )}
+              data-testid="image-upload-dropzone"
             >
-              <input {...getInputProps()} />
-              <div className="flex flex-col items-center justify-center gap-3 text-center">
-                <div className="bg-muted flex h-12 w-12 items-center justify-center rounded-full sm:h-14 sm:w-14">
+              <input
+                {...getInputProps()}
+                data-testid="image-upload-input"
+              />
+              <div
+                className="flex flex-col items-center justify-center gap-3 text-center"
+                data-testid="image-upload-dropzone-content"
+              >
+                <div
+                  className="bg-muted flex h-12 w-12 items-center justify-center rounded-full sm:h-14 sm:w-14"
+                  data-testid="image-upload-dropzone-icon-wrapper"
+                >
                   <Upload className="text-muted-foreground h-6 w-6 sm:h-7 sm:w-7" />
                 </div>
-                <div className="space-y-1">
-                  <p className="text-foreground text-sm font-medium sm:text-base">
+                <div
+                  className="space-y-1"
+                  data-testid="image-upload-dropzone-text"
+                >
+                  <p
+                    className="text-foreground text-sm font-medium sm:text-base"
+                    data-testid="image-upload-dropzone-title"
+                  >
                     {isDragActive
                       ? "Solte os arquivos aqui"
                       : allowMultiple
                         ? "Arraste ou clique para selecionar arquivos"
                         : "Arraste ou clique para selecionar um arquivo"}
                   </p>
-                  <p className="text-muted-foreground text-xs sm:text-sm">
+                  <p
+                    className="text-muted-foreground text-xs sm:text-sm"
+                    data-testid="image-upload-dropzone-hint"
+                  >
                     {acceptedLabel} até {maxSize}MB
                     {allowMultiple && ` (máx. ${maxFiles} arquivos)`}
                   </p>
@@ -686,31 +760,53 @@ export function ImageUpload({
             </div>
 
             {files.length > 0 && (
-              <div className="space-y-3">
-                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                  <div className="text-muted-foreground text-sm">
-                    <span className="text-foreground font-medium">
+              <div
+                className="space-y-3"
+                data-testid="image-upload-files-section"
+              >
+                <div
+                  className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between"
+                  data-testid="image-upload-summary"
+                >
+                  <div
+                    className="text-muted-foreground text-sm"
+                    data-testid="image-upload-summary-info"
+                  >
+                    <span
+                      className="text-foreground font-medium"
+                      data-testid="image-upload-summary-count"
+                    >
                       {files.length}
                     </span>{" "}
                     arquivo{files.length !== 1 && "s"}
                     {loadingCount > 0 && (
-                      <span className="ml-2 text-blue-600 dark:text-blue-400">
+                      <span
+                        className="ml-2 text-blue-600 dark:text-blue-400"
+                        data-testid="image-upload-summary-loading"
+                      >
                         ({loadingCount} carregando)
                       </span>
                     )}
                     {completedCount > 0 && (
-                      <span className="ml-2 text-green-600 dark:text-green-400">
+                      <span
+                        className="ml-2 text-green-600 dark:text-green-400"
+                        data-testid="image-upload-summary-completed"
+                      >
                         ({completedCount} enviado{completedCount !== 1 && "s"})
                       </span>
                     )}
                   </div>
-                  <div className="flex gap-2">
+                  <div
+                    className="flex gap-2"
+                    data-testid="image-upload-summary-actions"
+                  >
                     {pendingCount > 0 && (
                       <Button
                         size="sm"
                         onClick={uploadAllFiles}
                         disabled={uploadingCount > 0 || loadingCount > 0}
                         className="text-xs sm:text-sm"
+                        data-testid="image-upload-button-upload-all"
                       >
                         <Upload className="mr-1.5 h-3.5 w-3.5 sm:h-4 sm:w-4" />
                         {uploadingCount > 0
@@ -725,28 +821,37 @@ export function ImageUpload({
                       size="sm"
                       onClick={clearAllFiles}
                       className="bg-transparent text-xs sm:text-sm"
+                      data-testid="image-upload-button-clear"
                     >
                       Limpar
                     </Button>
                   </div>
                 </div>
 
-                <div className="xs:grid-cols-2 grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+                <div
+                  className="xs:grid-cols-2 grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4"
+                  data-testid="image-upload-files-grid"
+                >
                   {files.map((uploadFile) => (
                     <div
                       key={uploadFile.id}
                       className="group bg-card relative overflow-hidden rounded-lg border"
+                      data-testid={`image-upload-file-${uploadFile.id}`}
                     >
                       <Button
                         variant="ghost"
                         size="icon"
                         className="bg-background/80 hover:bg-destructive hover:text-destructive-foreground absolute top-1 right-1 z-10 h-6 w-6 rounded-full opacity-0 transition-opacity group-hover:opacity-100"
                         onClick={() => removeFile(uploadFile.id)}
+                        data-testid={`image-upload-file-${uploadFile.id}-button-remove`}
                       >
                         <X className="h-3 w-3" />
                       </Button>
 
-                      <div className="bg-muted relative aspect-video">
+                      <div
+                        className="bg-muted relative aspect-video"
+                        data-testid={`image-upload-file-${uploadFile.id}-preview`}
+                      >
                         {uploadFile.preview &&
                         uploadFile.fileType === "image" ? (
                           <NextImage
@@ -755,6 +860,7 @@ export function ImageUpload({
                             unoptimized
                             fill
                             className="object-cover"
+                            data-testid={`image-upload-file-${uploadFile.id}-media`}
                           />
                         ) : uploadFile.preview &&
                           uploadFile.fileType === "video" ? (
@@ -766,6 +872,7 @@ export function ImageUpload({
                             loop
                             playsInline
                             preload="auto"
+                            data-testid={`image-upload-file-${uploadFile.id}-media`}
                           />
                         ) : uploadFile.preview &&
                           uploadFile.fileType === "pdf" ? (
@@ -773,50 +880,86 @@ export function ImageUpload({
                             src={uploadFile.preview}
                             title={uploadFile.fileName}
                             className="pointer-events-none absolute inset-0 h-full w-full"
+                            data-testid={`image-upload-file-${uploadFile.id}-media`}
                           />
                         ) : (
-                          <div className="flex h-full w-full items-center justify-center">
+                          <div
+                            className="flex h-full w-full items-center justify-center"
+                            data-testid={`image-upload-file-${uploadFile.id}-fallback`}
+                          >
                             <FileImage className="text-muted-foreground/50 h-8 w-8" />
                           </div>
                         )}
 
                         {uploadFile.isLoading && (
-                          <div className="bg-background/90 absolute inset-0 flex items-center justify-center">
-                            <div className="w-full px-3 text-center">
-                              <p className="text-muted-foreground mb-1 text-[10px]">
+                          <div
+                            className="bg-background/90 absolute inset-0 flex items-center justify-center"
+                            data-testid={`image-upload-file-${uploadFile.id}-loading`}
+                          >
+                            <div
+                              className="w-full px-3 text-center"
+                              data-testid={`image-upload-file-${uploadFile.id}-loading-content`}
+                            >
+                              <p
+                                className="text-muted-foreground mb-1 text-[10px]"
+                                data-testid={`image-upload-file-${uploadFile.id}-loading-label`}
+                              >
                                 Carregando...
                               </p>
-                              <div className="text-foreground text-sm font-bold">
+                              <div
+                                className="text-foreground text-sm font-bold"
+                                data-testid={`image-upload-file-${uploadFile.id}-loading-percent`}
+                              >
                                 {uploadFile.loadProgress}%
                               </div>
                               <Progress
                                 value={uploadFile.loadProgress}
                                 className="mt-1.5 h-1.5"
+                                data-testid={`image-upload-file-${uploadFile.id}-loading-bar`}
                               />
                             </div>
                           </div>
                         )}
 
                         {uploadFile.isUploading && (
-                          <div className="bg-background/80 absolute inset-0 flex items-center justify-center">
-                            <div className="w-full px-3 text-center">
-                              <p className="text-muted-foreground mb-1 text-[10px]">
+                          <div
+                            className="bg-background/80 absolute inset-0 flex items-center justify-center"
+                            data-testid={`image-upload-file-${uploadFile.id}-uploading`}
+                          >
+                            <div
+                              className="w-full px-3 text-center"
+                              data-testid={`image-upload-file-${uploadFile.id}-uploading-content`}
+                            >
+                              <p
+                                className="text-muted-foreground mb-1 text-[10px]"
+                                data-testid={`image-upload-file-${uploadFile.id}-uploading-label`}
+                              >
                                 Enviando...
                               </p>
-                              <div className="text-foreground text-sm font-bold">
+                              <div
+                                className="text-foreground text-sm font-bold"
+                                data-testid={`image-upload-file-${uploadFile.id}-uploading-percent`}
+                              >
                                 {uploadFile.uploadProgress}%
                               </div>
                               <Progress
                                 value={uploadFile.uploadProgress}
                                 className="mt-1.5 h-1.5"
+                                data-testid={`image-upload-file-${uploadFile.id}-uploading-bar`}
                               />
                             </div>
                           </div>
                         )}
 
                         {uploadFile.isComplete && (
-                          <div className="absolute top-1 left-1">
-                            <div className="flex h-5 w-5 items-center justify-center rounded-full bg-green-500 text-white">
+                          <div
+                            className="absolute top-1 left-1"
+                            data-testid={`image-upload-file-${uploadFile.id}-complete`}
+                          >
+                            <div
+                              className="flex h-5 w-5 items-center justify-center rounded-full bg-green-500 text-white"
+                              data-testid={`image-upload-file-${uploadFile.id}-complete-badge`}
+                            >
                               <svg
                                 className="h-3 w-3"
                                 fill="none"
@@ -835,15 +978,22 @@ export function ImageUpload({
                         )}
                       </div>
 
-                      <div className="p-2">
+                      <div
+                        className="p-2"
+                        data-testid={`image-upload-file-${uploadFile.id}-info`}
+                      >
                         <p
                           className="text-muted-foreground truncate text-xs"
                           title={uploadFile.fileName}
+                          data-testid={`image-upload-file-${uploadFile.id}-name`}
                         >
                           {uploadFile.fileName}
                         </p>
                         {uploadFile.file && (
-                          <p className="text-muted-foreground/70 text-[10px]">
+                          <p
+                            className="text-muted-foreground/70 text-[10px]"
+                            data-testid={`image-upload-file-${uploadFile.id}-size`}
+                          >
                             {(uploadFile.file.size / 1024 / 1024).toFixed(2)} MB
                           </p>
                         )}
@@ -858,14 +1008,23 @@ export function ImageUpload({
       </div>
 
       <Dialog open={showCropDialog} onOpenChange={setShowCropDialog}>
-        <DialogContent className="w-[95vw] max-w-md p-4 sm:p-6">
-          <DialogHeader>
-            <DialogTitle className="text-base sm:text-lg">
+        <DialogContent
+          className="w-[95vw] max-w-md p-4 sm:p-6"
+          data-testid="image-upload-crop-dialog"
+        >
+          <DialogHeader data-testid="image-upload-crop-dialog-header">
+            <DialogTitle
+              className="text-base sm:text-lg"
+              data-testid="image-upload-crop-dialog-title"
+            >
               Ajustar Avatar
             </DialogTitle>
           </DialogHeader>
 
-          <div className="space-y-4">
+          <div
+            className="space-y-4"
+            data-testid="image-upload-crop-dialog-body"
+          >
             <div
               ref={cropCircleRef}
               className="border-muted-foreground/50 bg-muted relative mx-auto h-48 w-48 cursor-move touch-none overflow-hidden rounded-full border-2 border-dashed sm:h-64 sm:w-64"
@@ -876,6 +1035,7 @@ export function ImageUpload({
               onTouchStart={handleTouchStart}
               onTouchMove={handleTouchMove}
               onTouchEnd={handleTouchEnd}
+              data-testid="image-upload-crop-circle"
             >
               {cropFile && (
                 // eslint-disable-next-line @next/next/no-img-element
@@ -888,16 +1048,26 @@ export function ImageUpload({
                     transform: `translate(${cropState.position.x}px, ${cropState.position.y}px) scale(${cropState.scale}) rotate(${cropState.rotation}deg)`,
                     transformOrigin: "center",
                   }}
+                  data-testid="image-upload-crop-preview"
                 />
               )}
             </div>
 
-            <p className="text-muted-foreground text-center text-xs">
+            <p
+              className="text-muted-foreground text-center text-xs"
+              data-testid="image-upload-crop-hint"
+            >
               Arraste para reposicionar
             </p>
 
-            <div className="space-y-4 px-2 sm:px-0">
-              <div className="flex items-center gap-2 sm:gap-3">
+            <div
+              className="space-y-4 px-2 sm:px-0"
+              data-testid="image-upload-crop-controls"
+            >
+              <div
+                className="flex items-center gap-2 sm:gap-3"
+                data-testid="image-upload-crop-control-zoom"
+              >
                 <ZoomOut className="text-muted-foreground h-4 w-4 shrink-0" />
                 <Slider
                   value={[cropState.scale]}
@@ -908,11 +1078,15 @@ export function ImageUpload({
                     setCropState((prev) => ({ ...prev, scale: value }))
                   }
                   className="flex-1"
+                  data-testid="image-upload-crop-slider-zoom"
                 />
                 <ZoomIn className="text-muted-foreground h-4 w-4 shrink-0" />
               </div>
 
-              <div className="flex items-center gap-2 sm:gap-3">
+              <div
+                className="flex items-center gap-2 sm:gap-3"
+                data-testid="image-upload-crop-control-rotation"
+              >
                 <RotateCw className="text-muted-foreground h-4 w-4 shrink-0" />
                 <Slider
                   value={[cropState.rotation]}
@@ -923,17 +1097,28 @@ export function ImageUpload({
                     setCropState((prev) => ({ ...prev, rotation: value }))
                   }
                   className="flex-1"
+                  data-testid="image-upload-crop-slider-rotation"
                 />
-                <span className="text-muted-foreground w-8 shrink-0 text-right text-xs sm:w-10">
+                <span
+                  className="text-muted-foreground w-8 shrink-0 text-right text-xs sm:w-10"
+                  data-testid="image-upload-crop-rotation-value"
+                >
                   {cropState.rotation}°
                 </span>
               </div>
             </div>
 
-            <canvas ref={canvasRef} className="hidden" />
+            <canvas
+              ref={canvasRef}
+              className="hidden"
+              data-testid="image-upload-crop-canvas"
+            />
           </div>
 
-          <DialogFooter className="mt-2 flex-col gap-2 sm:flex-row">
+          <DialogFooter
+            className="mt-2 flex-col gap-2 sm:flex-row"
+            data-testid="image-upload-crop-dialog-footer"
+          >
             <Button
               variant="outline"
               onClick={() => {
@@ -941,10 +1126,15 @@ export function ImageUpload({
                 setCropFile(null);
               }}
               className="w-full sm:w-auto"
+              data-testid="image-upload-crop-button-cancel"
             >
               Cancelar
             </Button>
-            <Button onClick={handleCropConfirm} className="w-full sm:w-auto">
+            <Button
+              onClick={handleCropConfirm}
+              className="w-full sm:w-auto"
+              data-testid="image-upload-crop-button-confirm"
+            >
               Confirmar
             </Button>
           </DialogFooter>

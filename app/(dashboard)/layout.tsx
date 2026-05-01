@@ -13,9 +13,17 @@ export default function DashboardLayout({
     <BalanceVisibilityProvider>
       <SidebarProviderPersist>
         <AppSidebar />
-        <SidebarInset className="flex flex-col">
+        <SidebarInset
+          data-testid="dashboard-shell-inset"
+          className="flex flex-col"
+        >
           <AppHeader />
-          <main className="flex flex-1 flex-col overflow-y-auto">{children}</main>
+          <main
+            data-testid="dashboard-shell-main"
+            className="flex flex-1 flex-col overflow-y-auto"
+          >
+            {children}
+          </main>
         </SidebarInset>
       </SidebarProviderPersist>
     </BalanceVisibilityProvider>

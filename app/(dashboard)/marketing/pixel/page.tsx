@@ -81,6 +81,7 @@ export default function PixelPage() {
 
   return (
     <motion.div
+      data-testid="marketing-pixel-page"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.4 }}
@@ -91,6 +92,7 @@ export default function PixelPage() {
         subtitle="Conecte pixels de rastreamento para mensurar campanhas e conversões."
         actions={
           <button
+            data-testid="marketing-pixel-button-create"
             onClick={() => setShowForm(true)}
             style={{
               display: "flex",
@@ -114,6 +116,7 @@ export default function PixelPage() {
       />
 
       <div
+        data-testid="marketing-pixel-banner-warning"
         style={{
           display: "flex",
           gap: 10,
@@ -127,7 +130,7 @@ export default function PixelPage() {
         }}
       >
         <Info size={16} style={{ flexShrink: 0, marginTop: 2 }} />
-        <div>
+        <div data-testid="marketing-pixel-banner-warning-text">
           <strong>Configuração local.</strong> O backend Kaiross ainda não
           tem onde guardar IDs de pixel — os IDs cadastrados aqui ficam só
           no seu navegador e <em>não</em> são disparados no checkout.
@@ -138,6 +141,7 @@ export default function PixelPage() {
 
       {showForm && (
         <motion.div
+          data-testid="marketing-pixel-modal-create"
           initial={{ opacity: 0, y: -8 }}
           animate={{ opacity: 1, y: 0 }}
           style={{
@@ -148,10 +152,11 @@ export default function PixelPage() {
             marginBottom: 20,
           }}
         >
-          <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 16 }}>
+          <h3 data-testid="marketing-pixel-modal-title" style={{ fontSize: 16, fontWeight: 700, marginBottom: 16 }}>
             Novo pixel
           </h3>
           <div
+            data-testid="marketing-pixel-modal-grid"
             style={{
               display: "grid",
               gridTemplateColumns: "1fr 1fr",
@@ -159,8 +164,9 @@ export default function PixelPage() {
               marginBottom: 12,
             }}
           >
-            <div>
+            <div data-testid="marketing-pixel-field-platform">
               <label
+                data-testid="marketing-pixel-label-platform"
                 style={{
                   fontSize: 12,
                   fontWeight: 600,
@@ -172,6 +178,7 @@ export default function PixelPage() {
                 Plataforma
               </label>
               <select
+                data-testid="marketing-pixel-select-platform"
                 value={form.platform}
                 onChange={(e) =>
                   setForm((p) => ({
@@ -181,13 +188,14 @@ export default function PixelPage() {
                 }
                 style={inputStyle}
               >
-                <option value="facebook">Meta Pixel (Facebook)</option>
-                <option value="google">Google Analytics / Ads</option>
-                <option value="tiktok">TikTok Pixel</option>
+                <option data-testid="marketing-pixel-select-platform-option-facebook" value="facebook">Meta Pixel (Facebook)</option>
+                <option data-testid="marketing-pixel-select-platform-option-google" value="google">Google Analytics / Ads</option>
+                <option data-testid="marketing-pixel-select-platform-option-tiktok" value="tiktok">TikTok Pixel</option>
               </select>
             </div>
-            <div>
+            <div data-testid="marketing-pixel-field-name">
               <label
+                data-testid="marketing-pixel-label-name"
                 style={{
                   fontSize: 12,
                   fontWeight: 600,
@@ -199,6 +207,7 @@ export default function PixelPage() {
                 Nome identificador (opcional)
               </label>
               <input
+                data-testid="marketing-pixel-input-name"
                 value={form.name}
                 onChange={(e) =>
                   setForm((p) => ({ ...p, name: e.target.value }))
@@ -208,8 +217,9 @@ export default function PixelPage() {
               />
             </div>
           </div>
-          <div style={{ marginBottom: 16 }}>
+          <div data-testid="marketing-pixel-field-pixel-id" style={{ marginBottom: 16 }}>
             <label
+              data-testid="marketing-pixel-label-pixel-id"
               style={{
                 fontSize: 12,
                 fontWeight: 600,
@@ -221,6 +231,7 @@ export default function PixelPage() {
               ID do Pixel
             </label>
             <input
+              data-testid="marketing-pixel-input-pixel-id"
               value={form.pixelId}
               onChange={(e) =>
                 setForm((p) => ({ ...p, pixelId: e.target.value }))
@@ -229,8 +240,9 @@ export default function PixelPage() {
               style={{ ...inputStyle, fontFamily: "var(--font-mono)" }}
             />
           </div>
-          <div style={{ display: "flex", gap: 8 }}>
+          <div data-testid="marketing-pixel-modal-actions" style={{ display: "flex", gap: 8 }}>
             <button
+              data-testid="marketing-pixel-button-cancel"
               onClick={() => setShowForm(false)}
               style={{
                 height: 38,
@@ -248,6 +260,7 @@ export default function PixelPage() {
               Cancelar
             </button>
             <button
+              data-testid="marketing-pixel-button-save"
               onClick={handleAdd}
               style={{
                 height: 38,
@@ -268,11 +281,12 @@ export default function PixelPage() {
         </motion.div>
       )}
 
-      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+      <div data-testid="marketing-pixel-list" style={{ display: "flex", flexDirection: "column", gap: 12 }}>
         {pixels.map((px) => {
           const label = px.name || PLATFORM_LABELS[px.platform];
           return (
             <div
+              data-testid={`marketing-pixel-row-${px.id}`}
               key={px.id}
               style={{
                 padding: 20,
@@ -286,6 +300,7 @@ export default function PixelPage() {
               }}
             >
               <div
+                data-testid={`marketing-pixel-row-${px.id}-logo`}
                 style={{
                   width: 44,
                   height: 44,
@@ -297,7 +312,7 @@ export default function PixelPage() {
                   flexShrink: 0,
                 }}
               >
-                <span style={{ color: "white", fontSize: 16, fontWeight: 800 }}>
+                <span data-testid={`marketing-pixel-row-${px.id}-logo-letter`} style={{ color: "white", fontSize: 16, fontWeight: 800 }}>
                   {px.platform === "facebook"
                     ? "f"
                     : px.platform === "google"
@@ -306,10 +321,11 @@ export default function PixelPage() {
                 </span>
               </div>
 
-              <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 3, minWidth: 0 }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                  <span style={{ fontWeight: 700, fontSize: 14 }}>{label}</span>
+              <div data-testid={`marketing-pixel-row-${px.id}-info`} style={{ flex: 1, display: "flex", flexDirection: "column", gap: 3, minWidth: 0 }}>
+                <div data-testid={`marketing-pixel-row-${px.id}-title-row`} style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <span data-testid={`marketing-pixel-row-${px.id}-name`} style={{ fontWeight: 700, fontSize: 14 }}>{label}</span>
                   <span
+                    data-testid={`marketing-pixel-row-${px.id}-status-badge`}
                     style={{
                       display: "inline-flex",
                       alignItems: "center",
@@ -327,10 +343,11 @@ export default function PixelPage() {
                     {px.active ? "Ativo" : "Inativo"}
                   </span>
                 </div>
-                <span style={{ fontSize: 12, color: "var(--ink-500)" }}>
+                <span data-testid={`marketing-pixel-row-${px.id}-platform-label`} style={{ fontSize: 12, color: "var(--ink-500)" }}>
                   {PLATFORM_LABELS[px.platform]}
                 </span>
                 <span
+                  data-testid={`marketing-pixel-row-${px.id}-pixel-id`}
                   style={{
                     fontFamily: "var(--font-mono)",
                     fontSize: 12,
@@ -344,8 +361,9 @@ export default function PixelPage() {
                 </span>
               </div>
 
-              <div style={{ display: "flex", gap: 8 }}>
+              <div data-testid={`marketing-pixel-row-${px.id}-actions`} style={{ display: "flex", gap: 8 }}>
                 <button
+                  data-testid={`marketing-pixel-row-${px.id}-button-toggle`}
                   onClick={() => togglePixel(px.id)}
                   style={{
                     height: 32,
@@ -374,6 +392,7 @@ export default function PixelPage() {
                   )}
                 </button>
                 <button
+                  data-testid={`marketing-pixel-row-${px.id}-button-remove`}
                   onClick={() => handleRemove(px.id, label)}
                   style={{
                     width: 32,
@@ -398,6 +417,7 @@ export default function PixelPage() {
 
         {pixels.length === 0 && (
           <div
+            data-testid="marketing-pixel-empty"
             style={{
               padding: "48px 20px",
               textAlign: "center",
@@ -411,10 +431,10 @@ export default function PixelPage() {
               size={28}
               style={{ margin: "0 auto 12px", color: "var(--ink-300)" }}
             />
-            <p style={{ fontWeight: 600, fontSize: 14, marginBottom: 4 }}>
+            <p data-testid="marketing-pixel-empty-title" style={{ fontWeight: 600, fontSize: 14, marginBottom: 4 }}>
               Nenhum pixel configurado
             </p>
-            <p style={{ fontSize: 13 }}>
+            <p data-testid="marketing-pixel-empty-desc" style={{ fontSize: 13 }}>
               Adicione um pixel para começar a rastrear conversões.
             </p>
           </div>

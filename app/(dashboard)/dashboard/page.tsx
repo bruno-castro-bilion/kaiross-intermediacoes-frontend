@@ -140,28 +140,44 @@ export default function DashboardPage() {
 
   return (
     <motion.div
+      data-testid="dashboard-page"
+      data-period={period}
+      data-loading={loading ? "true" : "false"}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.4, ease: "easeOut" }}
       className="min-h-full space-y-6 bg-[var(--ink-100)] p-8"
     >
       {/* ── Cabeçalho da página ── */}
-      <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-        <div>
-          <h1 className="text-[32px] font-extrabold tracking-[-0.025em] text-[var(--ink-900)]">
+      <div
+        data-testid="dashboard-page-header"
+        className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between"
+      >
+        <div data-testid="dashboard-page-header-text">
+          <h1
+            data-testid="dashboard-page-title"
+            className="text-[32px] font-extrabold tracking-[-0.025em] text-[var(--ink-900)]"
+          >
             Detalhes das vendas
           </h1>
-          <p className="mt-1.5 text-[16px] text-[var(--ink-600)]">
+          <p
+            data-testid="dashboard-page-subtitle"
+            className="mt-1.5 text-[16px] text-[var(--ink-600)]"
+          >
             Acompanhe o desempenho de suas vendas em tempo real.
           </p>
         </div>
 
         {/* Botão de data */}
-        <div className="flex items-center gap-3">
+        <div
+          data-testid="dashboard-page-date-actions"
+          className="flex items-center gap-3"
+        >
           {!isMobile && (
             <Popover>
               <PopoverTrigger asChild>
                 <Button
+                  data-testid="dashboard-button-date-range"
                   variant="ghost"
                   size="sm"
                   className="h-9 gap-2 rounded-[var(--r-pill)] border border-[var(--ink-200)] bg-[var(--ink-0)] px-4 text-[13px] font-semibold text-[var(--ink-700)] hover:border-[var(--ink-300)] hover:bg-[var(--ink-0)] hover:text-[var(--ink-900)]"
@@ -182,10 +198,12 @@ export default function DashboardPage() {
                 </Button>
               </PopoverTrigger>
               <PopoverContent
+                data-testid="dashboard-popover-date-range"
                 className="w-auto rounded-[var(--r-lg)] border border-[var(--ink-200)] bg-[var(--ink-0)] p-0 shadow-[var(--sh-lg)]"
                 align="end"
               >
                 <Calendar
+                  data-testid="dashboard-calendar-date-range"
                   mode="range"
                   defaultMonth={dateRange?.from}
                   selected={dateRange}
@@ -202,10 +220,15 @@ export default function DashboardPage() {
 
       {/* ── Abas de período ── */}
       {!isMobile && (
-        <div className="flex w-fit gap-1 rounded-[var(--r-pill)] border border-[var(--ink-200)] bg-[var(--ink-0)] p-1.5 shadow-[var(--sh-xs)]">
+        <div
+          data-testid="dashboard-period-tabs-desktop"
+          className="flex w-fit gap-1 rounded-[var(--r-pill)] border border-[var(--ink-200)] bg-[var(--ink-0)] p-1.5 shadow-[var(--sh-xs)]"
+        >
           {PERIOD_TABS.map((tab) => (
             <button
               key={tab.value}
+              data-testid={`dashboard-period-tab-${tab.value}`}
+              data-active={period === tab.value ? "true" : "false"}
               onClick={() => { setPeriod(tab.value); setDateRange(undefined); }}
               className={[
                 "rounded-[var(--r-pill)] px-5 py-2 text-[14px] font-semibold transition-all",
@@ -222,10 +245,15 @@ export default function DashboardPage() {
 
       {/* ── Seletor mobile de período ── */}
       {isMobile && (
-        <div className="flex gap-2 overflow-x-auto pb-1">
+        <div
+          data-testid="dashboard-period-tabs-mobile"
+          className="flex gap-2 overflow-x-auto pb-1"
+        >
           {PERIOD_TABS.map((tab) => (
             <button
               key={tab.value}
+              data-testid={`dashboard-period-tab-mobile-${tab.value}`}
+              data-active={period === tab.value ? "true" : "false"}
               onClick={() => { setPeriod(tab.value); setDateRange(undefined); }}
               className={[
                 "shrink-0 rounded-[var(--r-pill)] px-3.5 py-1.5 text-[12px] font-semibold transition-all",
@@ -245,16 +273,29 @@ export default function DashboardPage() {
 
       {/* ── Gráfico + Status ── */}
       {isMobile ? (
-        <div className="space-y-5">
+        <div
+          data-testid="dashboard-chart-status-mobile"
+          className="space-y-5"
+        >
           <SalesChart data={MOCK_CHART_DATA} showBalance={showBalance} />
           <OrderStatus data={MOCK_ORDER_STATUS} total={271} />
         </div>
       ) : (
-        <div className="grid gap-5" style={{ gridTemplateColumns: "1.6fr 1fr" }}>
-          <div className="flex flex-col">
+        <div
+          data-testid="dashboard-chart-status-desktop"
+          className="grid gap-5"
+          style={{ gridTemplateColumns: "1.6fr 1fr" }}
+        >
+          <div
+            data-testid="dashboard-chart-status-desktop-chart"
+            className="flex flex-col"
+          >
             <SalesChart data={MOCK_CHART_DATA} showBalance={showBalance} />
           </div>
-          <div className="flex flex-col">
+          <div
+            data-testid="dashboard-chart-status-desktop-status"
+            className="flex flex-col"
+          >
             <OrderStatus data={MOCK_ORDER_STATUS} total={271} />
           </div>
         </div>

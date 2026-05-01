@@ -51,8 +51,15 @@ function BreakdownLine({
   bold?: boolean;
   accent?: boolean;
 }) {
+  const slug = label
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
   return (
     <div
+      data-testid={`produto-detail-breakdown-${slug}`}
       style={{
         display: "flex",
         justifyContent: "space-between",
@@ -61,6 +68,7 @@ function BreakdownLine({
       }}
     >
       <span
+        data-testid={`produto-detail-breakdown-${slug}-label`}
         style={{
           color: bold ? "var(--ink-900)" : "var(--ink-600)",
           fontWeight: bold ? 600 : 400,
@@ -69,6 +77,7 @@ function BreakdownLine({
         {label}
       </span>
       <span
+        data-testid={`produto-detail-breakdown-${slug}-value`}
         style={{
           fontFamily: "var(--font-mono)",
           fontWeight: bold ? 700 : 500,
@@ -95,8 +104,15 @@ function ShippingOption({
   desc: string;
   badge?: string;
 }) {
+  const slug = title
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
   return (
     <div
+      data-testid={`produto-detail-shipping-option-${slug}`}
       onClick={onClick}
       style={{
         padding: 16,
@@ -109,6 +125,7 @@ function ShippingOption({
       }}
     >
       <div
+        data-testid={`produto-detail-shipping-option-${slug}-header`}
         style={{
           display: "flex",
           justifyContent: "space-between",
@@ -116,6 +133,7 @@ function ShippingOption({
         }}
       >
         <div
+          data-testid={`produto-detail-shipping-option-${slug}-icon`}
           style={{
             width: 36,
             height: 36,
@@ -131,6 +149,7 @@ function ShippingOption({
         </div>
         {badge && (
           <span
+            data-testid={`produto-detail-shipping-option-${slug}-badge`}
             style={{
               display: "inline-flex",
               alignItems: "center",
@@ -147,10 +166,11 @@ function ShippingOption({
           </span>
         )}
       </div>
-      <h4 style={{ fontSize: 13, fontWeight: 600, marginBottom: 4 }}>{title}</h4>
-      <p style={{ fontSize: 12, lineHeight: 1.4, color: "var(--ink-600)" }}>{desc}</p>
+      <h4 data-testid={`produto-detail-shipping-option-${slug}-title`} style={{ fontSize: 13, fontWeight: 600, marginBottom: 4 }}>{title}</h4>
+      <p data-testid={`produto-detail-shipping-option-${slug}-desc`} style={{ fontSize: 12, lineHeight: 1.4, color: "var(--ink-600)" }}>{desc}</p>
       {active && (
         <div
+          data-testid={`produto-detail-shipping-option-${slug}-active-indicator`}
           style={{
             position: "absolute",
             top: 12,
@@ -174,6 +194,7 @@ function ShippingOption({
 function LoadingState() {
   return (
     <div
+      data-testid="produto-detail-loading"
       style={{
         display: "flex",
         flexDirection: "column",
@@ -184,7 +205,7 @@ function LoadingState() {
       }}
     >
       <Loader2 size={28} className="animate-spin" style={{ color: "var(--kai-orange)" }} />
-      <span style={{ fontSize: 13, color: "var(--ink-500)" }}>Carregando seu produto…</span>
+      <span data-testid="produto-detail-loading-text" style={{ fontSize: 13, color: "var(--ink-500)" }}>Carregando seu produto…</span>
     </div>
   );
 }
@@ -192,6 +213,7 @@ function LoadingState() {
 function NotFoundState({ message }: { message: string }) {
   return (
     <div
+      data-testid="produto-detail-not-found"
       style={{
         display: "flex",
         flexDirection: "column",
@@ -202,6 +224,7 @@ function NotFoundState({ message }: { message: string }) {
       }}
     >
       <div
+        data-testid="produto-detail-not-found-icon-wrapper"
         style={{
           width: 64,
           height: 64,
@@ -214,12 +237,13 @@ function NotFoundState({ message }: { message: string }) {
       >
         <AlertCircle size={28} style={{ color: "var(--kai-danger, #dc2626)" }} />
       </div>
-      <div>
-        <p className="font-semibold text-[var(--ink-900)]">Produto não encontrado</p>
-        <p className="text-sm text-[var(--ink-500)] mt-1">{message}</p>
+      <div data-testid="produto-detail-not-found-text-wrapper">
+        <p data-testid="produto-detail-not-found-title" className="font-semibold text-[var(--ink-900)]">Produto não encontrado</p>
+        <p data-testid="produto-detail-not-found-message" className="text-sm text-[var(--ink-500)] mt-1">{message}</p>
       </div>
-      <Link href="/meus-produtos">
+      <Link data-testid="produto-detail-not-found-link-back" href="/meus-produtos">
         <button
+          data-testid="produto-detail-not-found-button-back"
           style={{
             height: 36,
             padding: "0 16px",
@@ -314,9 +338,10 @@ export default function MyProductDetail() {
     );
   if (isError || !sellerProduto || !produto) {
     return (
-      <div style={{ padding: "32px", maxWidth: 1240, margin: "0 auto", width: "100%" }}>
-        <Link href="/meus-produtos">
+      <div data-testid="produto-detail-error-page" style={{ padding: "32px", maxWidth: 1240, margin: "0 auto", width: "100%" }}>
+        <Link data-testid="produto-detail-error-link-back" href="/meus-produtos">
           <button
+            data-testid="produto-detail-error-button-back"
             style={{
               display: "flex",
               alignItems: "center",
@@ -338,6 +363,7 @@ export default function MyProductDetail() {
           </button>
         </Link>
         <div
+          data-testid="produto-detail-error-card"
           style={{
             padding: 40,
             border: "1px solid var(--ink-200)",
@@ -350,13 +376,14 @@ export default function MyProductDetail() {
           }}
         >
           <AlertCircle size={28} style={{ color: "var(--kai-danger, #dc2626)" }} />
-          <p className="font-semibold text-[var(--ink-900)]">
+          <p data-testid="produto-detail-error-title" className="font-semibold text-[var(--ink-900)]">
             Falha ao carregar este produto
           </p>
-          <p className="text-sm text-[var(--ink-500)]">
+          <p data-testid="produto-detail-error-message" className="text-sm text-[var(--ink-500)]">
             {error?.message ?? "Tente novamente em instantes."}
           </p>
           <button
+            data-testid="produto-detail-button-retry"
             onClick={() => refetch()}
             style={{
               height: 36,
@@ -509,13 +536,15 @@ export default function MyProductDetail() {
 
   return (
     <motion.div
+      data-testid="produto-detail-page"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.4 }}
       style={{ padding: "32px", maxWidth: 1240, margin: "0 auto", width: "100%" }}
     >
-      <Link href="/meus-produtos">
+      <Link data-testid="produto-detail-link-back" href="/meus-produtos">
         <button
+          data-testid="produto-detail-button-back"
           style={{
             display: "flex",
             alignItems: "center",
@@ -538,6 +567,7 @@ export default function MyProductDetail() {
       </Link>
 
       <div
+        data-testid="produto-detail-header"
         style={{
           display: "flex",
           justifyContent: "space-between",
@@ -547,8 +577,9 @@ export default function MyProductDetail() {
           gap: 16,
         }}
       >
-        <div style={{ display: "flex", gap: 16, alignItems: "flex-start" }}>
+        <div data-testid="produto-detail-header-info" style={{ display: "flex", gap: 16, alignItems: "flex-start" }}>
           <div
+            data-testid="produto-detail-header-image-wrapper"
             style={{
               width: 88,
               height: 88,
@@ -560,6 +591,7 @@ export default function MyProductDetail() {
             }}
           >
             <img
+              data-testid="produto-detail-header-image"
               src={img}
               alt={produto.nome}
               referrerPolicy="no-referrer"
@@ -572,8 +604,9 @@ export default function MyProductDetail() {
               }}
             />
           </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+          <div data-testid="produto-detail-header-text" style={{ display: "flex", flexDirection: "column", gap: 4 }}>
             <span
+              data-testid="produto-detail-status-badge"
               style={{
                 display: "inline-flex",
                 alignItems: "center",
@@ -589,6 +622,7 @@ export default function MyProductDetail() {
               }}
             >
               <span
+                data-testid="produto-detail-status-badge-dot"
                 style={{
                   width: 6,
                   height: 6,
@@ -598,8 +632,9 @@ export default function MyProductDetail() {
               />{" "}
               {isAtivo ? "Vendendo" : "Pausado"}
             </span>
-            <h1 style={{ fontSize: 26, fontWeight: 800 }}>{produto.nome}</h1>
+            <h1 data-testid="produto-detail-page-title" style={{ fontSize: 26, fontWeight: 800 }}>{produto.nome}</h1>
             <div
+              data-testid="produto-detail-meta"
               style={{
                 display: "flex",
                 gap: 8,
@@ -609,20 +644,21 @@ export default function MyProductDetail() {
                 flexWrap: "wrap",
               }}
             >
-              <span>{cat}</span>
+              <span data-testid="produto-detail-meta-categoria">{cat}</span>
               <span>·</span>
-              <span style={{ fontFamily: "var(--font-mono)" }}>{sku}</span>
+              <span data-testid="produto-detail-meta-sku" style={{ fontFamily: "var(--font-mono)" }}>{sku}</span>
               {produto.fornecedor && (
                 <>
                   <span>·</span>
-                  <span>Fornecedor {produto.fornecedor}</span>
+                  <span data-testid="produto-detail-meta-fornecedor">Fornecedor {produto.fornecedor}</span>
                 </>
               )}
             </div>
           </div>
         </div>
-        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+        <div data-testid="produto-detail-header-actions" style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
           <button
+            data-testid="produto-detail-button-preview-checkout"
             onClick={handlePreviewCheckout}
             disabled={!checkoutLink}
             style={{
@@ -645,6 +681,7 @@ export default function MyProductDetail() {
             <Eye size={14} /> Visualizar checkout
           </button>
           <button
+            data-testid="produto-detail-button-copy-checkout"
             onClick={handleCopyCheckout}
             disabled={!checkoutLink}
             style={{
@@ -668,6 +705,7 @@ export default function MyProductDetail() {
           </button>
           {isAtivo ? (
             <button
+              data-testid="produto-detail-button-delete"
               onClick={handleDelete}
               disabled={excluir.isPending}
               style={{
@@ -699,6 +737,7 @@ export default function MyProductDetail() {
             </button>
           ) : (
             <button
+              data-testid="produto-detail-button-reactivate"
               onClick={handleReactivate}
               disabled={reativar.isPending}
               style={{
@@ -734,6 +773,7 @@ export default function MyProductDetail() {
 
       {checkoutLink && (
         <div
+          data-testid="produto-detail-checkout-link-bar"
           style={{
             display: "flex",
             alignItems: "center",
@@ -750,6 +790,7 @@ export default function MyProductDetail() {
         >
           <Eye size={14} style={{ color: "var(--ink-500)", flexShrink: 0 }} />
           <span
+            data-testid="produto-detail-checkout-link-url"
             style={{
               fontFamily: "var(--font-mono)",
               flex: 1,
@@ -762,6 +803,7 @@ export default function MyProductDetail() {
             {checkoutLink}
           </span>
           <button
+            data-testid="produto-detail-button-copy-checkout-bar"
             onClick={handleCopyCheckout}
             style={{
               flexShrink: 0,
@@ -779,9 +821,10 @@ export default function MyProductDetail() {
         </div>
       )}
 
-      <div style={{ display: "grid", gridTemplateColumns: "1.5fr 1fr", gap: 20 }}>
-        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+      <div data-testid="produto-detail-content-grid" style={{ display: "grid", gridTemplateColumns: "1.5fr 1fr", gap: 20 }}>
+        <div data-testid="produto-detail-content-main" style={{ display: "flex", flexDirection: "column", gap: 16 }}>
           <div
+            data-testid="produto-detail-section-price"
             style={{
               padding: 24,
               background: "var(--ink-0)",
@@ -790,6 +833,7 @@ export default function MyProductDetail() {
             }}
           >
             <div
+              data-testid="produto-detail-section-price-header"
               style={{
                 display: "flex",
                 justifyContent: "space-between",
@@ -799,13 +843,14 @@ export default function MyProductDetail() {
                 flexWrap: "wrap",
               }}
             >
-              <div>
-                <h3 style={{ fontSize: 16, fontWeight: 700 }}>Preço de venda</h3>
-                <p style={{ fontSize: 13, color: "var(--ink-600)" }}>
+              <div data-testid="produto-detail-section-price-heading-wrapper">
+                <h3 data-testid="produto-detail-section-price-title" style={{ fontSize: 16, fontWeight: 700 }}>Preço de venda</h3>
+                <p data-testid="produto-detail-section-price-description" style={{ fontSize: 13, color: "var(--ink-600)" }}>
                   Defina o preço final que o cliente verá no checkout.
                 </p>
               </div>
               <button
+                data-testid="produto-detail-button-save-price"
                 onClick={handleSavePrice}
                 disabled={!dirty || atualizarPreco.isPending}
                 style={{
@@ -841,6 +886,7 @@ export default function MyProductDetail() {
             </div>
 
             <div
+              data-testid="produto-detail-price-card"
               style={{
                 marginTop: 18,
                 padding: 18,
@@ -850,6 +896,7 @@ export default function MyProductDetail() {
               }}
             >
               <div
+                data-testid="produto-detail-price-card-row"
                 style={{
                   display: "flex",
                   justifyContent: "space-between",
@@ -860,6 +907,7 @@ export default function MyProductDetail() {
                 }}
               >
                 <div
+                  data-testid="produto-detail-price-input-wrapper"
                   style={{
                     display: "flex",
                     flexDirection: "column",
@@ -869,6 +917,7 @@ export default function MyProductDetail() {
                   }}
                 >
                   <span
+                    data-testid="produto-detail-price-input-label"
                     style={{
                       fontSize: 11,
                       fontWeight: 700,
@@ -880,6 +929,7 @@ export default function MyProductDetail() {
                     Seu preço final
                   </span>
                   <div
+                    data-testid="produto-detail-price-input-field"
                     style={{
                       display: "flex",
                       alignItems: "center",
@@ -892,6 +942,7 @@ export default function MyProductDetail() {
                     }}
                   >
                     <span
+                      data-testid="produto-detail-price-input-currency"
                       style={{
                         fontSize: 18,
                         fontWeight: 700,
@@ -902,6 +953,7 @@ export default function MyProductDetail() {
                       R$
                     </span>
                     <input
+                      data-testid="produto-detail-input-price"
                       type="text"
                       inputMode="decimal"
                       value={price.toFixed(2).replace(".", ",")}
@@ -931,12 +983,13 @@ export default function MyProductDetail() {
                     />
                     <Pencil size={14} style={{ color: "var(--kai-orange)", flexShrink: 0 }} />
                   </div>
-                  <span style={{ fontSize: 11, color: "var(--ink-500)" }}>
+                  <span data-testid="produto-detail-price-input-hint" style={{ fontSize: 11, color: "var(--ink-500)" }}>
                     Digite ou ajuste no slider abaixo · custo do fornecedor:{" "}
                     {fmtBRL(custo)}
                   </span>
                 </div>
                 <div
+                  data-testid="produto-detail-margin-display"
                   style={{
                     display: "flex",
                     flexDirection: "column",
@@ -945,6 +998,7 @@ export default function MyProductDetail() {
                   }}
                 >
                   <span
+                    data-testid="produto-detail-margin-display-label"
                     style={{
                       fontSize: 11,
                       fontWeight: 700,
@@ -956,6 +1010,7 @@ export default function MyProductDetail() {
                     Margem estimada
                   </span>
                   <span
+                    data-testid="produto-detail-margin-display-value"
                     style={{
                       fontSize: 24,
                       fontWeight: 800,
@@ -968,12 +1023,13 @@ export default function MyProductDetail() {
                   >
                     {fmtBRL(myMargin)}
                   </span>
-                  <span style={{ fontSize: 12, color: "var(--ink-600)" }}>
+                  <span data-testid="produto-detail-margin-display-percent" style={{ fontSize: 12, color: "var(--ink-600)" }}>
                     {marginPct}% sobre venda
                   </span>
                 </div>
               </div>
               <input
+                data-testid="produto-detail-input-price-slider"
                 type="range"
                 min={minPrice}
                 max={sliderMax}
@@ -986,6 +1042,7 @@ export default function MyProductDetail() {
                 style={{ width: "100%", accentColor: "var(--kai-orange)" }}
               />
               <div
+                data-testid="produto-detail-price-slider-bounds"
                 style={{
                   display: "flex",
                   justifyContent: "space-between",
@@ -995,16 +1052,17 @@ export default function MyProductDetail() {
                   fontFamily: "var(--font-mono)",
                 }}
               >
-                <span>
+                <span data-testid="produto-detail-price-slider-min">
                   {fmtBRL(minPrice)}{" "}
                   <span style={{ color: "var(--ink-400)" }}>· break-even</span>
                 </span>
-                <span>{fmtBRL(sliderMax)}</span>
+                <span data-testid="produto-detail-price-slider-max">{fmtBRL(sliderMax)}</span>
               </div>
             </div>
           </div>
 
           <div
+            data-testid="produto-detail-section-shipping"
             style={{
               padding: 24,
               background: "var(--ink-0)",
@@ -1012,12 +1070,12 @@ export default function MyProductDetail() {
               borderRadius: "var(--r-lg)",
             }}
           >
-            <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 4 }}>Frete</h3>
-            <p style={{ fontSize: 13, color: "var(--ink-600)", marginBottom: 18 }}>
+            <h3 data-testid="produto-detail-section-shipping-title" style={{ fontSize: 16, fontWeight: 700, marginBottom: 4 }}>Frete</h3>
+            <p data-testid="produto-detail-section-shipping-description" style={{ fontSize: 13, color: "var(--ink-600)", marginBottom: 18 }}>
               Quem assume o custo do envio para o cliente? Afeta a margem
               mínima recomendada (break-even).
             </p>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+            <div data-testid="produto-detail-shipping-options-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
               <ShippingOption
                 active={shippingPayer === "cliente"}
                 onClick={() => setShippingPayer("cliente")}
@@ -1036,6 +1094,7 @@ export default function MyProductDetail() {
           </div>
 
           <div
+            data-testid="produto-detail-section-info"
             style={{
               padding: 24,
               background: "var(--ink-0)",
@@ -1043,14 +1102,14 @@ export default function MyProductDetail() {
               borderRadius: "var(--r-lg)",
             }}
           >
-            <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 4 }}>
+            <h3 data-testid="produto-detail-section-info-title" style={{ fontSize: 16, fontWeight: 700, marginBottom: 4 }}>
               Informações do produto
             </h3>
-            <p style={{ fontSize: 13, color: "var(--ink-600)", marginBottom: 14 }}>
+            <p data-testid="produto-detail-section-info-description" style={{ fontSize: 13, color: "var(--ink-600)", marginBottom: 14 }}>
               Os dados abaixo são definidos pelo fornecedor e são compartilhados
               com todos os vendedores que estão na vitrine.
             </p>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0 24px" }}>
+            <div data-testid="produto-detail-info-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0 24px" }}>
               {[
                 ["SKU", produto.sku],
                 ["EAN", produto.ean],
@@ -1068,26 +1127,36 @@ export default function MyProductDetail() {
                 ],
               ]
                 .filter(([, v]) => v != null && v !== "")
-                .map(([k, v]) => (
-                  <div
-                    key={String(k)}
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      padding: "10px 0",
-                      borderBottom: "1px dashed var(--ink-200)",
-                      fontSize: 13,
-                    }}
-                  >
-                    <span style={{ color: "var(--ink-600)" }}>{k}</span>
-                    <span style={{ fontWeight: 600 }}>{String(v)}</span>
-                  </div>
-                ))}
+                .map(([k, v]) => {
+                  const slug = String(k)
+                    .toLowerCase()
+                    .normalize("NFD")
+                    .replace(/[̀-ͯ]/g, "")
+                    .replace(/[^a-z0-9]+/g, "-")
+                    .replace(/^-|-$/g, "");
+                  return (
+                    <div
+                      data-testid={`produto-detail-info-row-${slug}`}
+                      key={String(k)}
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        padding: "10px 0",
+                        borderBottom: "1px dashed var(--ink-200)",
+                        fontSize: 13,
+                      }}
+                    >
+                      <span data-testid={`produto-detail-info-row-${slug}-label`} style={{ color: "var(--ink-600)" }}>{k}</span>
+                      <span data-testid={`produto-detail-info-row-${slug}-value`} style={{ fontWeight: 600 }}>{String(v)}</span>
+                    </div>
+                  );
+                })}
             </div>
           </div>
         </div>
 
         <div
+          data-testid="produto-detail-content-sidebar"
           style={{
             display: "flex",
             flexDirection: "column",
@@ -1098,6 +1167,7 @@ export default function MyProductDetail() {
           }}
         >
           <div
+            data-testid="produto-detail-section-breakdown"
             style={{
               padding: 24,
               background: "var(--ink-0)",
@@ -1106,6 +1176,7 @@ export default function MyProductDetail() {
             }}
           >
             <div
+              data-testid="produto-detail-section-breakdown-header"
               style={{
                 display: "flex",
                 justifyContent: "space-between",
@@ -1113,8 +1184,9 @@ export default function MyProductDetail() {
                 marginBottom: 14,
               }}
             >
-              <h3 style={{ fontSize: 16, fontWeight: 700 }}>Decomposição do preço</h3>
+              <h3 data-testid="produto-detail-section-breakdown-title" style={{ fontSize: 16, fontWeight: 700 }}>Decomposição do preço</h3>
               <span
+                data-testid="produto-detail-shipping-badge"
                 style={{
                   display: "inline-flex",
                   alignItems: "center",
@@ -1152,6 +1224,7 @@ export default function MyProductDetail() {
               />
             )}
             <div
+              data-testid="produto-detail-breakdown-divider"
               style={{
                 height: 1,
                 background: "var(--ink-200)",
@@ -1165,6 +1238,7 @@ export default function MyProductDetail() {
               accent
             />
             <div
+              data-testid="produto-detail-margin-status"
               style={{
                 marginTop: 14,
                 padding: 14,
@@ -1193,6 +1267,7 @@ export default function MyProductDetail() {
           </div>
 
           <div
+            data-testid="produto-detail-section-split-info"
             style={{
               padding: 20,
               background: "var(--ink-0)",
@@ -1204,6 +1279,7 @@ export default function MyProductDetail() {
             }}
           >
             <div
+              data-testid="produto-detail-section-split-info-heading"
               style={{
                 display: "flex",
                 alignItems: "center",
@@ -1215,7 +1291,7 @@ export default function MyProductDetail() {
             >
               <Receipt size={14} /> Como o split funciona
             </div>
-            <p style={{ fontSize: 12, lineHeight: 1.5, color: "var(--ink-600)" }}>
+            <p data-testid="produto-detail-section-split-info-text" style={{ fontSize: 12, lineHeight: 1.5, color: "var(--ink-600)" }}>
               No checkout, o pagamento é dividido automaticamente: o fornecedor
               recebe o custo do produto, a Kaiross retém a taxa e os impostos,
               e o restante é creditado na sua conta. Você não precisa adiantar

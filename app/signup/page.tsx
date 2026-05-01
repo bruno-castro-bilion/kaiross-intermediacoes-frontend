@@ -15,6 +15,7 @@ const SignupPage = () => {
     <AnimatePresence>
       {isVisible && (
         <motion.div
+          data-testid="signup-page"
           initial={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.4, ease: "easeInOut" }}
@@ -22,16 +23,30 @@ const SignupPage = () => {
         >
           <BackgroundEffects />
 
-          <div className="relative z-10 flex w-full flex-col items-center justify-center">
-            <div className="w-full max-w-md">
+          <div
+            data-testid="signup-page-content"
+            className="relative z-10 flex w-full flex-col items-center justify-center"
+          >
+            <div data-testid="signup-page-card-wrapper" className="w-full max-w-md">
               <div
+                data-testid="signup-page-card-animated"
                 className="animate-fade-in-up opacity-0"
                 style={{ animationFillMode: "forwards", animationDelay: "0.1s" }}
               >
-                <div className="border-border bg-card/95 overflow-hidden rounded-2xl border shadow-2xl backdrop-blur-xl">
-                  <div className="relative p-6">
-                    <div className="mb-6 flex justify-center">
+                <div
+                  data-testid="signup-page-card"
+                  className="border-border bg-card/95 overflow-hidden rounded-2xl border shadow-2xl backdrop-blur-xl"
+                >
+                  <div
+                    data-testid="signup-page-card-body"
+                    className="relative p-6"
+                  >
+                    <div
+                      data-testid="signup-page-logo-wrapper"
+                      className="mb-6 flex justify-center"
+                    >
                       <Image
+                        data-testid="signup-page-logo"
                         src="/LOGO-MENU.png"
                         alt="Kaiross"
                         width={140}
@@ -41,13 +56,23 @@ const SignupPage = () => {
                       />
                     </div>
 
-                    <h1 className="text-foreground mb-2 text-center text-xl font-semibold">
+                    <h1
+                      data-testid="signup-page-title"
+                      className="text-foreground mb-2 text-center text-xl font-semibold"
+                    >
                       Crie sua conta
                     </h1>
 
-                    <p className="text-muted-foreground mb-6 text-center text-sm">
+                    <p
+                      data-testid="signup-page-login-prompt"
+                      className="text-muted-foreground mb-6 text-center text-sm"
+                    >
                       Já tem uma conta?{" "}
-                      <Link href="/login" className="text-foreground font-medium hover:underline">
+                      <Link
+                        data-testid="signup-page-link-login"
+                        href="/login"
+                        className="text-foreground font-medium hover:underline"
+                      >
                         Entrar na sua conta
                       </Link>
                     </p>
@@ -60,7 +85,10 @@ const SignupPage = () => {
               </div>
             </div>
 
-            <div className="mt-6 w-full max-w-md">
+            <div
+              data-testid="signup-page-footer-wrapper"
+              className="mt-6 w-full max-w-md"
+            >
               <AuthFooter actionText="Criar conta" />
             </div>
           </div>

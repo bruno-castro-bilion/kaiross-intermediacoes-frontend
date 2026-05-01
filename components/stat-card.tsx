@@ -7,14 +7,25 @@ interface StatCardProps {
   label: string;
   value: string;
   highlight?: boolean;
+  testId?: string;
 }
 
-export function StatCard({ icon: Icon, label, value, highlight }: StatCardProps) {
+export function StatCard({ icon: Icon, label, value, highlight, testId }: StatCardProps) {
+  const baseId =
+    testId ||
+    `stat-card-${label
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "")}`;
+
   return (
     <div
+      data-testid={baseId}
+      data-highlight={highlight ? "true" : "false"}
       className="flex items-center gap-3.5 rounded-[var(--r-lg)] border border-[var(--ink-200)] bg-[var(--ink-0)] p-4 transition-all hover:shadow-[var(--sh-md)] hover:-translate-y-px"
     >
       <div
+        data-testid={`${baseId}-icon-wrapper`}
         style={{
           width: 44,
           height: 44,
@@ -27,11 +38,19 @@ export function StatCard({ icon: Icon, label, value, highlight }: StatCardProps)
           flexShrink: 0,
         }}
       >
-        <Icon size={20} />
+        <Icon data-testid={`${baseId}-icon`} size={20} />
       </div>
-      <div className="flex flex-col gap-0.5">
-        <span className="text-xs text-[var(--ink-600)]">{label}</span>
-        <span className="text-[22px] font-bold leading-none tracking-tight text-[var(--ink-900)]">
+      <div data-testid={`${baseId}-content`} className="flex flex-col gap-0.5">
+        <span
+          data-testid={`${baseId}-label`}
+          className="text-xs text-[var(--ink-600)]"
+        >
+          {label}
+        </span>
+        <span
+          data-testid={`${baseId}-value`}
+          className="text-[22px] font-bold leading-none tracking-tight text-[var(--ink-900)]"
+        >
           {value}
         </span>
       </div>
