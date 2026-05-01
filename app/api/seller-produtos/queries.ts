@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { useQueries, useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import type { ProdutoView } from "@/app/api/produtos/types";
-import type { SellerProdutoView } from "./types";
+import type { CheckoutDetalhesView, SellerProdutoView } from "./types";
 
 /**
  * Composição da vitrine do vendedor: cada item é a afiliação
@@ -126,12 +126,12 @@ export function useGetMeuProdutoById(id?: string) {
 }
 
 export function useGetSellerProdutoBySlug(slug?: string) {
-  return useQuery<SellerProdutoView | null, Error>({
+  return useQuery<CheckoutDetalhesView | null, Error>({
     queryKey: ["seller-produtos", "checkout", slug],
     enabled: !!slug,
     refetchOnWindowFocus: false,
     queryFn: async () => {
-      const response = await axios.get<SellerProdutoView>(
+      const response = await axios.get<CheckoutDetalhesView>(
         `/api/seller-produtos/checkout/${slug}`,
         { withCredentials: true },
       );

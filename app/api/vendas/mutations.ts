@@ -1,6 +1,10 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
-import type { PedidoView } from "./types";
+import type {
+  CheckoutResponse,
+  IniciarCheckoutRequest,
+  PedidoView,
+} from "./types";
 
 export function useReembolsarPedido() {
   const queryClient = useQueryClient();
@@ -16,6 +20,19 @@ export function useReembolsarPedido() {
     onSuccess: (_data, pedidoId) => {
       queryClient.invalidateQueries({ queryKey: ["vendas"] });
       queryClient.invalidateQueries({ queryKey: ["vendas", "pedidos", pedidoId] });
+    },
+  });
+}
+
+export function useIniciarCheckout() {
+  return useMutation<CheckoutResponse, Error, IniciarCheckoutRequest>({
+    mutationFn: async (req) => {
+      const response = await axios.post<CheckoutResponse>(
+        "/api/vendas/checkout",
+        req,
+        { withCredentials: true },
+      );
+      return response.data;
     },
   });
 }

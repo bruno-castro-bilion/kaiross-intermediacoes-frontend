@@ -83,3 +83,58 @@ export interface StatusFornecedorView {
   expressTime?: string;
   trackNumber?: string;
 }
+
+export type FormaPagamento = "CREDITO" | "DOIS_CARTOES" | "PIX" | "BOLETO";
+
+export interface DadosCliente {
+  nome: string;
+  email?: string;
+  documento: string;
+  telefone?: string;
+  cep: string;
+  endereco: string;
+  numero: string;
+  bairro?: string;
+  complemento?: string;
+  cidade: string;
+  uf: string;
+  pais?: string;
+}
+
+export interface DadosCartao {
+  numero: string;
+  nomeTitular: string;
+  mesExpiracao: number;
+  anoExpiracao: number;
+  cvv: string;
+}
+
+export interface IniciarCheckoutRequest {
+  slugCheckout: string;
+  compradorEmail: string;
+  compradorId?: string;
+  quantidade: number;
+  cliente: DadosCliente;
+  formaPagamento: FormaPagamento;
+  parcelas?: number;
+  cartao?: DadosCartao;
+  cartao2?: DadosCartao;
+  valorCartao2?: number;
+}
+
+export interface ClienteView {
+  id: string;
+  nome: string;
+  email?: string;
+  documento: string;
+}
+
+export interface CheckoutResponse {
+  pedido: PedidoView;
+  checkoutUrl?: string;
+  cliente: ClienteView;
+  pixQrCode?: string;
+  pixQrCodeUrl?: string;
+  boletoUrl?: string;
+  boletoLine?: string;
+}
