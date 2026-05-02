@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { isValidCnpj, isValidCpf } from "@brazilian-utils/brazilian-utils";
 import type {
   DadosCartao,
   DadosCliente,
@@ -43,9 +44,14 @@ const clienteSchema = z.object({
     .string()
     .min(1, "CPF/CNPJ obrigatório")
     .transform(onlyDigits)
-    .refine((v) => v.length === 11 || v.length === 14, {
-      message: "CPF deve ter 11 dígitos ou CNPJ 14 dígitos",
-    }),
+    .refine(
+      (v) => {
+        if (v.length === 11) return isValidCpf(v);
+        if (v.length === 14) return isValidCnpj(v);
+        return false;
+      },
+      { message: "CPF ou CNPJ inválido" },
+    ),
   telefone: z.string().optional().or(z.literal("")),
   cep: z
     .string()
