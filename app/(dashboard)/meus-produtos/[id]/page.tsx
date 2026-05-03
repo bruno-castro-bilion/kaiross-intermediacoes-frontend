@@ -280,6 +280,7 @@ export default function MyProductDetail() {
   const [shippingPayer, setShippingPayer] = useState<"cliente" | "vendedor">(
     "cliente",
   );
+  const [showWhyMin, setShowWhyMin] = useState(false);
   const myShipping = shippingPayer === "vendedor" ? SHIPPING_COST : 0;
   // Mesmo cálculo do MargemValidator (backend): vendedor precisa receber > 0.
   // (custo + frete + taxa fixa) / (1 - impostos - taxa transação)
@@ -850,35 +851,101 @@ export default function MyProductDetail() {
         <div
           style={{
             display: "flex",
-            alignItems: "flex-start",
+            alignItems: "center",
             gap: 12,
-            padding: "14px 16px",
-            background: "var(--kai-danger-bg, #fde0e0)",
-            border: "1.5px solid var(--kai-danger, #dc2626)",
+            padding: "10px 14px",
+            background: "var(--kai-warn-bg, #fef3c7)",
+            border: "1px solid var(--kai-warn, #f59e0b)",
             borderRadius: "var(--r-md)",
             marginBottom: 20,
+            flexWrap: "wrap",
           }}
         >
           <AlertCircle
-            size={20}
-            style={{ color: "var(--kai-danger, #dc2626)", flexShrink: 0, marginTop: 1 }}
+            size={16}
+            style={{ color: "var(--kai-warn, #f59e0b)", flexShrink: 0 }}
           />
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <div
+          <span
+            style={{
+              fontSize: 13,
+              color: "var(--ink-800)",
+              flex: 1,
+              minWidth: 200,
+            }}
+          >
+            Para vender este produto, ajuste o preço para no mínimo{" "}
+            <strong>{fmtBRL(minPrice)}</strong>.
+          </span>
+          <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+            <button
+              onClick={() => {
+                setPrice(minPrice);
+                setPriceText(formatPriceText(minPrice));
+                setDirty(true);
+              }}
               style={{
-                fontWeight: 700,
-                fontSize: 14,
-                color: "var(--kai-danger, #dc2626)",
-                marginBottom: 4,
+                height: 30,
+                padding: "0 12px",
+                borderRadius: 6,
+                border: 0,
+                background: "var(--kai-warn, #f59e0b)",
+                color: "white",
+                fontSize: 12,
+                fontWeight: 600,
+                cursor: "pointer",
+                fontFamily: "inherit",
               }}
             >
-              Checkout bloqueado — preço está abaixo do mínimo viável
-            </div>
-            <div style={{ fontSize: 13, color: "var(--ink-700)", lineHeight: 1.5 }}>
-              Com o preço atual de <strong>{fmtBRL(price)}</strong>, você teria
-              prejuízo (custo de {fmtBRL(custo)} + impostos + taxa transação). O
-              link do checkout não funcionará até você aumentar o preço para no
-              mínimo <strong>{fmtBRL(minPrice)}</strong> e salvar.
+              Definir mínimo
+            </button>
+            <div style={{ position: "relative" }}>
+              <button
+                onClick={() => setShowWhyMin((v) => !v)}
+                style={{
+                  height: 30,
+                  padding: "0 10px",
+                  borderRadius: 6,
+                  border: "1px solid var(--ink-300)",
+                  background: "transparent",
+                  color: "var(--ink-700)",
+                  fontSize: 12,
+                  fontWeight: 600,
+                  cursor: "pointer",
+                  fontFamily: "inherit",
+                }}
+              >
+                Por quê?
+              </button>
+              {showWhyMin && (
+                <>
+                  <div
+                    onClick={() => setShowWhyMin(false)}
+                    style={{ position: "fixed", inset: 0, zIndex: 30 }}
+                  />
+                  <div
+                    style={{
+                      position: "absolute",
+                      top: 36,
+                      right: 0,
+                      width: 280,
+                      background: "var(--ink-0)",
+                      border: "1px solid var(--ink-200)",
+                      borderRadius: 8,
+                      boxShadow: "var(--sh-md, 0 4px 12px rgba(0,0,0,0.1))",
+                      padding: 14,
+                      zIndex: 40,
+                      fontSize: 12.5,
+                      color: "var(--ink-700)",
+                      lineHeight: 1.55,
+                    }}
+                  >
+                    O preço mínimo cobre o custo do fornecedor (
+                    <strong>{fmtBRL(custo)}</strong>), impostos (10%), taxa
+                    de transação (4,99%) e taxa fixa de R$ 2,50 — sem que
+                    você fique no prejuízo.
+                  </div>
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -1281,32 +1348,30 @@ export default function MyProductDetail() {
               bold
               accent
             />
-            <div
-              style={{
-                marginTop: 14,
-                padding: 14,
-                background:
-                  myMargin > 0 && myMargin >= custo * 0.3
-                    ? "var(--kai-success-bg)"
-                    : myMargin > 0
-                      ? "var(--kai-warn-bg)"
-                      : "var(--kai-danger-bg, #fde0e0)",
-                borderRadius: 12,
-                fontSize: 13,
-                color:
-                  myMargin > 0 && myMargin >= custo * 0.3
-                    ? "var(--kai-success)"
-                    : myMargin > 0
-                      ? "var(--kai-warn)"
-                      : "var(--kai-danger, #dc2626)",
-              }}
-            >
-              {myMargin <= 0
-                ? "⚠ Margem negativa · você está vendendo no prejuízo."
-                : myMargin >= custo * 0.3
+            {/* Quando bloqueado, o alerta amarelo no topo da página já avisa
+                o vendedor — evitamos repetir aqui pra reduzir ruído visual. */}
+            {!checkoutBloqueado && (
+              <div
+                style={{
+                  marginTop: 14,
+                  padding: 14,
+                  background:
+                    myMargin >= custo * 0.3
+                      ? "var(--kai-success-bg)"
+                      : "var(--kai-warn-bg)",
+                  borderRadius: 12,
+                  fontSize: 13,
+                  color:
+                    myMargin >= custo * 0.3
+                      ? "var(--kai-success)"
+                      : "var(--kai-warn)",
+                }}
+              >
+                {myMargin >= custo * 0.3
                   ? "✓ Margem saudável para escalar com tráfego pago."
                   : "⚠ Margem apertada · considere aumentar o preço."}
-            </div>
+              </div>
+            )}
           </div>
 
           <div
