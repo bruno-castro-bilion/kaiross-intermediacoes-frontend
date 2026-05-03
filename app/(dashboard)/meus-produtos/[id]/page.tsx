@@ -244,11 +244,13 @@ function buildCheckoutLink(
   slugCheckout?: string,
   checkoutUrl?: string,
 ): string | null {
-  if (checkoutUrl) return checkoutUrl;
+  // O domínio do checkout é decidido aqui no frontend pra não depender
+  // do que o backend devolve em `checkoutUrl` (que pode estar defasado
+  // em ambientes ainda não atualizados).
   if (slugCheckout) {
     return `https://pay.kaiross.com.br/${slugCheckout}`;
   }
-  return null;
+  return checkoutUrl ?? null;
 }
 
 export default function MyProductDetail() {

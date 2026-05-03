@@ -75,11 +75,13 @@ function stockLabel(estoque?: number) {
 }
 
 function buildCheckoutLink(item: MeuProduto): string | null {
-  if (item.checkoutUrl) return item.checkoutUrl;
+  // O domínio do checkout é decidido aqui no frontend pra não depender
+  // do que o backend devolve em `checkoutUrl` (que pode estar defasado
+  // em ambientes ainda não atualizados).
   if (item.slugCheckout) {
     return `https://pay.kaiross.com.br/${item.slugCheckout}`;
   }
-  return null;
+  return item.checkoutUrl ?? null;
 }
 
 function RowMenu({
