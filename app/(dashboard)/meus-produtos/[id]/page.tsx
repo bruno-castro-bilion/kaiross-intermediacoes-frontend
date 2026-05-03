@@ -38,6 +38,7 @@ const fmtBRL = (n: number) =>
 // no checkout — manter aqui só pra previsualizar a margem antes do pedido.
 const TAX_RATE = 0.1;
 const KAIROSS_RATE = 0.0499;
+const FIXED_FEE = 2.5; // taxa fixa por transação (KairossSplitter.TAXA_FIXA_CENTS)
 const SHIPPING_COST = 18.9;
 
 function BreakdownLine({
@@ -280,11 +281,16 @@ export default function MyProductDetail() {
     "cliente",
   );
   const myShipping = shippingPayer === "vendedor" ? SHIPPING_COST : 0;
+  // Mesmo cálculo do MargemValidator (backend): vendedor precisa receber > 0.
+  // (custo + frete + taxa fixa) / (1 - impostos - taxa transação)
+  // Sem isso o split do gateway fica incoerente e o checkout é bloqueado.
   const minPrice = useMemo(
     () =>
       Math.max(
         0.01,
-        Math.ceil((custo + myShipping) / (1 - TAX_RATE - KAIROSS_RATE)),
+        Math.ceil(
+          (custo + myShipping + FIXED_FEE) / (1 - TAX_RATE - KAIROSS_RATE),
+        ),
       ),
     [custo, myShipping],
   );
@@ -300,14 +306,10 @@ export default function MyProductDetail() {
     }
   }, [sellerProduto?.precoVenda, dirty]);
 
-  // Garante que o preço respeite o break-even quando o usuário troca o
-  // pagador do frete (afeta minPrice).
-  useEffect(() => {
-    if (price > 0 && price < minPrice) {
-      setPrice(minPrice);
-      setDirty(true);
-    }
-  }, [minPrice, price]);
+  // Não força o preço pra cima automaticamente. O vendedor decide — se
+  // ficar abaixo do mínimo, mostramos um alerta vermelho de "checkout
+  // bloqueado" e o save é rejeitado.
+  const checkoutBloqueado = price > 0 && price < minPrice;
 
   if (isLoading) return <LoadingState />;
   if (notFound)
@@ -402,7 +404,9 @@ export default function MyProductDetail() {
       return;
     }
     if (price < minPrice) {
-      toast.error(`Preço abaixo do break-even (${fmtBRL(minPrice)}).`);
+      toast.error(
+        `Preço abaixo do mínimo viável (${fmtBRL(minPrice)}). Aumente o preço para liberar o checkout.`,
+      );
       return;
     }
     atualizarPreco.mutate(
@@ -744,7 +748,7 @@ export default function MyProductDetail() {
             background: "var(--ink-50)",
             border: "1px solid var(--ink-200)",
             borderRadius: "var(--r-md)",
-            marginBottom: 20,
+            marginBottom: checkoutBloqueado ? 12 : 20,
             fontSize: 13,
             color: "var(--ink-700)",
             overflow: "hidden",
@@ -763,6 +767,25 @@ export default function MyProductDetail() {
           >
             {checkoutLink}
           </span>
+          {checkoutBloqueado && (
+            <span
+              style={{
+                flexShrink: 0,
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 4,
+                height: 22,
+                padding: "0 8px",
+                borderRadius: 999,
+                background: "var(--kai-danger-bg, #fde0e0)",
+                color: "var(--kai-danger, #dc2626)",
+                fontSize: 11,
+                fontWeight: 700,
+              }}
+            >
+              <AlertCircle size={11} /> Bloqueado
+            </span>
+          )}
           <button
             onClick={handleCopyCheckout}
             style={{
@@ -778,6 +801,44 @@ export default function MyProductDetail() {
           >
             Copiar
           </button>
+        </div>
+      )}
+
+      {checkoutBloqueado && (
+        <div
+          style={{
+            display: "flex",
+            alignItems: "flex-start",
+            gap: 12,
+            padding: "14px 16px",
+            background: "var(--kai-danger-bg, #fde0e0)",
+            border: "1.5px solid var(--kai-danger, #dc2626)",
+            borderRadius: "var(--r-md)",
+            marginBottom: 20,
+          }}
+        >
+          <AlertCircle
+            size={20}
+            style={{ color: "var(--kai-danger, #dc2626)", flexShrink: 0, marginTop: 1 }}
+          />
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div
+              style={{
+                fontWeight: 700,
+                fontSize: 14,
+                color: "var(--kai-danger, #dc2626)",
+                marginBottom: 4,
+              }}
+            >
+              Checkout bloqueado — preço está abaixo do mínimo viável
+            </div>
+            <div style={{ fontSize: 13, color: "var(--ink-700)", lineHeight: 1.5 }}>
+              Com o preço atual de <strong>{fmtBRL(price)}</strong>, você teria
+              prejuízo (custo de {fmtBRL(custo)} + impostos + taxa transação). O
+              link do checkout não funcionará até você aumentar o preço para no
+              mínimo <strong>{fmtBRL(minPrice)}</strong> e salvar.
+            </div>
+          </div>
         </div>
       )}
 
@@ -1144,7 +1205,7 @@ export default function MyProductDetail() {
             <BreakdownLine label="− Custo do fornecedor" val={fmtBRL(-custo)} />
             <BreakdownLine label="− Impostos (10%)" val={fmtBRL(-tax)} />
             <BreakdownLine
-              label="− Taxa Kaiross (4,99%)"
+              label="− Taxa Transação (4,99%)"
               val={fmtBRL(-platformFee)}
             />
             {shippingPayer === "vendedor" && (
