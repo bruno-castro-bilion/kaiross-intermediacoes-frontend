@@ -391,8 +391,19 @@ export default function VitrineProductDetail() {
     afiliar.mutate(
       { produtoId: produto.id, precoVenda },
       {
-        onSuccess: () => {
-          toast.success("Produto adicionado à sua vitrine!");
+        onSuccess: (data) => {
+          // Backend pode elevar o preço pro mínimo viável quando o valor
+          // escolhido geraria margem inviável. Avisamos o vendedor pra ele
+          // não estranhar o número diferente na vitrine.
+          const precoSalvo = data?.precoVenda ?? precoVenda;
+          if (precoSalvo > precoVenda + 0.001) {
+            toast.success(
+              `Produto adicionado! Preço ajustado para ${fmtBRL(precoSalvo)} (mínimo viável para você não ter prejuízo). Você pode editar em Meus Produtos.`,
+              { duration: 7000 },
+            );
+          } else {
+            toast.success("Produto adicionado à sua vitrine!");
+          }
           router.push("/meus-produtos");
         },
         onError: (err) => {
