@@ -532,7 +532,9 @@ export default function Pedidos() {
             {slice.map(({ pedido: p, ui, ts }) => {
               const labelStatus = STATUS_LABEL[ui];
               const numero = p.numeroPedido ?? `#${p.id.slice(0, 8)}`;
-              const email = p.compradorEmail ?? "—";
+              const email = p.compradorEmail ?? "";
+              const clienteLabel = p.clienteNome?.trim() || email || "—";
+              const clienteSub = p.clienteNome?.trim() && email ? email : null;
               const pagamentoLabel = p.formaPagamento
                 ? FORMA_PAGAMENTO_LABEL[p.formaPagamento] ?? p.formaPagamento
                 : "—";
@@ -613,19 +615,43 @@ export default function Pedidos() {
                           flexShrink: 0,
                         }}
                       >
-                        {initials(email)}
+                        {initials(clienteLabel)}
                       </div>
-                      <span
+                      <div
                         style={{
-                          fontWeight: 500,
-                          fontSize: 13,
-                          overflow: "hidden",
-                          textOverflow: "ellipsis",
-                          whiteSpace: "nowrap",
+                          display: "flex",
+                          flexDirection: "column",
+                          minWidth: 0,
+                          gap: 1,
                         }}
                       >
-                        {email}
-                      </span>
+                        <span
+                          style={{
+                            fontWeight: 500,
+                            fontSize: 13,
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                            whiteSpace: "nowrap",
+                          }}
+                          title={clienteLabel}
+                        >
+                          {clienteLabel}
+                        </span>
+                        {clienteSub && (
+                          <span
+                            style={{
+                              fontSize: 11,
+                              color: "var(--ink-500)",
+                              overflow: "hidden",
+                              textOverflow: "ellipsis",
+                              whiteSpace: "nowrap",
+                            }}
+                            title={clienteSub}
+                          >
+                            {clienteSub}
+                          </span>
+                        )}
+                      </div>
                     </div>
                     {/* Pagamento */}
                     <div style={{ fontSize: 13, color: "var(--ink-700)" }}>

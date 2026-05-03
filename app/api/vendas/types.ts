@@ -43,6 +43,10 @@ export interface PedidoView {
   compradorEmail?: string;
   vendedorId?: string;
   fornecedorId?: string;
+  clienteId?: string;
+  // Nome do cliente master (vem do upsert no checkout). Null em pedidos
+  // antigos sem cliente_id ou quando a tabela clientes não tem nome.
+  clienteNome?: string | null;
   quantidadeTotal?: number;
   valorTotal?: number;
   status?: PedidoStatus;
