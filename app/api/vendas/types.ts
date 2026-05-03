@@ -13,6 +13,12 @@ export type PedidoStatus =
 
 export type TipoIntegracaoFornecedor = "THREE_CLIQUES";
 
+export type FormaPagamento =
+  | "PIX"
+  | "CREDITO"
+  | "BOLETO"
+  | "DOIS_CARTOES";
+
 export type FornecedorEventoTipo =
   | "ORDER_CREATED"
   | "SHIPMENT_READY"
@@ -25,6 +31,7 @@ export interface PedidoItemView {
   produtoId?: string;
   produtoNome?: string;
   produtoCodigo?: string;
+  imagemPrincipalUrl?: string | null;
   quantidade?: number;
   valorUnitario?: number;
   valorTotal?: number;
@@ -39,6 +46,7 @@ export interface PedidoView {
   quantidadeTotal?: number;
   valorTotal?: number;
   status?: PedidoStatus;
+  formaPagamento?: FormaPagamento | null;
   pagarmeChargeId?: string;
   pagarmeOrderId?: string;
   itens?: PedidoItemView[];
@@ -47,6 +55,9 @@ export interface PedidoView {
   trackingCode?: string;
   labelUrlA4?: string;
   statusFornecedor?: string;
+  // True quando o pedido foi integrado com sucesso ao fornecedor (3cliques etc.).
+  integrado?: boolean;
+  dataIntegracao?: string;
   dataCriacao?: string;
   pagoEm?: string;
   enviadoEm?: string;

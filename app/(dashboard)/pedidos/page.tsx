@@ -9,9 +9,9 @@ import {
   CheckCircle,
   AlertTriangle,
   Download,
-  ChevronRight,
   Loader2,
   AlertCircle,
+  Eye,
 } from "lucide-react";
 import Link from "next/link";
 import { StatCard } from "@/components/stat-card";
@@ -111,6 +111,24 @@ function relativeTime(ts: number | null): string {
   const months = Math.floor(days / 30);
   return `há ${months}m`;
 }
+
+function fmtDateTime(iso: string | null | undefined): string {
+  if (!iso) return "—";
+  const d = new Date(iso);
+  if (!Number.isFinite(d.getTime())) return "—";
+  const pad = (n: number) => n.toString().padStart(2, "0");
+  return `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+const FORMA_PAGAMENTO_LABEL: Record<string, string> = {
+  PIX: "PIX",
+  CREDITO: "Cartão de crédito",
+  BOLETO: "Boleto",
+  DOIS_CARTOES: "Dois cartões",
+};
+
+const PRODUCT_PLACEHOLDER =
+  "data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect fill='%23eef2f7' width='40' height='40'/%3E%3C/svg%3E";
 
 function initials(text: string): string {
   return text
@@ -488,7 +506,8 @@ export default function Pedidos() {
             <div
               style={{
                 display: "grid",
-                gridTemplateColumns: "1.2fr 1.8fr 2fr 1fr 1.2fr 1fr 0.5fr",
+                gridTemplateColumns:
+                  "1.4fr 1.4fr 1.6fr 1.2fr 0.9fr 1fr 1.1fr 1fr 0.5fr",
                 gap: 16,
                 padding: "10px 20px",
                 fontSize: 11,
@@ -500,28 +519,33 @@ export default function Pedidos() {
               }}
             >
               <div>Pedido</div>
+              <div>Data</div>
               <div>Cliente</div>
-              <div>Produto</div>
-              <div>Valor</div>
+              <div>Pagamento</div>
+              <div>Total</div>
               <div>Status</div>
-              <div>Tracking</div>
-              <div />
+              <div>Itens</div>
+              <div>Enviado ao Fornecedor</div>
+              <div>Ações</div>
             </div>
 
             {slice.map(({ pedido: p, ui, ts }) => {
-              const principal = p.itens?.[0];
               const labelStatus = STATUS_LABEL[ui];
               const numero = p.numeroPedido ?? `#${p.id.slice(0, 8)}`;
               const email = p.compradorEmail ?? "—";
+              const pagamentoLabel = p.formaPagamento
+                ? FORMA_PAGAMENTO_LABEL[p.formaPagamento] ?? p.formaPagamento
+                : "—";
+              const enviadoFornecedor = p.integrado === true;
               return (
                 <Link href={`/pedidos/${p.id}`} key={p.id}>
                   <div
                     style={{
                       display: "grid",
                       gridTemplateColumns:
-                        "1.2fr 1.8fr 2fr 1fr 1.2fr 1fr 0.5fr",
+                        "1.4fr 1.4fr 1.6fr 1.2fr 0.9fr 1fr 1.1fr 1fr 0.5fr",
                       gap: 16,
-                      padding: "16px 20px",
+                      padding: "14px 20px",
                       alignItems: "center",
                       borderBottom: "1px solid var(--ink-100)",
                       cursor: "pointer",
@@ -536,20 +560,36 @@ export default function Pedidos() {
                         "";
                     }}
                   >
-                    <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
-                      <span
-                        style={{
-                          fontFamily: "var(--font-mono)",
-                          fontWeight: 600,
-                          fontSize: 13,
-                        }}
-                      >
-                        {numero}
+                    {/* Pedido */}
+                    <div
+                      style={{
+                        fontFamily: "var(--font-mono)",
+                        fontWeight: 600,
+                        fontSize: 13,
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap",
+                      }}
+                      title={numero}
+                    >
+                      {numero}
+                    </div>
+                    {/* Data */}
+                    <div
+                      style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: 2,
+                      }}
+                    >
+                      <span style={{ fontSize: 13, color: "var(--ink-700)" }}>
+                        {fmtDateTime(p.dataCriacao)}
                       </span>
                       <span style={{ fontSize: 11, color: "var(--ink-500)" }}>
                         {relativeTime(ts)}
                       </span>
                     </div>
+                    {/* Cliente */}
                     <div
                       style={{
                         display: "flex",
@@ -578,7 +618,7 @@ export default function Pedidos() {
                       <span
                         style={{
                           fontWeight: 500,
-                          fontSize: 14,
+                          fontSize: 13,
                           overflow: "hidden",
                           textOverflow: "ellipsis",
                           whiteSpace: "nowrap",
@@ -587,20 +627,11 @@ export default function Pedidos() {
                         {email}
                       </span>
                     </div>
-                    <div
-                      style={{
-                        fontSize: 13,
-                        color: "var(--ink-700)",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                        whiteSpace: "nowrap",
-                      }}
-                    >
-                      {principal?.produtoNome ?? "—"}
-                      {p.itens && p.itens.length > 1
-                        ? ` +${p.itens.length - 1}`
-                        : ""}
+                    {/* Pagamento */}
+                    <div style={{ fontSize: 13, color: "var(--ink-700)" }}>
+                      {pagamentoLabel}
                     </div>
+                    {/* Total */}
                     <div
                       style={{
                         fontFamily: "var(--font-mono)",
@@ -610,23 +641,93 @@ export default function Pedidos() {
                     >
                       {fmtBRL(p.valorTotal ?? 0)}
                     </div>
+                    {/* Status */}
                     <div title={labelStatus}>
                       <StatusBadge status={STATUS_TO_BADGE[ui]} />
                     </div>
+                    {/* Itens — thumbnails */}
                     <div
                       style={{
-                        fontSize: 12,
-                        color: "var(--ink-600)",
-                        fontFamily: "var(--font-mono)",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                        whiteSpace: "nowrap",
+                        display: "flex",
+                        gap: 4,
+                        alignItems: "center",
                       }}
                     >
-                      {p.trackingCode ?? "—"}
+                      {(p.itens ?? []).slice(0, 3).map((item, idx) => (
+                        <img
+                          key={item.id ?? idx}
+                          src={item.imagemPrincipalUrl || PRODUCT_PLACEHOLDER}
+                          alt={item.produtoNome ?? "Item"}
+                          referrerPolicy="no-referrer"
+                          loading="lazy"
+                          title={item.produtoNome ?? undefined}
+                          style={{
+                            width: 32,
+                            height: 32,
+                            borderRadius: 6,
+                            objectFit: "cover",
+                            border: "1px solid var(--ink-200)",
+                            background: "var(--ink-100)",
+                          }}
+                        />
+                      ))}
+                      {p.itens && p.itens.length > 3 && (
+                        <span
+                          style={{
+                            fontSize: 11,
+                            color: "var(--ink-500)",
+                            fontWeight: 600,
+                          }}
+                        >
+                          +{p.itens.length - 3}
+                        </span>
+                      )}
                     </div>
+                    {/* Enviado ao Fornecedor */}
+                    <div>
+                      <span
+                        style={{
+                          display: "inline-flex",
+                          alignItems: "center",
+                          height: 22,
+                          padding: "0 10px",
+                          borderRadius: 999,
+                          fontSize: 11,
+                          fontWeight: 700,
+                          background: enviadoFornecedor
+                            ? "var(--kai-success-bg)"
+                            : "var(--kai-warn-bg, #fef3c7)",
+                          color: enviadoFornecedor
+                            ? "var(--kai-success)"
+                            : "var(--kai-warn, #f59e0b)",
+                        }}
+                      >
+                        {enviadoFornecedor ? "Sim" : "Não"}
+                      </span>
+                    </div>
+                    {/* Ações */}
                     <div style={{ display: "flex", justifyContent: "center" }}>
-                      <ChevronRight size={16} style={{ color: "var(--ink-400)" }} />
+                      <button
+                        onClick={(e) => {
+                          // Link wrapper já navega; só evitamos double-fire.
+                          e.stopPropagation();
+                        }}
+                        title="Ver detalhes"
+                        style={{
+                          width: 30,
+                          height: 30,
+                          borderRadius: "50%",
+                          border: "1px solid var(--ink-200)",
+                          background: "var(--ink-0)",
+                          color: "var(--ink-600)",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          cursor: "pointer",
+                        }}
+                      >
+                        <Eye size={14} />
+                      </button>
                     </div>
                   </div>
                 </Link>
