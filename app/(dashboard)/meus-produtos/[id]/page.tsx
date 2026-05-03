@@ -440,6 +440,12 @@ export default function MyProductDetail() {
       toast.error("Link de checkout indisponível.");
       return;
     }
+    if (checkoutBloqueado) {
+      toast.error(
+        `Checkout bloqueado — aumente o preço para no mínimo ${fmtBRL(minPrice)} antes de compartilhar o link.`,
+      );
+      return;
+    }
     try {
       await navigator.clipboard.writeText(checkoutLink);
       toast.success("Link de checkout copiado!");
@@ -451,6 +457,12 @@ export default function MyProductDetail() {
   const handlePreviewCheckout = () => {
     if (!checkoutLink) {
       toast.error("Link de checkout indisponível.");
+      return;
+    }
+    if (checkoutBloqueado) {
+      toast.error(
+        `Checkout bloqueado — aumente o preço para no mínimo ${fmtBRL(minPrice)} antes de visualizar.`,
+      );
       return;
     }
     window.open(checkoutLink, "_blank", "noopener,noreferrer");
@@ -630,7 +642,12 @@ export default function MyProductDetail() {
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
           <button
             onClick={handlePreviewCheckout}
-            disabled={!checkoutLink}
+            disabled={!checkoutLink || checkoutBloqueado}
+            title={
+              checkoutBloqueado
+                ? `Checkout bloqueado — aumente o preço para no mínimo ${fmtBRL(minPrice)}`
+                : undefined
+            }
             style={{
               display: "flex",
               alignItems: "center",
@@ -643,16 +660,21 @@ export default function MyProductDetail() {
               color: "var(--ink-700)",
               fontSize: 13,
               fontWeight: 600,
-              cursor: checkoutLink ? "pointer" : "not-allowed",
+              cursor: checkoutLink && !checkoutBloqueado ? "pointer" : "not-allowed",
               fontFamily: "inherit",
-              opacity: checkoutLink ? 1 : 0.5,
+              opacity: checkoutLink && !checkoutBloqueado ? 1 : 0.5,
             }}
           >
             <Eye size={14} /> Visualizar checkout
           </button>
           <button
             onClick={handleCopyCheckout}
-            disabled={!checkoutLink}
+            disabled={!checkoutLink || checkoutBloqueado}
+            title={
+              checkoutBloqueado
+                ? `Checkout bloqueado — aumente o preço para no mínimo ${fmtBRL(minPrice)}`
+                : undefined
+            }
             style={{
               display: "flex",
               alignItems: "center",
@@ -665,9 +687,9 @@ export default function MyProductDetail() {
               color: "var(--ink-700)",
               fontSize: 13,
               fontWeight: 600,
-              cursor: checkoutLink ? "pointer" : "not-allowed",
+              cursor: checkoutLink && !checkoutBloqueado ? "pointer" : "not-allowed",
               fontFamily: "inherit",
-              opacity: checkoutLink ? 1 : 0.5,
+              opacity: checkoutLink && !checkoutBloqueado ? 1 : 0.5,
             }}
           >
             <Copy size={14} /> Link checkout
@@ -788,14 +810,22 @@ export default function MyProductDetail() {
           )}
           <button
             onClick={handleCopyCheckout}
+            disabled={checkoutBloqueado}
+            title={
+              checkoutBloqueado
+                ? `Checkout bloqueado — aumente o preço para no mínimo ${fmtBRL(minPrice)}`
+                : undefined
+            }
             style={{
               flexShrink: 0,
               fontSize: 12,
               fontWeight: 600,
-              color: "var(--kai-orange-600)",
+              color: checkoutBloqueado
+                ? "var(--ink-400)"
+                : "var(--kai-orange-600)",
               background: "transparent",
               border: 0,
-              cursor: "pointer",
+              cursor: checkoutBloqueado ? "not-allowed" : "pointer",
               fontFamily: "inherit",
             }}
           >
