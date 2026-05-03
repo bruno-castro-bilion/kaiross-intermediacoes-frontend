@@ -19,3 +19,21 @@ export function useReembolsarPedido() {
     },
   });
 }
+
+export function useNotificarCriacaoFornecedor() {
+  const queryClient = useQueryClient();
+  return useMutation<unknown, Error, string>({
+    mutationFn: async (pedidoId) => {
+      const response = await axios.post(
+        `/api/vendas/pedidos/${pedidoId}/fornecedor/notificar-criacao`,
+        undefined,
+        { withCredentials: true },
+      );
+      return response.data;
+    },
+    onSuccess: (_data, pedidoId) => {
+      queryClient.invalidateQueries({ queryKey: ["vendas"] });
+      queryClient.invalidateQueries({ queryKey: ["vendas", "pedidos", pedidoId] });
+    },
+  });
+}

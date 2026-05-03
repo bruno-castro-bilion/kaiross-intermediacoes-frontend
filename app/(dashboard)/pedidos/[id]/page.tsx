@@ -18,6 +18,7 @@ import {
   ExternalLink,
   Activity,
   CreditCard,
+  Send,
 } from "lucide-react";
 import { StatusBadge } from "@/components/status-badge";
 import {
@@ -25,7 +26,10 @@ import {
   useHistoricoFornecedor,
   useStatusFornecedor,
 } from "@/app/api/vendas/queries";
-import { useReembolsarPedido } from "@/app/api/vendas/mutations";
+import {
+  useNotificarCriacaoFornecedor,
+  useReembolsarPedido,
+} from "@/app/api/vendas/mutations";
 import type {
   FornecedorIntegracaoEvento,
   PedidoView,
@@ -342,6 +346,7 @@ export default function PedidoDetail() {
   const historico = useHistoricoFornecedor(id);
   const statusFornecedor = useStatusFornecedor(id);
   const reembolsar = useReembolsarPedido();
+  const notificarFornecedor = useNotificarCriacaoFornecedor();
 
   const timeline = useMemo(
     () => (pedido ? buildTimeline(pedido, historico.data ?? []) : []),
@@ -368,6 +373,38 @@ export default function PedidoDetail() {
 
   const numero = pedido.numeroPedido ?? `#${pedido.id.slice(0, 8)}`;
   const podeReembolsar = pedido.status === "PAGO";
+
+  const handleForcarEnvioFornecedor = () => {
+    if (
+      !confirm(
+        `Forçar envio do pedido ${numero} ao fornecedor (${pedido.fornecedor ?? "—"})? A operação é idempotente — se já foi enviado com sucesso, nada muda.`,
+      )
+    ) {
+      return;
+    }
+    notificarFornecedor.mutate(pedido.id, {
+      onSuccess: () => {
+        toast.success("Pedido enviado ao fornecedor.");
+        historico.refetch();
+      },
+      onError: (err) => {
+        const apiMessage =
+          (
+            err as {
+              response?: { data?: { error?: string; message?: string } };
+            }
+          )?.response?.data?.error ??
+          (
+            err as {
+              response?: { data?: { error?: string; message?: string } };
+            }
+          )?.response?.data?.message ??
+          err.message;
+        toast.error(apiMessage || "Erro ao notificar fornecedor.");
+        historico.refetch();
+      },
+    });
+  };
 
   const handleReembolsar = () => {
     if (
@@ -870,33 +907,66 @@ export default function PedidoDetail() {
               <h3 style={{ fontSize: 16, fontWeight: 700 }}>
                 Histórico de integração com fornecedor
               </h3>
-              <button
-                onClick={() => historico.refetch()}
-                disabled={historico.isFetching}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 6,
-                  height: 30,
-                  padding: "0 10px",
-                  borderRadius: "var(--r-md)",
-                  border: "1px solid var(--ink-200)",
-                  background: "var(--ink-0)",
-                  color: "var(--ink-700)",
-                  fontSize: 12,
-                  fontWeight: 600,
-                  cursor: historico.isFetching ? "not-allowed" : "pointer",
-                  fontFamily: "inherit",
-                  opacity: historico.isFetching ? 0.6 : 1,
-                }}
-              >
-                {historico.isFetching ? (
-                  <Loader2 size={12} className="animate-spin" />
-                ) : (
-                  <RefreshCcw size={12} />
+              <div style={{ display: "flex", gap: 8 }}>
+                {pedido.status === "PAGO" && (
+                  <button
+                    onClick={handleForcarEnvioFornecedor}
+                    disabled={notificarFornecedor.isPending}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 6,
+                      height: 30,
+                      padding: "0 10px",
+                      borderRadius: "var(--r-md)",
+                      border: "1px solid var(--kai-orange)",
+                      background: "var(--kai-orange)",
+                      color: "white",
+                      fontSize: 12,
+                      fontWeight: 600,
+                      cursor: notificarFornecedor.isPending
+                        ? "not-allowed"
+                        : "pointer",
+                      fontFamily: "inherit",
+                      opacity: notificarFornecedor.isPending ? 0.7 : 1,
+                    }}
+                  >
+                    {notificarFornecedor.isPending ? (
+                      <Loader2 size={12} className="animate-spin" />
+                    ) : (
+                      <Send size={12} />
+                    )}
+                    Forçar envio
+                  </button>
                 )}
-                Atualizar
-              </button>
+                <button
+                  onClick={() => historico.refetch()}
+                  disabled={historico.isFetching}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 6,
+                    height: 30,
+                    padding: "0 10px",
+                    borderRadius: "var(--r-md)",
+                    border: "1px solid var(--ink-200)",
+                    background: "var(--ink-0)",
+                    color: "var(--ink-700)",
+                    fontSize: 12,
+                    fontWeight: 600,
+                    cursor: historico.isFetching ? "not-allowed" : "pointer",
+                    fontFamily: "inherit",
+                    opacity: historico.isFetching ? 0.6 : 1,
+                  }}
+                >
+                  {historico.isFetching ? (
+                    <Loader2 size={12} className="animate-spin" />
+                  ) : (
+                    <RefreshCcw size={12} />
+                  )}
+                  Atualizar
+                </button>
+              </div>
             </div>
             {(historico.data ?? []).length === 0 ? (
               <p style={{ fontSize: 13, color: "var(--ink-500)" }}>
