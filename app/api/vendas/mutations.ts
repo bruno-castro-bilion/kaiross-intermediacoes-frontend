@@ -32,8 +32,19 @@ export function useNotificarCriacaoFornecedor() {
       return response.data;
     },
     onSuccess: (_data, pedidoId) => {
-      queryClient.invalidateQueries({ queryKey: ["vendas"] });
-      queryClient.invalidateQueries({ queryKey: ["vendas", "pedidos", pedidoId] });
+      // Só recarrega o que muda com o reenvio: histórico (nova entrada de
+      // ORDER_CREATED), status (pode ter virado disponível) e o próprio
+      // pedido (flag integrado). Antes invalidava ["vendas"] inteiro,
+      // refazendo listagens e relatórios sem necessidade.
+      queryClient.invalidateQueries({
+        queryKey: ["vendas", "pedidos", pedidoId, "historico"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["vendas", "pedidos", pedidoId, "fornecedor-status"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["vendas", "pedidos", pedidoId],
+      });
     },
   });
 }

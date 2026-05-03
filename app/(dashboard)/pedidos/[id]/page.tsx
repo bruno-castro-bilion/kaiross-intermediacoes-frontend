@@ -385,7 +385,8 @@ export default function PedidoDetail() {
     notificarFornecedor.mutate(pedido.id, {
       onSuccess: () => {
         toast.success("Pedido enviado ao fornecedor.");
-        historico.refetch();
+        // Sem refetch manual — a mutation já invalida ["vendas"] e ["vendas",
+        // "pedidos", pedidoId], o que recarrega historico e status sozinho.
       },
       onError: (err) => {
         const apiMessage =
@@ -401,7 +402,6 @@ export default function PedidoDetail() {
           )?.response?.data?.message ??
           err.message;
         toast.error(apiMessage || "Erro ao notificar fornecedor.");
-        historico.refetch();
       },
     });
   };
