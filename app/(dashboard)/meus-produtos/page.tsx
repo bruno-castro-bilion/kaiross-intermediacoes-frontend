@@ -662,7 +662,7 @@ export default function MeusProdutos() {
                       (e.currentTarget as HTMLDivElement).style.background = "";
                     }}
                   >
-                    <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 12, minWidth: 0 }}>
                       <ProductThumb src={img} name={nome} />
                       <div style={{ display: "flex", flexDirection: "column", gap: 2, minWidth: 0 }}>
                         <span
