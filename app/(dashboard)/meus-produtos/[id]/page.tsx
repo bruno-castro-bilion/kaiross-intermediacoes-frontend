@@ -296,13 +296,21 @@ export default function MyProductDetail() {
   );
 
   const [price, setPrice] = useState<number>(0);
+  // Texto cru exibido no input. Mantido separado de `price` pra permitir
+  // digitação livre (sem reformatar a cada tecla, o que fazia o cursor
+  // pular e dígitos somerem). É reformatado pro canônico no blur.
+  const [priceText, setPriceText] = useState<string>("0,00");
   const [dirty, setDirty] = useState(false);
+
+  const formatPriceText = (n: number) =>
+    n.toFixed(2).replace(".", ",");
 
   // Sincroniza o input local com o valor que veio do backend assim que
   // a resposta chega (e em rerefetch). Não sobrescreve edições in-flight.
   useEffect(() => {
     if (sellerProduto?.precoVenda != null && !dirty) {
       setPrice(sellerProduto.precoVenda);
+      setPriceText(formatPriceText(sellerProduto.precoVenda));
     }
   }, [sellerProduto?.precoVenda, dirty]);
 
@@ -523,7 +531,11 @@ export default function MyProductDetail() {
     });
   };
 
-  const sliderMax = Math.max(minPrice * 4, custo * 4, price * 1.5, 200);
+  // sliderMax NÃO depende de `price` de propósito — antes dependia (`price * 1.5`)
+  // e isso gerava feedback positivo: cada onChange aumentava o max, que fazia
+  // a posição do mouse mapear pra valor maior, explodindo o número até overflow
+  // (`toFixed(2)` volta a notação científica acima de 1e21).
+  const sliderMax = Math.max(minPrice * 4, custo * 4, 200);
 
   return (
     <motion.div
@@ -997,16 +1009,24 @@ export default function MyProductDetail() {
                     <input
                       type="text"
                       inputMode="decimal"
-                      value={price.toFixed(2).replace(".", ",")}
+                      value={priceText}
                       onChange={(e) => {
-                        const cleaned = e.target.value
-                          .replace(/[^\d,]/g, "")
-                          .replace(",", ".");
-                        const n = parseFloat(cleaned);
-                        if (!Number.isNaN(n)) {
+                        // Aceita dígitos, vírgula e ponto. Limita o tamanho
+                        // pra evitar números absurdos (R$ 999.999.999,99).
+                        const raw = e.target.value
+                          .replace(/[^\d.,]/g, "")
+                          .slice(0, 13);
+                        setPriceText(raw);
+                        const n = parseFloat(raw.replace(",", "."));
+                        if (Number.isFinite(n) && n >= 0) {
                           setPrice(n);
                           setDirty(true);
                         }
+                      }}
+                      onBlur={() => {
+                        // Ao sair do campo, reformata pro canônico
+                        // (ex.: "32" vira "32,00", "32,5" vira "32,50").
+                        setPriceText(formatPriceText(price));
                       }}
                       style={{
                         fontSize: 32,
@@ -1071,10 +1091,14 @@ export default function MyProductDetail() {
                 min={minPrice}
                 max={sliderMax}
                 step={1}
-                value={Math.max(price, minPrice)}
+                value={Math.min(Math.max(price, minPrice), sliderMax)}
                 onChange={(e) => {
-                  setPrice(parseFloat(e.target.value));
-                  setDirty(true);
+                  const n = parseFloat(e.target.value);
+                  if (Number.isFinite(n)) {
+                    setPrice(n);
+                    setPriceText(formatPriceText(n));
+                    setDirty(true);
+                  }
                 }}
                 style={{ width: "100%", accentColor: "var(--kai-orange)" }}
               />
