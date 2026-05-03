@@ -12,6 +12,7 @@ import {
   Sparkles,
   Loader2,
   AlertCircle,
+  ChevronRight,
 } from "lucide-react";
 import Link from "next/link";
 import { StatCard } from "@/components/stat-card";
@@ -202,6 +203,7 @@ const NOVIDADES_DAYS = 30;
 export default function VitrineDeProtudos() {
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("todas");
+  const [expandedParents, setExpandedParents] = useState<Set<string>>(new Set());
   const [inStockOnly, setInStockOnly] = useState(true);
   const [novidadesOnly, setNovidadesOnly] = useState(false);
   const [page, setPage] = useState(1);
@@ -215,24 +217,45 @@ export default function VitrineDeProtudos() {
 
   const produtos: ProdutoView[] = useMemo(() => data ?? [], [data]);
 
-  // [{ id, label, count }] derivado dos produtos. "todas" sempre primeiro.
-  const categories = useMemo(() => {
-    const counts = new Map<string, number>();
+  // Árvore de categorias: pai -> [{ sub, count }], com contagem total no pai.
+  // O backend manda "Pai > Filho"; quando não há " > ", tratamos como pai puro.
+  const categoryTree = useMemo(() => {
+    const tree = new Map<string, { count: number; subs: Map<string, number> }>();
     produtos.forEach((p) => {
-      const c = p.categoria?.trim();
-      if (!c) return;
-      counts.set(c, (counts.get(c) ?? 0) + 1);
+      const raw = p.categoria?.trim();
+      if (!raw) return;
+      const [parentRaw, ...rest] = raw.split(">");
+      const parent = parentRaw.trim();
+      const sub = rest.join(">").trim();
+      if (!parent) return;
+      const node = tree.get(parent) ?? { count: 0, subs: new Map<string, number>() };
+      node.count += 1;
+      if (sub) node.subs.set(sub, (node.subs.get(sub) ?? 0) + 1);
+      tree.set(parent, node);
     });
-    const list = Array.from(counts.entries())
-      .map(([label, count]) => ({ id: label.toLowerCase(), label, count }))
-      .sort((a, b) => a.label.localeCompare(b.label, "pt-BR"));
-    return [
-      { id: "todas", label: "Todos", count: produtos.length },
-      ...list,
-    ];
+    return Array.from(tree.entries())
+      .map(([parent, node]) => ({
+        parent,
+        count: node.count,
+        subs: Array.from(node.subs.entries())
+          .map(([sub, count]) => ({ sub, count }))
+          .sort((a, b) => a.sub.localeCompare(b.sub, "pt-BR")),
+      }))
+      .sort((a, b) => a.parent.localeCompare(b.parent, "pt-BR"));
   }, [produtos]);
 
-  const activeCategory = categories.find((c) => c.id === filter) ?? categories[0];
+  const totalCount = produtos.length;
+
+  // Rótulo do filtro ativo, para o cabeçalho de resultados
+  const activeCategoryLabel = useMemo(() => {
+    if (filter === "todas") return "Todos";
+    if (filter.startsWith("p::")) return filter.slice(3);
+    if (filter.startsWith("s::")) {
+      const [, , sub] = filter.split("::");
+      return sub ?? "Todos";
+    }
+    return "Todos";
+  }, [filter]);
 
   const novidadesCutoff = useMemo(() => {
     const d = new Date();
@@ -249,9 +272,17 @@ export default function VitrineDeProtudos() {
         (p.categoria ?? "").toLowerCase().includes(q) ||
         (p.marca ?? "").toLowerCase().includes(q) ||
         (p.sku ?? "").toLowerCase().includes(q);
-      const matchFilter =
-        filter === "todas" ||
-        (p.categoria ?? "").toLowerCase() === filter.toLowerCase();
+      const cat = (p.categoria ?? "").trim();
+      const [parentRaw, ...rest] = cat.split(">");
+      const pParent = parentRaw.trim();
+      const pSub = rest.join(">").trim();
+      let matchFilter = filter === "todas";
+      if (!matchFilter && filter.startsWith("p::")) {
+        matchFilter = pParent === filter.slice(3);
+      } else if (!matchFilter && filter.startsWith("s::")) {
+        const [, parent, sub] = filter.split("::");
+        matchFilter = pParent === parent && pSub === sub;
+      }
       const matchStock = !inStockOnly || (p.estoque ?? 0) > 0;
       const matchNovidades =
         !novidadesOnly ||
@@ -368,13 +399,12 @@ export default function VitrineDeProtudos() {
             Categorias
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
-            {categories.map((c) => {
-              const isActive = filter === c.id;
+            {(() => {
+              const isAllActive = filter === "todas";
               return (
                 <button
-                  key={c.id}
                   onClick={() => {
-                    setFilter(c.id);
+                    setFilter("todas");
                     setPage(1);
                   }}
                   style={{
@@ -384,9 +414,9 @@ export default function VitrineDeProtudos() {
                     padding: "8px 10px",
                     borderRadius: 8,
                     fontSize: 13,
-                    fontWeight: isActive ? 600 : 500,
-                    background: isActive ? "var(--kai-orange-50)" : "transparent",
-                    color: isActive ? "var(--kai-orange-600)" : "var(--ink-700)",
+                    fontWeight: isAllActive ? 600 : 500,
+                    background: isAllActive ? "var(--kai-orange-50)" : "transparent",
+                    color: isAllActive ? "var(--kai-orange-600)" : "var(--ink-700)",
                     border: "none",
                     cursor: "pointer",
                     fontFamily: "inherit",
@@ -394,18 +424,166 @@ export default function VitrineDeProtudos() {
                     transition: "background .12s, color .12s",
                   }}
                 >
-                  <span style={{ textTransform: "capitalize" }}>{c.label}</span>
+                  <span>Todos</span>
                   <span
                     style={{
                       fontSize: 10.5,
                       fontFamily: "var(--font-mono)",
                       fontWeight: 600,
-                      color: isActive ? "var(--kai-orange-600)" : "var(--ink-500)",
+                      color: isAllActive ? "var(--kai-orange-600)" : "var(--ink-500)",
                     }}
                   >
-                    {c.count}
+                    {totalCount}
                   </span>
                 </button>
+              );
+            })()}
+
+            {categoryTree.map((node) => {
+              const parentId = `p::${node.parent}`;
+              const isParentActive = filter === parentId;
+              const isExpanded = expandedParents.has(node.parent);
+              const hasSubs = node.subs.length > 0;
+              const isSubOfThisActive =
+                filter.startsWith(`s::${node.parent}::`);
+              const showAsActive = isParentActive || isSubOfThisActive;
+
+              return (
+                <div key={node.parent}>
+                  <button
+                    onClick={() => {
+                      setFilter(parentId);
+                      setPage(1);
+                      if (hasSubs) {
+                        setExpandedParents((prev) => {
+                          const next = new Set(prev);
+                          if (next.has(node.parent)) next.delete(node.parent);
+                          else next.add(node.parent);
+                          return next;
+                        });
+                      }
+                    }}
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      gap: 8,
+                      padding: "8px 10px",
+                      borderRadius: 8,
+                      fontSize: 13,
+                      fontWeight: showAsActive ? 600 : 500,
+                      background: showAsActive ? "var(--kai-orange-50)" : "transparent",
+                      color: showAsActive ? "var(--kai-orange-600)" : "var(--ink-700)",
+                      border: "none",
+                      cursor: "pointer",
+                      fontFamily: "inherit",
+                      textAlign: "left",
+                      transition: "background .12s, color .12s",
+                      width: "100%",
+                    }}
+                  >
+                    <span
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 6,
+                        minWidth: 0,
+                      }}
+                    >
+                      {hasSubs ? (
+                        <ChevronRight
+                          size={12}
+                          style={{
+                            flexShrink: 0,
+                            transition: "transform .15s",
+                            transform: isExpanded ? "rotate(90deg)" : "rotate(0deg)",
+                            color: showAsActive ? "var(--kai-orange-600)" : "var(--ink-500)",
+                          }}
+                        />
+                      ) : (
+                        <span style={{ width: 12, flexShrink: 0 }} />
+                      )}
+                      <span style={{ overflow: "hidden", textOverflow: "ellipsis" }}>
+                        {node.parent}
+                      </span>
+                    </span>
+                    <span
+                      style={{
+                        fontSize: 10.5,
+                        fontFamily: "var(--font-mono)",
+                        fontWeight: 600,
+                        color: showAsActive ? "var(--kai-orange-600)" : "var(--ink-500)",
+                        flexShrink: 0,
+                      }}
+                    >
+                      {node.count}
+                    </span>
+                  </button>
+
+                  {hasSubs && isExpanded && (
+                    <div
+                      style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: 1,
+                        margin: "2px 0 6px 22px",
+                        paddingLeft: 8,
+                        borderLeft: "1px solid var(--ink-200)",
+                      }}
+                    >
+                      {node.subs.map((s) => {
+                        const subId = `s::${node.parent}::${s.sub}`;
+                        const isSubActive = filter === subId;
+                        return (
+                          <button
+                            key={subId}
+                            onClick={() => {
+                              setFilter(subId);
+                              setPage(1);
+                            }}
+                            style={{
+                              display: "flex",
+                              justifyContent: "space-between",
+                              alignItems: "center",
+                              padding: "6px 10px",
+                              borderRadius: 6,
+                              fontSize: 12.5,
+                              fontWeight: isSubActive ? 600 : 500,
+                              background: isSubActive ? "var(--kai-orange-50)" : "transparent",
+                              color: isSubActive ? "var(--kai-orange-600)" : "var(--ink-600)",
+                              border: "none",
+                              cursor: "pointer",
+                              fontFamily: "inherit",
+                              textAlign: "left",
+                              transition: "background .12s, color .12s",
+                            }}
+                          >
+                            <span
+                              style={{
+                                overflow: "hidden",
+                                textOverflow: "ellipsis",
+                                whiteSpace: "nowrap",
+                              }}
+                            >
+                              {s.sub}
+                            </span>
+                            <span
+                              style={{
+                                fontSize: 10,
+                                fontFamily: "var(--font-mono)",
+                                fontWeight: 600,
+                                color: isSubActive ? "var(--kai-orange-600)" : "var(--ink-500)",
+                                flexShrink: 0,
+                              }}
+                            >
+                              {s.count}
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
               );
             })}
           </div>
@@ -529,7 +707,7 @@ export default function VitrineDeProtudos() {
             </span>{" "}
             em{" "}
             <span style={{ color: "var(--kai-orange-600)", fontWeight: 600 }}>
-              {activeCategory.label}
+              {activeCategoryLabel}
             </span>
           </div>
 
