@@ -13,6 +13,9 @@ export interface SellerProdutoView {
   slugCheckout?: string;
   checkoutUrl?: string;
   ativo?: boolean;
+  // true quando o preço atual gera margem inviável e o checkout fica
+  // bloqueado pra clientes (split do gateway daria vendedor negativo).
+  bloqueado?: boolean;
   dataCriacao?: string;
 }
 

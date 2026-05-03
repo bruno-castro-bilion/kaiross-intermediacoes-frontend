@@ -95,10 +95,18 @@ function RowMenu({
 }) {
   const [open, setOpen] = useState(false);
   const isPaused = item.ativo === false;
+  const isBloqueado = item.bloqueado === true;
 
   const handleCopy = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    if (isBloqueado) {
+      toast.error(
+        "Checkout bloqueado — abra o produto e ajuste o preço antes de compartilhar o link.",
+      );
+      setOpen(false);
+      return;
+    }
     const link = buildCheckoutLink(item);
     if (!link) {
       toast.error("Link de checkout indisponível.");
@@ -186,6 +194,12 @@ function RowMenu({
           >
             <button
               onClick={handleCopy}
+              disabled={isBloqueado}
+              title={
+                isBloqueado
+                  ? "Checkout bloqueado — ajuste o preço primeiro"
+                  : undefined
+              }
               style={{
                 display: "flex",
                 alignItems: "center",
@@ -194,10 +208,10 @@ function RowMenu({
                 padding: "10px 12px",
                 background: "transparent",
                 border: 0,
-                color: "var(--ink-700)",
+                color: isBloqueado ? "var(--ink-400)" : "var(--ink-700)",
                 fontSize: 13,
                 fontWeight: 500,
-                cursor: "pointer",
+                cursor: isBloqueado ? "not-allowed" : "pointer",
                 fontFamily: "inherit",
                 textAlign: "left",
               }}
@@ -667,17 +681,40 @@ export default function MeusProdutos() {
                     <div style={{ display: "flex", alignItems: "center", gap: 12, minWidth: 0 }}>
                       <ProductThumb src={img} name={nome} />
                       <div style={{ display: "flex", flexDirection: "column", gap: 2, minWidth: 0 }}>
-                        <span
-                          style={{
-                            fontWeight: 600,
-                            fontSize: 14,
-                            overflow: "hidden",
-                            textOverflow: "ellipsis",
-                            whiteSpace: "nowrap",
-                          }}
-                        >
-                          {nome}
-                        </span>
+                        <div style={{ display: "flex", alignItems: "center", gap: 8, minWidth: 0 }}>
+                          <span
+                            style={{
+                              fontWeight: 600,
+                              fontSize: 14,
+                              overflow: "hidden",
+                              textOverflow: "ellipsis",
+                              whiteSpace: "nowrap",
+                              minWidth: 0,
+                            }}
+                          >
+                            {nome}
+                          </span>
+                          {m.bloqueado && (
+                            <span
+                              title="Checkout bloqueado — preço abaixo do mínimo viável. Abra o produto e ajuste."
+                              style={{
+                                flexShrink: 0,
+                                display: "inline-flex",
+                                alignItems: "center",
+                                gap: 4,
+                                height: 20,
+                                padding: "0 8px",
+                                borderRadius: 999,
+                                background: "var(--kai-danger-bg, #fde0e0)",
+                                color: "var(--kai-danger, #dc2626)",
+                                fontSize: 10.5,
+                                fontWeight: 700,
+                              }}
+                            >
+                              <AlertCircle size={11} /> Bloqueado
+                            </span>
+                          )}
+                        </div>
                         <span style={{ fontSize: 12, color: "var(--ink-500)" }}>
                           Estoque {stockLabel(m.produto?.estoque)} ·{" "}
                           {m.produto?.fornecedor ?? "Fornecedor"}
