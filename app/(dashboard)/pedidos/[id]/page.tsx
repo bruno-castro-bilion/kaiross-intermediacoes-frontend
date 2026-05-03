@@ -968,13 +968,23 @@ export default function PedidoDetail() {
                 </button>
               </div>
             </div>
-            {(historico.data ?? []).length === 0 ? (
-              <p style={{ fontSize: 13, color: "var(--ink-500)" }}>
-                Nenhum evento de integração registrado ainda.
-              </p>
-            ) : (
+            {(() => {
+              // Filtra QUERY_ORDER_STATUS — é só leitura (cada abertura do
+              // detalhe dispara uma) e poluía o card. Backend novo não grava
+              // mais isso, mas pedidos antigos têm várias entradas no DB.
+              const eventosVisiveis = (historico.data ?? []).filter(
+                (e) => e.eventoTipo !== "QUERY_ORDER_STATUS",
+              );
+              if (eventosVisiveis.length === 0) {
+                return (
+                  <p style={{ fontSize: 13, color: "var(--ink-500)" }}>
+                    Nenhum evento de integração registrado ainda.
+                  </p>
+                );
+              }
+              return (
               <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                {(historico.data ?? []).map((evt, i) => (
+                {eventosVisiveis.map((evt, i) => (
                   <div
                     key={evt.id ?? i}
                     style={{
@@ -1036,7 +1046,8 @@ export default function PedidoDetail() {
                   </div>
                 ))}
               </div>
-            )}
+              );
+            })()}
           </div>
         </div>
 
