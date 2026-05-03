@@ -76,8 +76,8 @@ function stockLabel(estoque?: number) {
 
 function buildCheckoutLink(item: MeuProduto): string | null {
   if (item.checkoutUrl) return item.checkoutUrl;
-  if (item.slugCheckout && typeof window !== "undefined") {
-    return `${window.location.origin}/checkout/${item.slugCheckout}`;
+  if (item.slugCheckout) {
+    return `https://pay.kaiross.com.br/${item.slugCheckout}`;
   }
   return null;
 }

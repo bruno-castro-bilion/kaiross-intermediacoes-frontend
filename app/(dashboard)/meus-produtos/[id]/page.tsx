@@ -245,8 +245,8 @@ function buildCheckoutLink(
   checkoutUrl?: string,
 ): string | null {
   if (checkoutUrl) return checkoutUrl;
-  if (slugCheckout && typeof window !== "undefined") {
-    return `${window.location.origin}/checkout/${slugCheckout}`;
+  if (slugCheckout) {
+    return `https://pay.kaiross.com.br/${slugCheckout}`;
   }
   return null;
 }
