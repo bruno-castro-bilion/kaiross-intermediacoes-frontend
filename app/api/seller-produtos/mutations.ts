@@ -40,6 +40,17 @@ export function useAtualizarPrecoVenda() {
       return response.data;
     },
     onSuccess: (data) => {
+      // Atualiza o item na cache da listagem imediatamente — não espera
+      // o refetch (que pode demorar ou trazer dado stale por algum cache
+      // intermediário). O invalidateQueries logo abaixo ainda dispara o
+      // refetch pra reconciliar com o servidor.
+      queryClient.setQueryData<SellerProdutoView[]>(
+        ["seller-produtos", "list"],
+        (old) => {
+          if (!old) return old;
+          return old.map((sp) => (sp.id === data.id ? { ...sp, ...data } : sp));
+        },
+      );
       queryClient.invalidateQueries({ queryKey: ["seller-produtos"] });
       if (data?.slugCheckout) {
         queryClient.invalidateQueries({

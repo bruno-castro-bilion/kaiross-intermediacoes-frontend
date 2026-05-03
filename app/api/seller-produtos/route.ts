@@ -3,7 +3,15 @@ import { AxiosError } from "axios";
 import backend from "@/app/api/_backend";
 import type { AfiliarProdutoRequest, SellerProdutoView } from "./types";
 
-  process.env.SELLER_PRODUTOS_API_URL ?? process.env.API_URL ?? "";
+// Garante que o handler é tratado como dinâmico (sem cache de resposta).
+// As rotas leem request.cookies, o que já força dinâmico, mas declarar
+// explicitamente evita surpresa em build/SSR.
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
+const NO_CACHE_HEADERS = {
+  "Cache-Control": "no-store, max-age=0, must-revalidate",
+} as const;
 
 export async function GET(request: NextRequest) {
   const accessToken = request.cookies.get("accessToken")?.value;
@@ -16,7 +24,7 @@ export async function GET(request: NextRequest) {
       `seller-produtos`,
       { headers: { Authorization: `Bearer ${accessToken}` } },
     );
-    return NextResponse.json(response.data);
+    return NextResponse.json(response.data, { headers: NO_CACHE_HEADERS });
   } catch (error) {
     const axiosError = error as AxiosError<{
       message?: string;

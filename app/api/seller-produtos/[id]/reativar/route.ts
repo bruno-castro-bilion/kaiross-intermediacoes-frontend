@@ -3,7 +3,7 @@ import { AxiosError } from "axios";
 import backend from "@/app/api/_backend";
 import type { SellerProdutoView } from "../../types";
 
-  process.env.SELLER_PRODUTOS_API_URL ?? process.env.API_URL ?? "";
+export const dynamic = "force-dynamic";
 
 export async function PUT(
   request: NextRequest,

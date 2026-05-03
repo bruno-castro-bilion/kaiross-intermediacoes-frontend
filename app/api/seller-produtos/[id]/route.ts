@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { AxiosError } from "axios";
 import backend from "@/app/api/_backend";
 
-  process.env.SELLER_PRODUTOS_API_URL ?? process.env.API_URL ?? "";
+export const dynamic = "force-dynamic";
 
 export async function DELETE(
   request: NextRequest,
