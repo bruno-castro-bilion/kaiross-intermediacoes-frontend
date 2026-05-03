@@ -38,6 +38,13 @@ import type {
 const fmtBRL = (n: number) =>
   "R$ " + n.toLocaleString("pt-BR", { minimumFractionDigits: 2 });
 
+const FORMA_PAGAMENTO_LABEL: Record<string, string> = {
+  PIX: "PIX",
+  CREDITO: "Cartão de crédito",
+  BOLETO: "Boleto",
+  DOIS_CARTOES: "Dois cartões",
+};
+
 function fmtDateTime(raw?: string): string {
   if (!raw) return "—";
   const d = new Date(raw);
@@ -1155,7 +1162,11 @@ export default function PedidoDetail() {
                 <CreditCard size={18} style={{ color: "var(--kai-orange)" }} />
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
-                <span style={{ fontWeight: 600 }}>pagar.me</span>
+                <span style={{ fontWeight: 600 }}>
+                  {pedido.formaPagamento
+                    ? FORMA_PAGAMENTO_LABEL[pedido.formaPagamento] ?? pedido.formaPagamento
+                    : "Pagamento online"}
+                </span>
                 <span style={{ fontSize: 12, color: "var(--ink-500)" }}>
                   {pedido.pagoEm
                     ? `Pago em ${fmtDateTime(pedido.pagoEm)}`
