@@ -197,9 +197,13 @@ function ProductCardEditorial({ p }: { p: ProdutoView }) {
   );
 }
 
+const NOVIDADES_DAYS = 30;
+
 export default function VitrineDeProtudos() {
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("todas");
+  const [inStockOnly, setInStockOnly] = useState(true);
+  const [novidadesOnly, setNovidadesOnly] = useState(false);
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(12);
 
@@ -211,14 +215,30 @@ export default function VitrineDeProtudos() {
 
   const produtos: ProdutoView[] = useMemo(() => data ?? [], [data]);
 
+  // [{ id, label, count }] derivado dos produtos. "todas" sempre primeiro.
   const categories = useMemo(() => {
-    const set = new Set<string>();
+    const counts = new Map<string, number>();
     produtos.forEach((p) => {
       const c = p.categoria?.trim();
-      if (c) set.add(c);
+      if (!c) return;
+      counts.set(c, (counts.get(c) ?? 0) + 1);
     });
-    return ["todas", ...Array.from(set).sort()];
+    const list = Array.from(counts.entries())
+      .map(([label, count]) => ({ id: label.toLowerCase(), label, count }))
+      .sort((a, b) => a.label.localeCompare(b.label, "pt-BR"));
+    return [
+      { id: "todas", label: "Todos", count: produtos.length },
+      ...list,
+    ];
   }, [produtos]);
+
+  const activeCategory = categories.find((c) => c.id === filter) ?? categories[0];
+
+  const novidadesCutoff = useMemo(() => {
+    const d = new Date();
+    d.setDate(d.getDate() - NOVIDADES_DAYS);
+    return d.getTime();
+  }, []);
 
   const filtered = useMemo(() => {
     const q = search.toLowerCase().trim();
@@ -232,9 +252,13 @@ export default function VitrineDeProtudos() {
       const matchFilter =
         filter === "todas" ||
         (p.categoria ?? "").toLowerCase() === filter.toLowerCase();
-      return matchSearch && matchFilter;
+      const matchStock = !inStockOnly || (p.estoque ?? 0) > 0;
+      const matchNovidades =
+        !novidadesOnly ||
+        (p.dataCriacao ? new Date(p.dataCriacao).getTime() >= novidadesCutoff : false);
+      return matchSearch && matchFilter && matchStock && matchNovidades;
     });
-  }, [produtos, search, filter]);
+  }, [produtos, search, filter, inStockOnly, novidadesOnly, novidadesCutoff]);
 
   const total = filtered.length;
   const totalPages = Math.max(1, Math.ceil(total / perPage));
@@ -329,77 +353,187 @@ export default function VitrineDeProtudos() {
         />
       </div>
 
-      <div
-        className="rounded-[var(--r-lg)] border border-[var(--ink-200)] bg-[var(--ink-0)] p-4 mb-5"
-        style={{ display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}
-      >
-        <div
-          style={{
-            flex: 1,
-            minWidth: 240,
-            height: 40,
-            display: "flex",
-            alignItems: "center",
-            gap: 10,
-            padding: "0 14px",
-            background: "var(--ink-50)",
-            border: "1px solid var(--ink-200)",
-            borderRadius: "var(--r-pill)",
-          }}
-        >
-          <Search size={16} style={{ color: "var(--ink-500)", flexShrink: 0 }} />
-          <input
-            value={search}
-            onChange={(e) => {
-              setSearch(e.target.value);
-              setPage(1);
-            }}
-            placeholder="Buscar produtos por nome, categoria, marca ou SKU..."
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-[240px_1fr] items-start">
+        <aside className="rounded-[var(--r-lg)] border border-[var(--ink-200)] bg-[var(--ink-0)] p-3.5 lg:sticky lg:top-4">
+          <div
             style={{
-              border: 0,
-              outline: 0,
-              flex: 1,
-              font: "inherit",
-              background: "transparent",
-              color: "var(--ink-900)",
-              fontSize: 14,
+              fontSize: 10.5,
+              fontWeight: 700,
+              letterSpacing: ".08em",
+              color: "var(--ink-500)",
+              textTransform: "uppercase",
+              margin: "6px 8px 10px",
             }}
-          />
-        </div>
+          >
+            Categorias
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+            {categories.map((c) => {
+              const isActive = filter === c.id;
+              return (
+                <button
+                  key={c.id}
+                  onClick={() => {
+                    setFilter(c.id);
+                    setPage(1);
+                  }}
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    padding: "8px 10px",
+                    borderRadius: 8,
+                    fontSize: 13,
+                    fontWeight: isActive ? 600 : 500,
+                    background: isActive ? "var(--kai-orange-50)" : "transparent",
+                    color: isActive ? "var(--kai-orange-600)" : "var(--ink-700)",
+                    border: "none",
+                    cursor: "pointer",
+                    fontFamily: "inherit",
+                    textAlign: "left",
+                    transition: "background .12s, color .12s",
+                  }}
+                >
+                  <span style={{ textTransform: "capitalize" }}>{c.label}</span>
+                  <span
+                    style={{
+                      fontSize: 10.5,
+                      fontFamily: "var(--font-mono)",
+                      fontWeight: 600,
+                      color: isActive ? "var(--kai-orange-600)" : "var(--ink-500)",
+                    }}
+                  >
+                    {c.count}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
 
-        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-          {categories.map((cat) => (
-            <button
-              key={cat}
-              onClick={() => {
-                setFilter(cat);
-                setPage(1);
-              }}
+          <div
+            style={{
+              padding: 12,
+              background: "var(--ink-50)",
+              borderRadius: 10,
+              marginTop: 14,
+            }}
+          >
+            <div
               style={{
-                height: 36,
-                padding: "0 14px",
-                borderRadius: 999,
-                border: "1px solid",
-                borderColor:
-                  filter === cat ? "var(--kai-orange)" : "var(--ink-200)",
-                background:
-                  filter === cat ? "var(--kai-orange)" : "var(--ink-0)",
-                color: filter === cat ? "white" : "var(--ink-700)",
-                fontSize: 13,
-                fontWeight: 600,
-                cursor: "pointer",
-                textTransform: "capitalize",
-                fontFamily: "inherit",
-                transition: "all .15s",
+                fontSize: 10.5,
+                fontWeight: 700,
+                letterSpacing: ".06em",
+                color: "var(--ink-500)",
+                textTransform: "uppercase",
+                marginBottom: 10,
               }}
             >
-              {cat}
-            </button>
-          ))}
-        </div>
-      </div>
+              Filtros
+            </div>
+            <label
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+                fontSize: 12.5,
+                color: "var(--ink-700)",
+                padding: "4px 0",
+                cursor: "pointer",
+              }}
+            >
+              <input
+                type="checkbox"
+                checked={inStockOnly}
+                onChange={(e) => {
+                  setInStockOnly(e.target.checked);
+                  setPage(1);
+                }}
+                style={{ accentColor: "var(--kai-orange)" }}
+              />
+              Em estoque
+            </label>
+            <label
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+                fontSize: 12.5,
+                color: "var(--ink-700)",
+                padding: "4px 0",
+                cursor: "pointer",
+              }}
+            >
+              <input
+                type="checkbox"
+                checked={novidadesOnly}
+                onChange={(e) => {
+                  setNovidadesOnly(e.target.checked);
+                  setPage(1);
+                }}
+                style={{ accentColor: "var(--kai-orange)" }}
+              />
+              Novidades
+            </label>
+          </div>
+        </aside>
 
-      {isLoading ? (
+        <div>
+          <div
+            className="rounded-[var(--r-lg)] border border-[var(--ink-200)] bg-[var(--ink-0)] p-3.5 mb-4"
+            style={{ display: "flex", gap: 10, alignItems: "center" }}
+          >
+            <div
+              style={{
+                flex: 1,
+                minWidth: 0,
+                height: 40,
+                display: "flex",
+                alignItems: "center",
+                gap: 10,
+                padding: "0 14px",
+                background: "var(--ink-50)",
+                border: "1px solid var(--ink-200)",
+                borderRadius: "var(--r-pill)",
+              }}
+            >
+              <Search size={16} style={{ color: "var(--ink-500)", flexShrink: 0 }} />
+              <input
+                value={search}
+                onChange={(e) => {
+                  setSearch(e.target.value);
+                  setPage(1);
+                }}
+                placeholder="Buscar produtos por nome, marca ou SKU..."
+                style={{
+                  border: 0,
+                  outline: 0,
+                  flex: 1,
+                  font: "inherit",
+                  background: "transparent",
+                  color: "var(--ink-900)",
+                  fontSize: 14,
+                }}
+              />
+            </div>
+          </div>
+
+          <div
+            style={{
+              fontSize: 12.5,
+              color: "var(--ink-600)",
+              margin: "0 4px 12px",
+            }}
+          >
+            <span style={{ fontWeight: 600, color: "var(--ink-900)" }}>
+              {filtered.length} {filtered.length === 1 ? "produto" : "produtos"}
+            </span>{" "}
+            em{" "}
+            <span style={{ color: "var(--kai-orange-600)", fontWeight: 600 }}>
+              {activeCategory.label}
+            </span>
+          </div>
+
+          {isLoading ? (
         <div className="flex flex-col items-center gap-4 py-20 text-center">
           <Loader2
             size={28}
@@ -478,6 +612,8 @@ export default function VitrineDeProtudos() {
             onClick={() => {
               setSearch("");
               setFilter("todas");
+              setInStockOnly(false);
+              setNovidadesOnly(false);
             }}
             style={{
               height: 36,
@@ -495,43 +631,45 @@ export default function VitrineDeProtudos() {
             Limpar filtros
           </button>
         </div>
-      ) : (
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
-            gap: 18,
-          }}
-        >
-          {slice.map((p, i) => (
-            <motion.div
-              key={p.id}
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3, delay: i * 0.04 }}
+          ) : (
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))",
+                gap: 18,
+              }}
             >
-              <ProductCardEditorial p={p} />
-            </motion.div>
-          ))}
-        </div>
-      )}
+              {slice.map((p, i) => (
+                <motion.div
+                  key={p.id}
+                  initial={{ opacity: 0, y: 16 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3, delay: i * 0.04 }}
+                >
+                  <ProductCardEditorial p={p} />
+                </motion.div>
+              ))}
+            </div>
+          )}
 
-      {!isLoading && !isError && total > 0 && (
-        <div className="mt-5 rounded-[var(--r-lg)] border border-[var(--ink-200)] bg-[var(--ink-0)] overflow-hidden">
-          <Pagination
-            page={page}
-            totalPages={totalPages}
-            total={total}
-            perPage={perPage}
-            onPage={setPage}
-            onPerPage={(n) => {
-              setPerPage(n);
-              setPage(1);
-            }}
-            label="produtos"
-          />
+          {!isLoading && !isError && total > 0 && (
+            <div className="mt-5 rounded-[var(--r-lg)] border border-[var(--ink-200)] bg-[var(--ink-0)] overflow-hidden">
+              <Pagination
+                page={page}
+                totalPages={totalPages}
+                total={total}
+                perPage={perPage}
+                onPage={setPage}
+                onPerPage={(n) => {
+                  setPerPage(n);
+                  setPage(1);
+                }}
+                label="produtos"
+              />
+            </div>
+          )}
         </div>
-      )}
+      </div>
     </motion.div>
   );
 }
