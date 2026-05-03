@@ -45,7 +45,7 @@ const TABS: { key: "todos" | UiStatus; label: string }[] = [
   { key: "pago", label: "Pagos" },
   { key: "enviado", label: "Enviados" },
   { key: "reembolsado", label: "Reembolsados" },
-  { key: "falha", label: "Falhas" },
+  { key: "falha", label: "Recusados" },
   { key: "abandonado", label: "Abandonados" },
 ];
 
@@ -72,13 +72,13 @@ function deriveUiStatus(p: PedidoView): UiStatus {
 
 const STATUS_TO_BADGE: Record<
   UiStatus,
-  "ativo" | "pausado" | "enviado" | "entregue" | "aguardando" | "separacao" | "devolvido"
+  "ativo" | "pausado" | "enviado" | "entregue" | "aguardando" | "separacao" | "devolvido" | "recusado"
 > = {
   pendente: "aguardando",
   pago: "separacao",
   enviado: "enviado",
   reembolsado: "devolvido",
-  falha: "devolvido",
+  falha: "recusado",
   abandonado: "pausado",
 };
 
@@ -87,7 +87,7 @@ const STATUS_LABEL: Record<UiStatus, string> = {
   pago: "Pago · em separação",
   enviado: "Enviado",
   reembolsado: "Reembolsado",
-  falha: "Falha",
+  falha: "Pagamento recusado",
   abandonado: "Abandonado",
 };
 

@@ -135,12 +135,13 @@ function statusToBadge(
   | "entregue"
   | "aguardando"
   | "separacao"
-  | "devolvido" {
+  | "devolvido"
+  | "recusado" {
   switch (p.status) {
     case "REEMBOLSADO":
       return "devolvido";
     case "FALHA":
-      return "devolvido";
+      return "recusado";
     case "CARRINHO_ABANDONADO":
       return "pausado";
     case "PAGO":
