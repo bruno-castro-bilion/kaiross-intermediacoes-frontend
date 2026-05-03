@@ -20,6 +20,14 @@ import {
   Play,
 } from "lucide-react";
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
   useGetMeuProdutoById,
 } from "@/app/api/seller-produtos/queries";
 import {
@@ -281,6 +289,7 @@ export default function MyProductDetail() {
     "cliente",
   );
   const [showWhyMin, setShowWhyMin] = useState(false);
+  const [showConfirmSave, setShowConfirmSave] = useState(false);
   const myShipping = shippingPayer === "vendedor" ? SHIPPING_COST : 0;
   // Mesmo cálculo do MargemValidator (backend): vendedor precisa receber > 0.
   // (custo + frete + taxa fixa) / (1 - impostos - taxa transação)
@@ -418,6 +427,13 @@ export default function MyProductDetail() {
       );
       return;
     }
+    // Validações OK — pede confirmação antes de gravar.
+    setShowConfirmSave(true);
+  };
+
+  const confirmSavePrice = () => {
+    if (!sellerProduto.id) return;
+    setShowConfirmSave(false);
     atualizarPreco.mutate(
       { id: sellerProduto.id, precoVenda: Number(price.toFixed(2)) },
       {
@@ -1406,6 +1422,66 @@ export default function MyProductDetail() {
           </div>
         </div>
       </div>
+
+      <Dialog open={showConfirmSave} onOpenChange={setShowConfirmSave}>
+        <DialogContent showCloseButton={false}>
+          <DialogHeader>
+            <DialogTitle>Confirmar alteração de preço</DialogTitle>
+            <DialogDescription>
+              Você está alterando o preço do seu produto para{" "}
+              <strong>{fmtBRL(price)}</strong>. Esta alteração ficará registrada
+              no histórico. Deseja continuar?
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <button
+              onClick={() => setShowConfirmSave(false)}
+              style={{
+                height: 36,
+                padding: "0 16px",
+                borderRadius: "var(--r-md)",
+                border: "1px solid var(--ink-200)",
+                background: "var(--ink-0)",
+                color: "var(--ink-700)",
+                fontSize: 13,
+                fontWeight: 600,
+                cursor: "pointer",
+                fontFamily: "inherit",
+              }}
+            >
+              Cancelar
+            </button>
+            <button
+              onClick={confirmSavePrice}
+              disabled={atualizarPreco.isPending}
+              style={{
+                height: 36,
+                padding: "0 16px",
+                borderRadius: "var(--r-md)",
+                border: 0,
+                background: "var(--kai-orange)",
+                color: "white",
+                fontSize: 13,
+                fontWeight: 600,
+                cursor: atualizarPreco.isPending ? "not-allowed" : "pointer",
+                fontFamily: "inherit",
+                opacity: atualizarPreco.isPending ? 0.7 : 1,
+                display: "flex",
+                alignItems: "center",
+                gap: 6,
+              }}
+            >
+              {atualizarPreco.isPending ? (
+                <>
+                  <Loader2 size={14} className="animate-spin" /> Salvando…
+                </>
+              ) : (
+                "Continuar"
+              )}
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </motion.div>
   );
 }
