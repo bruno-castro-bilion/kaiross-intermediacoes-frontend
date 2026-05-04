@@ -146,6 +146,11 @@ function statusToBadge(
     case "CARRINHO_ABANDONADO":
       return "pausado";
     case "PAGO":
+      // statusFornecedor (vindo da 3cliques) tem precedência — pedido pode
+      // estar marcado ENVIADO lá mesmo sem track_number emitido ainda.
+      if (p.statusFornecedor === "CONCLUIDO") return "entregue";
+      if (p.statusFornecedor === "ENVIADO") return "enviado";
+      if (p.statusFornecedor === "CANCELADO") return "devolvido";
       if (p.trackingCode || p.enviadoEm) return "enviado";
       return "separacao";
     case "PENDENTE":
@@ -185,7 +190,14 @@ function buildTimeline(
     pedido.status === "PAGO" ||
     pedido.status === "REEMBOLSADO" ||
     !!pedido.pagoEm;
-  const isEnviado = !!pedido.enviadoEm || !!pedido.trackingCode;
+  // statusFornecedor da 3cliques é fonte autoritativa quando presente —
+  // pedido marcado ENVIADO/CONCLUIDO lá já está despachado mesmo sem
+  // track_number emitido ainda pelo transportador.
+  const fornecedorEnviou =
+    pedido.statusFornecedor === "ENVIADO" ||
+    pedido.statusFornecedor === "CONCLUIDO";
+  const fornecedorEntregou = pedido.statusFornecedor === "CONCLUIDO";
+  const isEnviado = fornecedorEnviou || !!pedido.enviadoEm || !!pedido.trackingCode;
   const isReembolsado = pedido.status === "REEMBOLSADO";
 
   const steps: TimelineStep[] = [
@@ -226,16 +238,25 @@ function buildTimeline(
       key: "etiqueta",
       label: "Etiqueta gerada",
       when: shipmentReady ? fmtDateTime(shipmentReady.enviadoEm) : undefined,
-      sub: pedido.labelUrlA4 ? "Label A4 disponível" : "Aguardando fornecedor",
-      done: !!shipmentReady,
+      sub: pedido.labelUrlA4
+        ? "Label A4 disponível"
+        : fornecedorEnviou
+          ? "Despachado pelo fornecedor"
+          : "Aguardando fornecedor",
+      // Se a 3cliques já reporta ENVIADO/CONCLUIDO, a etapa de etiqueta
+      // necessariamente passou — mesmo que não tenhamos recebido o
+      // shipment_ready explícito (eles não chamam mais o webhook).
+      done: !!shipmentReady || fornecedorEnviou,
     },
     {
       key: "enviado",
-      label: "Enviado",
+      label: fornecedorEntregou ? "Entregue" : "Enviado",
       when: pedido.enviadoEm ? fmtDateTime(pedido.enviadoEm) : undefined,
       sub: pedido.trackingCode
         ? `Rastreio ${pedido.trackingCode}`
-        : "Aguardando rastreio",
+        : fornecedorEnviou
+          ? "Em trânsito · rastreio pendente"
+          : "Aguardando rastreio",
       done: isEnviado,
       current:
         isEnviado &&

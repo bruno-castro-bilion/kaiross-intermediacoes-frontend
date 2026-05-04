@@ -49,11 +49,10 @@ const TABS: { key: "todos" | UiStatus; label: string }[] = [
   { key: "abandonado", label: "Abandonados" },
 ];
 
-// Backend retorna um PedidoStatus + campos de envio. Nem todo status do
-// front-end (separacao/entregue) tem mapeamento direto — separação é
-// inferida quando há PAGO sem tracking, e entrega só pode ser confirmada
-// pelo `statusFornecedor` (free string), então não faço esse mapping
-// agressivo aqui.
+// `statusFornecedor` vem da 3cliques (via consulta) e é mais autoritativo
+// que a heurística por trackingCode. Pedido marcado como "ENVIADO" lá
+// pode estar sem track_number ainda (transportador atrasou a emissão) e
+// caía erroneamente em "Em separação".
 function deriveUiStatus(p: PedidoView): UiStatus {
   switch (p.status) {
     case "REEMBOLSADO":
@@ -63,7 +62,10 @@ function deriveUiStatus(p: PedidoView): UiStatus {
     case "CARRINHO_ABANDONADO":
       return "abandonado";
     case "PAGO":
-      return p.trackingCode || p.enviadoEm ? "enviado" : "pago";
+      if (p.statusFornecedor === "ENVIADO" || p.statusFornecedor === "CONCLUIDO") return "enviado";
+      if (p.statusFornecedor === "CANCELADO") return "reembolsado";
+      if (p.trackingCode || p.enviadoEm) return "enviado";
+      return "pago";
     case "PENDENTE":
     default:
       return "pendente";
