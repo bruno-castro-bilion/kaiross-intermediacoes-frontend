@@ -10,7 +10,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
 
 export interface ConfirmDialogProps {
   open: boolean;
@@ -73,21 +72,52 @@ export function ConfirmDialog({
         )}
 
         <DialogFooter>
-          <Button
-            variant="outline"
+          <button
+            type="button"
             onClick={() => onOpenChange(false)}
             disabled={isLoading}
+            style={{
+              height: 38,
+              padding: "0 16px",
+              borderRadius: "var(--r-md, 8px)",
+              border: "1px solid var(--ink-200)",
+              background: "var(--ink-0, #fff)",
+              color: "var(--ink-700)",
+              fontSize: 13,
+              fontWeight: 600,
+              cursor: isLoading ? "not-allowed" : "pointer",
+              fontFamily: "inherit",
+              opacity: isLoading ? 0.6 : 1,
+            }}
           >
             {cancelLabel}
-          </Button>
-          <Button
-            variant={destructive ? "destructive" : "default"}
+          </button>
+          <button
+            type="button"
             onClick={handleConfirm}
             disabled={isLoading}
+            style={{
+              height: 38,
+              padding: "0 16px",
+              borderRadius: "var(--r-md, 8px)",
+              border: 0,
+              background: destructive
+                ? "var(--kai-danger, #DC2626)"
+                : "var(--kai-orange, #EE5A0A)",
+              color: "white",
+              fontSize: 13,
+              fontWeight: 600,
+              cursor: isLoading ? "not-allowed" : "pointer",
+              fontFamily: "inherit",
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 6,
+              opacity: isLoading ? 0.7 : 1,
+            }}
           >
-            {isLoading && <Loader2 className="animate-spin" />}
+            {isLoading && <Loader2 size={14} className="animate-spin" />}
             {confirmLabel}
-          </Button>
+          </button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
