@@ -127,8 +127,29 @@ const EVENTO_LABEL: Record<string, string> = {
   QUERY_ORDER_STATUS: "Consulta de status",
 };
 
+// Resolve o status do fornecedor mais fresco disponível: a consulta ao
+// vivo (via useStatusFornecedor) tem precedência sobre o snapshot do
+// PedidoView, porque o backend persiste o resultado da consulta de
+// forma assíncrona e a query do pedido não é invalidada automaticamente.
+function statusFornecedorEfetivo(
+  p: PedidoView,
+  liveCodigo?: string | null,
+): string | undefined {
+  if (liveCodigo) {
+    const map: Record<string, string> = {
+      "2": "EM_SEPARACAO",
+      "3": "ENVIADO",
+      "4": "CONCLUIDO",
+      "5": "CANCELADO",
+    };
+    return map[liveCodigo] ?? liveCodigo;
+  }
+  return p.statusFornecedor;
+}
+
 function statusToBadge(
   p: PedidoView,
+  liveStatusCodigo?: string | null,
 ):
   | "ativo"
   | "pausado"
@@ -145,14 +166,14 @@ function statusToBadge(
       return "recusado";
     case "CARRINHO_ABANDONADO":
       return "pausado";
-    case "PAGO":
-      // statusFornecedor (vindo da 3cliques) tem precedência — pedido pode
-      // estar marcado ENVIADO lá mesmo sem track_number emitido ainda.
-      if (p.statusFornecedor === "CONCLUIDO") return "entregue";
-      if (p.statusFornecedor === "ENVIADO") return "enviado";
-      if (p.statusFornecedor === "CANCELADO") return "devolvido";
+    case "PAGO": {
+      const sf = statusFornecedorEfetivo(p, liveStatusCodigo);
+      if (sf === "CONCLUIDO") return "entregue";
+      if (sf === "ENVIADO") return "enviado";
+      if (sf === "CANCELADO") return "devolvido";
       if (p.trackingCode || p.enviadoEm) return "enviado";
       return "separacao";
+    }
     case "PENDENTE":
     default:
       return "aguardando";
@@ -172,6 +193,7 @@ interface TimelineStep {
 function buildTimeline(
   pedido: PedidoView,
   historico: FornecedorIntegracaoEvento[],
+  liveStatusCodigo?: string | null,
 ): TimelineStep[] {
   const orderCreated = historico.find(
     (h) => h.eventoTipo === "ORDER_CREATED" && h.sucesso,
@@ -192,11 +214,12 @@ function buildTimeline(
     !!pedido.pagoEm;
   // statusFornecedor da 3cliques é fonte autoritativa quando presente —
   // pedido marcado ENVIADO/CONCLUIDO lá já está despachado mesmo sem
-  // track_number emitido ainda pelo transportador.
-  const fornecedorEnviou =
-    pedido.statusFornecedor === "ENVIADO" ||
-    pedido.statusFornecedor === "CONCLUIDO";
-  const fornecedorEntregou = pedido.statusFornecedor === "CONCLUIDO";
+  // track_number emitido ainda pelo transportador. Usa a consulta ao vivo
+  // primeiro, caindo no PedidoView (snapshot) só se não houver dado fresco.
+  const sf = statusFornecedorEfetivo(pedido, liveStatusCodigo);
+  const fornecedorEnviou = sf === "ENVIADO" || sf === "CONCLUIDO";
+  const fornecedorEntregou = sf === "CONCLUIDO";
+  const fornecedorCancelou = sf === "CANCELADO";
   const isEnviado = fornecedorEnviou || !!pedido.enviadoEm || !!pedido.trackingCode;
   const isReembolsado = pedido.status === "REEMBOLSADO";
 
@@ -240,13 +263,16 @@ function buildTimeline(
       when: shipmentReady ? fmtDateTime(shipmentReady.enviadoEm) : undefined,
       sub: pedido.labelUrlA4
         ? "Label A4 disponível"
-        : fornecedorEnviou
-          ? "Despachado pelo fornecedor"
-          : "Aguardando fornecedor",
+        : fornecedorCancelou
+          ? "Não emitida — pedido cancelado"
+          : fornecedorEnviou
+            ? "Despachado pelo fornecedor"
+            : "Aguardando fornecedor",
       // Se a 3cliques já reporta ENVIADO/CONCLUIDO, a etapa de etiqueta
       // necessariamente passou — mesmo que não tenhamos recebido o
       // shipment_ready explícito (eles não chamam mais o webhook).
       done: !!shipmentReady || fornecedorEnviou,
+      warn: fornecedorCancelou && !shipmentReady,
     },
     {
       key: "enviado",
@@ -254,16 +280,30 @@ function buildTimeline(
       when: pedido.enviadoEm ? fmtDateTime(pedido.enviadoEm) : undefined,
       sub: pedido.trackingCode
         ? `Rastreio ${pedido.trackingCode}`
-        : fornecedorEnviou
-          ? "Em trânsito · rastreio pendente"
-          : "Aguardando rastreio",
+        : fornecedorCancelou
+          ? "Não enviado — pedido cancelado"
+          : fornecedorEnviou
+            ? "Em trânsito · rastreio pendente"
+            : "Aguardando rastreio",
       done: isEnviado,
       current:
         isEnviado &&
         !isReembolsado &&
         pedido.status === "PAGO",
+      warn: fornecedorCancelou && !isEnviado,
     },
   ];
+
+  if (fornecedorCancelou && !isReembolsado && !cancelRefund) {
+    steps.push({
+      key: "cancelado-fornecedor",
+      label: "Cancelado pelo cliente",
+      sub: "Confirmado pelo fornecedor — providencie o estorno",
+      done: true,
+      warn: true,
+      current: true,
+    });
+  }
 
   if (isReembolsado || cancelRefund) {
     steps.push({
@@ -380,9 +420,11 @@ export default function PedidoDetail() {
   const [confirmEnvioOpen, setConfirmEnvioOpen] = useState(false);
   const [confirmReembolsoOpen, setConfirmReembolsoOpen] = useState(false);
 
+  const liveStatusCodigo = statusFornecedor.data?.orderStatusCodigo ?? null;
+
   const timeline = useMemo(
-    () => (pedido ? buildTimeline(pedido, historico.data ?? []) : []),
-    [pedido, historico.data],
+    () => (pedido ? buildTimeline(pedido, historico.data ?? [], liveStatusCodigo) : []),
+    [pedido, historico.data, liveStatusCodigo],
   );
 
   const subtotal = useMemo(() => {
@@ -523,7 +565,7 @@ export default function PedidoDetail() {
               >
                 {numero}
               </h1>
-              <StatusBadge status={statusToBadge(pedido)} />
+              <StatusBadge status={statusToBadge(pedido, liveStatusCodigo)} />
               {pedido.fornecedor && (
                 <span
                   style={{
