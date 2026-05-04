@@ -407,6 +407,18 @@ export default function VitrineDeProtudos() {
                     setFilter("todas");
                     setPage(1);
                   }}
+                  onMouseEnter={(e) => {
+                    if (!isAllActive) {
+                      (e.currentTarget as HTMLButtonElement).style.background =
+                        "var(--ink-50)";
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!isAllActive) {
+                      (e.currentTarget as HTMLButtonElement).style.background =
+                        "transparent";
+                    }
+                  }}
                   style={{
                     display: "flex",
                     justifyContent: "space-between",
@@ -461,6 +473,18 @@ export default function VitrineDeProtudos() {
                           else next.add(node.parent);
                           return next;
                         });
+                      }
+                    }}
+                    onMouseEnter={(e) => {
+                      if (!showAsActive) {
+                        (e.currentTarget as HTMLButtonElement).style.background =
+                          "var(--ink-50)";
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (!showAsActive) {
+                        (e.currentTarget as HTMLButtonElement).style.background =
+                          "transparent";
                       }
                     }}
                     style={{
@@ -540,6 +564,22 @@ export default function VitrineDeProtudos() {
                             onClick={() => {
                               setFilter(subId);
                               setPage(1);
+                            }}
+                            onMouseEnter={(e) => {
+                              if (!isSubActive) {
+                                (e.currentTarget as HTMLButtonElement).style.background =
+                                  "var(--ink-50)";
+                                (e.currentTarget as HTMLButtonElement).style.color =
+                                  "var(--ink-900)";
+                              }
+                            }}
+                            onMouseLeave={(e) => {
+                              if (!isSubActive) {
+                                (e.currentTarget as HTMLButtonElement).style.background =
+                                  "transparent";
+                                (e.currentTarget as HTMLButtonElement).style.color =
+                                  "var(--ink-600)";
+                              }
                             }}
                             style={{
                               display: "flex",
