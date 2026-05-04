@@ -27,6 +27,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { ConfirmDialog } from "@/components/confirm-dialog";
 import {
   useGetMeuProdutoById,
 } from "@/app/api/seller-produtos/queries";
@@ -311,6 +312,7 @@ export default function MyProductDetail() {
   // pular e dígitos somerem). É reformatado pro canônico no blur.
   const [priceText, setPriceText] = useState<string>("0,00");
   const [dirty, setDirty] = useState(false);
+  const [confirmRemoveOpen, setConfirmRemoveOpen] = useState(false);
 
   const formatPriceText = (n: number) =>
     n.toFixed(2).replace(".", ",");
@@ -495,15 +497,15 @@ export default function MyProductDetail() {
 
   const handleDelete = () => {
     if (!sellerProduto.id) return;
-    if (
-      !confirm(
-        `Remover "${produto.nome}" da sua vitrine? O link de checkout deixará de funcionar.`,
-      )
-    )
-      return;
+    setConfirmRemoveOpen(true);
+  };
+
+  const confirmDelete = () => {
+    if (!sellerProduto.id) return;
     excluir.mutate(sellerProduto.id, {
       onSuccess: () => {
         toast.success("Produto removido da sua vitrine.");
+        setConfirmRemoveOpen(false);
         router.push("/meus-produtos");
       },
       onError: (err) => {
@@ -1482,6 +1484,33 @@ export default function MyProductDetail() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <ConfirmDialog
+        open={confirmRemoveOpen}
+        onOpenChange={setConfirmRemoveOpen}
+        title={`Remover "${produto.nome}" da vitrine?`}
+        description={
+          <>
+            A afiliação fica pausada e o link de checkout para de funcionar
+            imediatamente. Você pode reativar depois sem perder o histórico.
+          </>
+        }
+        warning={
+          checkoutLink ? (
+            <>
+              Se você está rodando anúncios apontando para{" "}
+              <strong className="break-all">{checkoutLink}</strong>, pause as
+              campanhas antes — o link vai parar de responder e o tráfego
+              pago será perdido.
+            </>
+          ) : null
+        }
+        confirmLabel="Remover da vitrine"
+        cancelLabel="Manter ativo"
+        destructive
+        isLoading={excluir.isPending}
+        onConfirm={confirmDelete}
+      />
     </motion.div>
   );
 }

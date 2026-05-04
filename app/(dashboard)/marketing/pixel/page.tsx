@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { toast } from "sonner";
 import { Plus, Check, Trash2, ExternalLink, Info, X } from "lucide-react";
 import { PageHeader } from "@/components/page-header";
+import { ConfirmDialog } from "@/components/confirm-dialog";
 import {
   useMarketingStore,
   type PixelPlatform,
@@ -29,6 +30,7 @@ export default function PixelPage() {
   const togglePixel = useMarketingStore((s) => s.togglePixel);
 
   const [showForm, setShowForm] = useState(false);
+  const [removing, setRemoving] = useState<{ id: string; label: string } | null>(null);
   const [form, setForm] = useState({
     platform: "facebook" as PixelPlatform,
     pixelId: "",
@@ -74,9 +76,14 @@ export default function PixelPage() {
   };
 
   const handleRemove = (id: string, label: string) => {
-    if (!confirm(`Remover pixel "${label}"?`)) return;
-    removePixel(id);
+    setRemoving({ id, label });
+  };
+
+  const confirmRemove = () => {
+    if (!removing) return;
+    removePixel(removing.id);
     toast.success("Pixel removido.");
+    setRemoving(null);
   };
 
   return (
@@ -420,6 +427,23 @@ export default function PixelPage() {
           </div>
         )}
       </div>
+
+      <ConfirmDialog
+        open={removing !== null}
+        onOpenChange={(o) => { if (!o) setRemoving(null); }}
+        title={`Remover pixel "${removing?.label ?? ""}"?`}
+        description="O pixel para de disparar eventos a partir do próximo carregamento do checkout. Conversões já registradas no Ads Manager não são apagadas."
+        warning={
+          <>
+            Se você está rodando campanhas otimizadas por esse pixel, lembre
+            de pausar ou trocar o pixel nos seus anúncios — sem ele, a
+            otimização do Meta/Google fica cega.
+          </>
+        }
+        confirmLabel="Remover pixel"
+        destructive
+        onConfirm={confirmRemove}
+      />
     </motion.div>
   );
 }

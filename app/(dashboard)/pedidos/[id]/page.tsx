@@ -21,6 +21,7 @@ import {
   Send,
 } from "lucide-react";
 import { StatusBadge } from "@/components/status-badge";
+import { ConfirmDialog } from "@/components/confirm-dialog";
 import {
   useGetPedido,
   useHistoricoFornecedor,
@@ -355,6 +356,8 @@ export default function PedidoDetail() {
   const statusFornecedor = useStatusFornecedor(id);
   const reembolsar = useReembolsarPedido();
   const notificarFornecedor = useNotificarCriacaoFornecedor();
+  const [confirmEnvioOpen, setConfirmEnvioOpen] = useState(false);
+  const [confirmReembolsoOpen, setConfirmReembolsoOpen] = useState(false);
 
   const timeline = useMemo(
     () => (pedido ? buildTimeline(pedido, historico.data ?? []) : []),
@@ -383,16 +386,14 @@ export default function PedidoDetail() {
   const podeReembolsar = pedido.status === "PAGO";
 
   const handleForcarEnvioFornecedor = () => {
-    if (
-      !confirm(
-        `Forçar envio do pedido ${numero} ao fornecedor (${pedido.fornecedor ?? "—"})? A operação é idempotente — se já foi enviado com sucesso, nada muda.`,
-      )
-    ) {
-      return;
-    }
+    setConfirmEnvioOpen(true);
+  };
+
+  const confirmEnvioFornecedor = () => {
     notificarFornecedor.mutate(pedido.id, {
       onSuccess: () => {
         toast.success("Pedido enviado ao fornecedor.");
+        setConfirmEnvioOpen(false);
         // Sem refetch manual — a mutation já invalida ["vendas"] e ["vendas",
         // "pedidos", pedidoId], o que recarrega historico e status sozinho.
       },
@@ -415,18 +416,14 @@ export default function PedidoDetail() {
   };
 
   const handleReembolsar = () => {
-    if (
-      !confirm(
-        `Confirmar reembolso do pedido ${numero} no valor de ${fmtBRL(
-          pedido.valorTotal ?? 0,
-        )}? A ação aciona o estorno na pagar.me e notifica o fornecedor.`,
-      )
-    ) {
-      return;
-    }
+    setConfirmReembolsoOpen(true);
+  };
+
+  const confirmReembolso = () => {
     reembolsar.mutate(pedido.id, {
       onSuccess: () => {
         toast.success("Reembolso solicitado.");
+        setConfirmReembolsoOpen(false);
       },
       onError: (err) => {
         const apiMessage =
@@ -1374,6 +1371,41 @@ export default function PedidoDetail() {
           </div>
         </div>
       </div>
+
+      <ConfirmDialog
+        open={confirmEnvioOpen}
+        onOpenChange={setConfirmEnvioOpen}
+        title={`Forçar envio do pedido ${numero} ao fornecedor?`}
+        description={
+          <>
+            Vamos reenviar o pedido para{" "}
+            <strong>{pedido.fornecedor ?? "—"}</strong>. A operação é
+            idempotente — se já foi enviado com sucesso antes, nada muda.
+          </>
+        }
+        confirmLabel="Reenviar ao fornecedor"
+        isLoading={notificarFornecedor.isPending}
+        onConfirm={confirmEnvioFornecedor}
+      />
+
+      <ConfirmDialog
+        open={confirmReembolsoOpen}
+        onOpenChange={setConfirmReembolsoOpen}
+        title={`Reembolsar o pedido ${numero}?`}
+        description={
+          <>
+            Vamos estornar{" "}
+            <strong>{fmtBRL(pedido.valorTotal ?? 0)}</strong> na pagar.me e
+            notificar o fornecedor para cancelar a separação. Esta ação não
+            pode ser desfeita.
+          </>
+        }
+        warning="O valor cai no cartão/conta do comprador em até 7 dias úteis. Sua margem desse pedido também é estornada."
+        confirmLabel="Confirmar reembolso"
+        destructive
+        isLoading={reembolsar.isPending}
+        onConfirm={confirmReembolso}
+      />
     </motion.div>
   );
 }

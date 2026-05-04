@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { Plus, Copy, Check, Info, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { PageHeader } from "@/components/page-header";
+import { ConfirmDialog } from "@/components/confirm-dialog";
 import {
   useMarketingStore,
   type Cupom,
@@ -72,6 +73,7 @@ export default function Cupons() {
   const toggleCupom = useMarketingStore((s) => s.toggleCupom);
 
   const [open, setOpen] = useState(false);
+  const [removing, setRemoving] = useState<Cupom | null>(null);
   const [form, setForm] = useState({
     code: "",
     kind: "PERCENT" as CupomKind,
@@ -137,9 +139,14 @@ export default function Cupons() {
   };
 
   const handleRemove = (c: Cupom) => {
-    if (!confirm(`Remover cupom ${c.code}?`)) return;
-    removeCupom(c.id);
+    setRemoving(c);
+  };
+
+  const confirmRemove = () => {
+    if (!removing) return;
+    removeCupom(removing.id);
     toast.success("Cupom removido.");
+    setRemoving(null);
   };
 
   return (
@@ -536,6 +543,16 @@ export default function Cupons() {
           })}
         </div>
       )}
+
+      <ConfirmDialog
+        open={removing !== null}
+        onOpenChange={(o) => { if (!o) setRemoving(null); }}
+        title={`Remover cupom ${removing?.code ?? ""}?`}
+        description="O código deixa de ser aceito no checkout imediatamente. Vendas já realizadas com ele não são afetadas."
+        confirmLabel="Remover cupom"
+        destructive
+        onConfirm={confirmRemove}
+      />
     </motion.div>
   );
 }

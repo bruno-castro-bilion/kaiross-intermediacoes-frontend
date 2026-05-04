@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import { StatCard } from "@/components/stat-card";
 import { PageHeader } from "@/components/page-header";
+import { ConfirmDialog } from "@/components/confirm-dialog";
 import { useAuthStore } from "@/lib/store/auth-store";
 import {
   useListPedidosVendedor,
@@ -70,6 +71,7 @@ function fmtDate(ts: number | null): string {
 
 export default function RelatoriosEstornos() {
   const [periodLabel, setPeriodLabel] = useState("30 dias");
+  const [reembolsando, setReembolsando] = useState<PedidoView | null>(null);
   const period =
     PERIODS.find((p) => p.label === periodLabel) ?? PERIODS[1];
   const userId = useAuthStore((s) => s.user?.id);
@@ -155,17 +157,15 @@ export default function RelatoriosEstornos() {
 
   const handleReembolsar = (pedido: PedidoView) => {
     if (!pedido.id) return;
-    if (
-      !confirm(
-        `Confirmar reembolso do pedido ${pedido.numeroPedido ?? pedido.id} no valor de ${fmtBRL(
-          pedido.valorTotal ?? 0,
-        )}? Esta ação aciona o estorno na pagar.me.`,
-      )
-    )
-      return;
-    reembolsar.mutate(pedido.id, {
+    setReembolsando(pedido);
+  };
+
+  const confirmReembolso = () => {
+    if (!reembolsando?.id) return;
+    reembolsar.mutate(reembolsando.id, {
       onSuccess: () => {
         toast.success("Estorno solicitado com sucesso.");
+        setReembolsando(null);
       },
       onError: (err) => {
         const apiMessage =
@@ -694,6 +694,25 @@ export default function RelatoriosEstornos() {
           </div>
         </>
       )}
+
+      <ConfirmDialog
+        open={reembolsando !== null}
+        onOpenChange={(o) => { if (!o) setReembolsando(null); }}
+        title={`Reembolsar pedido ${reembolsando?.numeroPedido ?? reembolsando?.id ?? ""}?`}
+        description={
+          <>
+            Vamos estornar{" "}
+            <strong>{fmtBRL(reembolsando?.valorTotal ?? 0)}</strong> na
+            pagar.me. O pedido vai marcar como REEMBOLSADO e a ação é
+            irreversível.
+          </>
+        }
+        warning="O valor cai no cartão/conta do comprador em até 7 dias úteis. Sua margem desse pedido também é estornada."
+        confirmLabel="Confirmar reembolso"
+        destructive
+        isLoading={reembolsar.isPending}
+        onConfirm={confirmReembolso}
+      />
     </motion.div>
   );
 }

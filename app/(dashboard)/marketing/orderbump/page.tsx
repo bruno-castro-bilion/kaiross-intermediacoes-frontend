@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { StatCard } from "@/components/stat-card";
 import { PageHeader } from "@/components/page-header";
+import { ConfirmDialog } from "@/components/confirm-dialog";
 import { StatusBadge } from "@/components/status-badge";
 import {
   useMarketingStore,
@@ -38,6 +39,7 @@ export default function OrderBumpPage() {
 
   const [filter, setFilter] = useState<FilterTab>("todos");
   const [open, setOpen] = useState(false);
+  const [removing, setRemoving] = useState<OrderBump | null>(null);
   const [form, setForm] = useState({
     title: "",
     description: "",
@@ -136,9 +138,14 @@ export default function OrderBumpPage() {
   };
 
   const handleRemove = (b: OrderBump) => {
-    if (!confirm(`Remover order bump "${b.title}"?`)) return;
-    removeOrderBump(b.id);
+    setRemoving(b);
+  };
+
+  const confirmRemove = () => {
+    if (!removing) return;
+    removeOrderBump(removing.id);
     toast.success("Order bump removido.");
+    setRemoving(null);
   };
 
   return (
@@ -705,6 +712,16 @@ export default function OrderBumpPage() {
           })
         )}
       </div>
+
+      <ConfirmDialog
+        open={removing !== null}
+        onOpenChange={(o) => { if (!o) setRemoving(null); }}
+        title={`Remover order bump "${removing?.title ?? ""}"?`}
+        description="A oferta para de aparecer no checkout imediatamente. Vendas já realizadas com ela não são afetadas."
+        confirmLabel="Remover order bump"
+        destructive
+        onConfirm={confirmRemove}
+      />
     </motion.div>
   );
 }

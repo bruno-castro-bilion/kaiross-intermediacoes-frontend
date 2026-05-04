@@ -21,6 +21,7 @@ import { StatCard } from "@/components/stat-card";
 import { PageHeader } from "@/components/page-header";
 import { Pagination } from "@/components/pagination";
 import { StatusBadge } from "@/components/status-badge";
+import { ConfirmDialog } from "@/components/confirm-dialog";
 import {
   useListMeusProdutos,
   type MeuProduto,
@@ -94,6 +95,7 @@ function RowMenu({
   onReactivate: (id: string) => void;
 }) {
   const [open, setOpen] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
   const isPaused = item.ativo === false;
   const isBloqueado = item.bloqueado === true;
 
@@ -125,16 +127,14 @@ function RowMenu({
     e.preventDefault();
     e.stopPropagation();
     if (!item.id) return;
-    if (
-      !confirm(
-        `Remover "${item.produto?.nome ?? "este produto"}" da sua vitrine? O link de checkout deixará de funcionar.`,
-      )
-    ) {
-      setOpen(false);
-      return;
-    }
-    onDelete(item.id);
     setOpen(false);
+    setConfirmOpen(true);
+  };
+
+  const confirmDelete = () => {
+    if (!item.id) return;
+    onDelete(item.id);
+    setConfirmOpen(false);
   };
 
   const handleReactivate = (e: React.MouseEvent) => {
@@ -266,6 +266,29 @@ function RowMenu({
           </div>
         </>
       )}
+
+      <ConfirmDialog
+        open={confirmOpen}
+        onOpenChange={setConfirmOpen}
+        title={`Remover "${item.produto?.nome ?? "este produto"}" da vitrine?`}
+        description="A afiliação fica pausada e o link de checkout para de funcionar imediatamente. Você pode reativar depois sem perder o histórico."
+        warning={
+          item.slugCheckout ? (
+            <>
+              Se você está rodando anúncios apontando para{" "}
+              <strong className="break-all">
+                pay.kaiross.com.br/{item.slugCheckout}
+              </strong>
+              , pause as campanhas antes — o link vai parar de responder e
+              o tráfego pago será perdido.
+            </>
+          ) : null
+        }
+        confirmLabel="Remover da vitrine"
+        cancelLabel="Manter ativo"
+        destructive
+        onConfirm={confirmDelete}
+      />
     </div>
   );
 }
