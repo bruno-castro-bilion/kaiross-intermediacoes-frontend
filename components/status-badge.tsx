@@ -11,7 +11,7 @@ const STATUS_MAP: Record<
   aguardando: { label: "Aguardando",   bg: "var(--kai-warn-bg)",    fg: "var(--kai-warn)",     dot: "var(--kai-warn)" },
   separacao:  { label: "Em separação", bg: "var(--kai-orange-50)",  fg: "var(--kai-orange-600)", dot: "var(--kai-orange)" },
   devolvido:  { label: "Devolvido",    bg: "var(--kai-danger-bg)",  fg: "var(--kai-danger)",   dot: "var(--kai-danger)" },
-  recusado:   { label: "Pagamento recusado", bg: "var(--kai-danger-bg)", fg: "var(--kai-danger)", dot: "var(--kai-danger)" },
+  recusado:   { label: "Recusado",      bg: "var(--kai-danger-bg)",  fg: "var(--kai-danger)",   dot: "var(--kai-danger)" },
 };
 
 interface StatusBadgeProps {

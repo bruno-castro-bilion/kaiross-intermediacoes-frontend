@@ -668,7 +668,10 @@ export default function Pedidos() {
                       {fmtBRL(p.valorTotal ?? 0)}
                     </div>
                     {/* Status */}
-                    <div title={labelStatus}>
+                    <div
+                      title={labelStatus}
+                      style={{ minWidth: 0, display: "flex" }}
+                    >
                       <StatusBadge status={STATUS_TO_BADGE[ui]} />
                     </div>
                     {/* Itens — thumbnails */}
@@ -710,12 +713,14 @@ export default function Pedidos() {
                       )}
                     </div>
                     {/* Enviado ao Fornecedor */}
-                    <div>
+                    <div style={{ minWidth: 0 }}>
                       <span
                         style={{
                           display: "inline-flex",
                           alignItems: "center",
+                          justifyContent: "center",
                           height: 22,
+                          minWidth: 56,
                           padding: "0 10px",
                           borderRadius: 999,
                           fontSize: 11,
