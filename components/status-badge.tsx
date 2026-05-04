@@ -27,9 +27,11 @@ export function StatusBadge({ status, className }: StatusBadgeProps) {
       style={{
         display: "inline-flex",
         alignItems: "center",
+        justifyContent: "center",
         gap: 5,
         height: 22,
-        padding: "0 8px",
+        minWidth: 110,
+        padding: "0 10px",
         borderRadius: 999,
         background: s.bg,
         color: s.fg,
