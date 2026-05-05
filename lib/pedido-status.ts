@@ -14,10 +14,10 @@ export type PedidoUiStatus =
 // Mantemos os códigos crus ("2","3","4","5") como fallback porque pedidos antigos
 // na base ainda podem ter o código bruto antes do enum entrar.
 export function derivePedidoUiStatus(p: PedidoView): PedidoUiStatus {
-  if (p.status === "REEMBOLSADO") return "reembolsado";
-  if (p.status === "FALHA") return "falha";
-  if (p.status === "CARRINHO_ABANDONADO") return "abandonado";
-  if (p.status === "PENDENTE") return "pendente";
+  if (p.statusPagamento === "REEMBOLSADO") return "reembolsado";
+  if (p.statusPagamento === "FALHA") return "falha";
+  if (p.statusPagamento === "CARRINHO_ABANDONADO") return "abandonado";
+  if (p.statusPagamento === "PENDENTE") return "pendente";
 
   switch (p.statusFornecedor) {
     case "ENVIADO":
@@ -34,6 +34,6 @@ export function derivePedidoUiStatus(p: PedidoView): PedidoUiStatus {
       return "pago";
   }
 
-  if (p.trackingCode || p.enviadoEm) return "enviado";
+  if (p.codigoRastreio || p.enviadoEm) return "enviado";
   return "pago";
 }

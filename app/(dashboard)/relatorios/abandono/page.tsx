@@ -93,8 +93,8 @@ export default function RelatoriosAbandono() {
       return ts !== null && ts >= cutoffMs;
     });
     return {
-      abandonadosPeriodo: all.filter((p) => p.status === "CARRINHO_ABANDONADO"),
-      pagosPeriodo: all.filter((p) => p.status === "PAGO"),
+      abandonadosPeriodo: all.filter((p) => p.statusPagamento === "CARRINHO_ABANDONADO"),
+      pagosPeriodo: all.filter((p) => p.statusPagamento === "PAGO"),
       allInPeriodo: all,
     };
   }, [pedidos.data, cutoffMs]);
@@ -126,8 +126,8 @@ export default function RelatoriosAbandono() {
       if (ts === null) return;
       const key = bucketDate(ts);
       const slot = buckets.get(key) ?? { abandonados: 0, pagos: 0 };
-      if (p.status === "CARRINHO_ABANDONADO") slot.abandonados += 1;
-      if (p.status === "PAGO") slot.pagos += 1;
+      if (p.statusPagamento === "CARRINHO_ABANDONADO") slot.abandonados += 1;
+      if (p.statusPagamento === "PAGO") slot.pagos += 1;
       buckets.set(key, slot);
     });
     return Array.from(buckets.entries())
@@ -433,7 +433,7 @@ export default function RelatoriosAbandono() {
                         whiteSpace: "nowrap",
                       }}
                     >
-                      {p.compradorEmail ?? "—"}
+                      {p.clienteNome ?? "—"}
                     </span>
                     <span
                       style={{

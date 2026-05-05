@@ -95,8 +95,8 @@ export default function RelatoriosEstornos() {
       return ts !== null && ts >= cutoffMs;
     });
     return {
-      reembolsadosPeriodo: all.filter((p) => p.status === "REEMBOLSADO"),
-      pagosPeriodo: all.filter((p) => p.status === "PAGO"),
+      reembolsadosPeriodo: all.filter((p) => p.statusPagamento === "REEMBOLSADO"),
+      pagosPeriodo: all.filter((p) => p.statusPagamento === "PAGO"),
     };
   }, [pedidos.data, cutoffMs]);
 
@@ -491,7 +491,7 @@ export default function RelatoriosEstornos() {
                         whiteSpace: "nowrap",
                       }}
                     >
-                      {p.compradorEmail ?? "—"}
+                      {p.clienteNome ?? "—"}
                     </span>
                     <span
                       style={{
@@ -595,7 +595,7 @@ export default function RelatoriosEstornos() {
             ) : (
               pagosReembolsaveis.map((p) => {
                 const principalItem = p.itens?.[0];
-                const ts = p.pagoEm ? new Date(p.pagoEm).getTime() : null;
+                const ts = p.dataPagamento ? new Date(p.dataPagamento).getTime() : null;
                 const isThisOne =
                   reembolsar.isPending && reembolsar.variables === p.id;
                 return (
@@ -628,7 +628,7 @@ export default function RelatoriosEstornos() {
                         whiteSpace: "nowrap",
                       }}
                     >
-                      {p.compradorEmail ?? "—"}
+                      {p.clienteNome ?? "—"}
                     </span>
                     <span
                       style={{

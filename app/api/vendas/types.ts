@@ -39,31 +39,33 @@ export interface PedidoItemView {
 
 export interface PedidoView {
   id: string;
-  compradorId?: string;
-  compradorEmail?: string;
   vendedorId?: string;
   fornecedorId?: string;
   clienteId?: string;
   // Nome do cliente master (vem do upsert no checkout). Null em pedidos
   // antigos sem cliente_id ou quando a tabela clientes não tem nome.
+  // É o único identificador do comprador exposto pelo vendas-service —
+  // email/CPF/telefone vivem no usuarios-service.
   clienteNome?: string | null;
   quantidadeTotal?: number;
   valorTotal?: number;
-  status?: PedidoStatus;
+  statusPagamento?: PedidoStatus;
   formaPagamento?: FormaPagamento | null;
   pagarmeChargeId?: string;
   pagarmeOrderId?: string;
   itens?: PedidoItemView[];
   numeroPedido?: string;
   fornecedor?: TipoIntegracaoFornecedor;
-  trackingCode?: string;
+  codigoRastreio?: string;
   labelUrlA4?: string;
   statusFornecedor?: string;
+  // Quando statusFornecedor foi sincronizado com a 3cliques pela última vez.
+  dataAtualizacaoStatusFornecedor?: string;
   // True quando o pedido foi integrado com sucesso ao fornecedor (3cliques etc.).
   integrado?: boolean;
   dataIntegracao?: string;
   dataCriacao?: string;
-  pagoEm?: string;
+  dataPagamento?: string;
   enviadoEm?: string;
 }
 

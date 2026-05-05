@@ -54,7 +54,7 @@ const TABS: { key: "todos" | UiStatus; label: string }[] = [
 // pode estar sem track_number ainda (transportador atrasou a emissão) e
 // caía erroneamente em "Em separação".
 function deriveUiStatus(p: PedidoView): UiStatus {
-  switch (p.status) {
+  switch (p.statusPagamento) {
     case "REEMBOLSADO":
       return "reembolsado";
     case "FALHA":
@@ -64,7 +64,7 @@ function deriveUiStatus(p: PedidoView): UiStatus {
     case "PAGO":
       if (p.statusFornecedor === "ENVIADO" || p.statusFornecedor === "CONCLUIDO") return "enviado";
       if (p.statusFornecedor === "CANCELADO") return "reembolsado";
-      if (p.trackingCode || p.enviadoEm) return "enviado";
+      if (p.codigoRastreio || p.enviadoEm) return "enviado";
       return "pago";
     case "PENDENTE":
     default:
@@ -146,12 +146,12 @@ function exportCsv(rows: PedidoView[]) {
   const header = [
     "id",
     "numeroPedido",
-    "comprador",
+    "cliente",
     "produto",
     "quantidade",
     "valorTotal",
-    "status",
-    "trackingCode",
+    "statusPagamento",
+    "codigoRastreio",
     "dataCriacao",
     "pagoEm",
     "enviadoEm",
@@ -168,14 +168,14 @@ function exportCsv(rows: PedidoView[]) {
       [
         p.id,
         p.numeroPedido ?? "",
-        p.compradorEmail ?? "",
+        p.clienteNome ?? "",
         principal,
         p.quantidadeTotal ?? "",
         p.valorTotal ?? "",
-        p.status ?? "",
-        p.trackingCode ?? "",
+        p.statusPagamento ?? "",
+        p.codigoRastreio ?? "",
         p.dataCriacao ?? "",
-        p.pagoEm ?? "",
+        p.dataPagamento ?? "",
         p.enviadoEm ?? "",
       ]
         .map(escape)
@@ -225,9 +225,9 @@ export default function Pedidos() {
         const p = row.pedido;
         return (
           (p.numeroPedido ?? "").toLowerCase().includes(q) ||
-          (p.compradorEmail ?? "").toLowerCase().includes(q) ||
+          (p.clienteNome ?? "").toLowerCase().includes(q) ||
           (p.itens?.[0]?.produtoNome ?? "").toLowerCase().includes(q) ||
-          (p.trackingCode ?? "").toLowerCase().includes(q) ||
+          (p.codigoRastreio ?? "").toLowerCase().includes(q) ||
           p.id.toLowerCase().includes(q)
         );
       })
@@ -395,7 +395,7 @@ export default function Pedidos() {
                 setSearch(e.target.value);
                 setPage(1);
               }}
-              placeholder="Buscar por nº, email, produto, tracking..."
+              placeholder="Buscar por nº, cliente, produto, tracking..."
               style={{
                 border: 0,
                 outline: 0,
@@ -534,9 +534,8 @@ export default function Pedidos() {
             {slice.map(({ pedido: p, ui, ts }) => {
               const labelStatus = STATUS_LABEL[ui];
               const numero = p.numeroPedido ?? `#${p.id.slice(0, 8)}`;
-              const email = p.compradorEmail ?? "";
-              const clienteLabel = p.clienteNome?.trim() || email || "—";
-              const clienteSub = p.clienteNome?.trim() && email ? email : null;
+              const clienteLabel = p.clienteNome?.trim() || "—";
+              const clienteSub = null;
               const pagamentoLabel = p.formaPagamento
                 ? FORMA_PAGAMENTO_LABEL[p.formaPagamento] ?? p.formaPagamento
                 : "—";

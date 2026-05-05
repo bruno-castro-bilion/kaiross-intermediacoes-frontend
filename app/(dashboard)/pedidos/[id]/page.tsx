@@ -159,7 +159,7 @@ function statusToBadge(
   | "separacao"
   | "devolvido"
   | "recusado" {
-  switch (p.status) {
+  switch (p.statusPagamento) {
     case "REEMBOLSADO":
       return "devolvido";
     case "FALHA":
@@ -171,7 +171,7 @@ function statusToBadge(
       if (sf === "CONCLUIDO") return "entregue";
       if (sf === "ENVIADO") return "enviado";
       if (sf === "CANCELADO") return "devolvido";
-      if (p.trackingCode || p.enviadoEm) return "enviado";
+      if (p.codigoRastreio || p.enviadoEm) return "enviado";
       return "separacao";
     }
     case "PENDENTE":
@@ -209,9 +209,9 @@ function buildTimeline(
     .pop();
 
   const isPago =
-    pedido.status === "PAGO" ||
-    pedido.status === "REEMBOLSADO" ||
-    !!pedido.pagoEm;
+    pedido.statusPagamento === "PAGO" ||
+    pedido.statusPagamento === "REEMBOLSADO" ||
+    !!pedido.dataPagamento;
   // statusFornecedor da 3cliques é fonte autoritativa quando presente —
   // pedido marcado ENVIADO/CONCLUIDO lá já está despachado mesmo sem
   // track_number emitido ainda pelo transportador. Usa a consulta ao vivo
@@ -220,26 +220,26 @@ function buildTimeline(
   const fornecedorEnviou = sf === "ENVIADO" || sf === "CONCLUIDO";
   const fornecedorEntregou = sf === "CONCLUIDO";
   const fornecedorCancelou = sf === "CANCELADO";
-  const isEnviado = fornecedorEnviou || !!pedido.enviadoEm || !!pedido.trackingCode;
-  const isReembolsado = pedido.status === "REEMBOLSADO";
+  const isEnviado = fornecedorEnviou || !!pedido.enviadoEm || !!pedido.codigoRastreio;
+  const isReembolsado = pedido.statusPagamento === "REEMBOLSADO";
 
   const steps: TimelineStep[] = [
     {
       key: "criado",
       label: "Pedido recebido",
       when: fmtDateTime(pedido.dataCriacao),
-      sub: pedido.compradorEmail,
+      sub: pedido.clienteNome ?? undefined,
       done: true,
     },
     {
       key: "pago",
       label: "Pagamento confirmado",
-      when: pedido.pagoEm ? fmtDateTime(pedido.pagoEm) : "Aguardando pagar.me",
+      when: pedido.dataPagamento ? fmtDateTime(pedido.dataPagamento) : "Aguardando pagar.me",
       sub: pedido.pagarmeChargeId
         ? `Charge ${pedido.pagarmeChargeId}`
         : undefined,
       done: isPago,
-      warn: pedido.status === "FALHA",
+      warn: pedido.statusPagamento === "FALHA",
     },
     {
       key: "fornecedor",
@@ -278,8 +278,8 @@ function buildTimeline(
       key: "enviado",
       label: fornecedorEntregou ? "Entregue" : "Enviado",
       when: pedido.enviadoEm ? fmtDateTime(pedido.enviadoEm) : undefined,
-      sub: pedido.trackingCode
-        ? `Rastreio ${pedido.trackingCode}`
+      sub: pedido.codigoRastreio
+        ? `Rastreio ${pedido.codigoRastreio}`
         : fornecedorCancelou
           ? "Não enviado — pedido cancelado"
           : fornecedorEnviou
@@ -289,7 +289,7 @@ function buildTimeline(
       current:
         isEnviado &&
         !isReembolsado &&
-        pedido.status === "PAGO",
+        pedido.statusPagamento === "PAGO",
       warn: fornecedorCancelou && !isEnviado,
     },
   ];
@@ -446,7 +446,7 @@ export default function PedidoDetail() {
   }
 
   const numero = pedido.numeroPedido ?? `#${pedido.id.slice(0, 8)}`;
-  const podeReembolsar = pedido.status === "PAGO";
+  const podeReembolsar = pedido.statusPagamento === "PAGO";
 
   const handleForcarEnvioFornecedor = () => {
     setConfirmEnvioOpen(true);
@@ -615,31 +615,6 @@ export default function PedidoDetail() {
                 <Download size={14} /> Baixar etiqueta
               </a>
             )}
-            {pedido.compradorEmail && (
-              <a
-                href={`mailto:${pedido.compradorEmail}?subject=${encodeURIComponent(
-                  `Sobre seu pedido ${numero}`,
-                )}`}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 6,
-                  height: 34,
-                  padding: "0 12px",
-                  borderRadius: "var(--r-md)",
-                  border: "1px solid var(--ink-200)",
-                  background: "var(--ink-0)",
-                  color: "var(--ink-700)",
-                  fontSize: 13,
-                  fontWeight: 600,
-                  cursor: "pointer",
-                  fontFamily: "inherit",
-                  textDecoration: "none",
-                }}
-              >
-                <Mail size={14} /> Email ao cliente
-              </a>
-            )}
             {podeReembolsar && (
               <button
                 onClick={handleReembolsar}
@@ -704,7 +679,7 @@ export default function PedidoDetail() {
               }}
             >
               <h3 style={{ fontSize: 16, fontWeight: 700 }}>Linha do tempo</h3>
-              {pedido.trackingCode && (
+              {pedido.codigoRastreio && (
                 <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                   <span
                     style={{
@@ -729,9 +704,9 @@ export default function PedidoDetail() {
                       color: "var(--ink-600)",
                     }}
                   >
-                    {pedido.trackingCode}
+                    {pedido.codigoRastreio}
                   </span>
-                  <CopyButton value={pedido.trackingCode} />
+                  <CopyButton value={pedido.codigoRastreio} />
                 </div>
               )}
             </div>
@@ -976,7 +951,7 @@ export default function PedidoDetail() {
                 Histórico de integração com fornecedor
               </h3>
               <div style={{ display: "flex", gap: 8 }}>
-                {pedido.status === "PAGO" && (
+                {pedido.statusPagamento === "PAGO" && (
                   <button
                     onClick={handleForcarEnvioFornecedor}
                     disabled={notificarFornecedor.isPending}
@@ -1164,25 +1139,25 @@ export default function PedidoDetail() {
                       whiteSpace: "nowrap",
                     }}
                   >
-                    {pedido.compradorEmail ?? "—"}
+                    {pedido.clienteNome ?? "—"}
                   </span>
                 </div>
-                {pedido.compradorEmail && (
-                  <CopyButton value={pedido.compradorEmail} />
+                {pedido.clienteNome && (
+                  <CopyButton value={pedido.clienteNome} />
                 )}
               </div>
-              {pedido.compradorId && (
+              {pedido.clienteId && (
                 <div style={{ fontSize: 11, color: "var(--ink-500)" }}>
                   ID interno:{" "}
                   <span style={{ fontFamily: "var(--font-mono)" }}>
-                    {pedido.compradorId.slice(0, 8)}…
+                    {pedido.clienteId.slice(0, 8)}…
                   </span>
                 </div>
               )}
               <p style={{ fontSize: 11, color: "var(--ink-500)", lineHeight: 1.5 }}>
-                Endereço, telefone e CPF ficam no usuarios-service e na pagar.me
-                — esses dados não são expostos no detalhe do pedido pelo
-                vendas-service por questões de privacidade.
+                Email, telefone, endereço e CPF ficam no usuarios-service e na
+                pagar.me — esses dados não são expostos no detalhe do pedido
+                pelo vendas-service por questões de privacidade.
               </p>
             </div>
           </div>
@@ -1229,11 +1204,11 @@ export default function PedidoDetail() {
                     : "Pagamento online"}
                 </span>
                 <span style={{ fontSize: 12, color: "var(--ink-500)" }}>
-                  {pedido.pagoEm
-                    ? `Pago em ${fmtDateTime(pedido.pagoEm)}`
-                    : pedido.status === "PENDENTE"
+                  {pedido.dataPagamento
+                    ? `Pago em ${fmtDateTime(pedido.dataPagamento)}`
+                    : pedido.statusPagamento === "PENDENTE"
                       ? "Aguardando confirmação"
-                      : pedido.status === "FALHA"
+                      : pedido.statusPagamento === "FALHA"
                         ? "Pagamento falhou"
                         : "Sem confirmação registrada"}
                 </span>

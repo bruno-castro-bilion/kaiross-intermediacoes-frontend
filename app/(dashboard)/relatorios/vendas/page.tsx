@@ -47,7 +47,7 @@ const fmtBRLShort = (n: number) => {
 };
 
 function pedidoTimestamp(p: PedidoView): number | null {
-  const raw = p.pagoEm ?? p.dataCriacao;
+  const raw = p.dataPagamento ?? p.dataCriacao;
   if (!raw) return null;
   const parsed = new Date(raw).getTime();
   return Number.isFinite(parsed) ? parsed : null;
@@ -138,7 +138,7 @@ export default function RelatoriosVendas() {
   // Filtra apenas pedidos PAGOS dentro da janela escolhida.
   const pedidosPagosNoPeriodo = useMemo(() => {
     return (pedidos.data ?? []).filter((p) => {
-      if (p.status !== "PAGO") return false;
+      if (p.statusPagamento !== "PAGO") return false;
       const ts = pedidoTimestamp(p);
       return ts !== null && ts >= cutoffMs;
     });
@@ -153,7 +153,7 @@ export default function RelatoriosVendas() {
     const ticket = vendas > 0 ? receita / vendas : 0;
     const compradores = new Set<string>();
     pedidosPagosNoPeriodo.forEach((p) => {
-      const key = p.compradorId ?? p.compradorEmail;
+      const key = p.clienteId ?? p.clienteNome ?? undefined;
       if (key) compradores.add(key);
     });
     return {

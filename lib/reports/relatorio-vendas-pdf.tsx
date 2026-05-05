@@ -797,12 +797,12 @@ function bucketByStatus(pedidos: PedidoView[]): StatusBuckets {
     devolvido: 0,
   };
   pedidos.forEach((p) => {
-    switch (p.status) {
+    switch (p.statusPagamento) {
       case "PENDENTE":
         b.aguardando += 1;
         break;
       case "PAGO":
-        if (p.trackingCode || p.enviadoEm) b.enviado += 1;
+        if (p.codigoRastreio || p.enviadoEm) b.enviado += 1;
         else b.separacao += 1;
         break;
       case "REEMBOLSADO":
@@ -819,15 +819,15 @@ function bucketByStatus(pedidos: PedidoView[]): StatusBuckets {
 function ultimasVendas(pedidos: PedidoView[]) {
   return [...pedidos]
     .sort((a, b) => {
-      const ta = new Date(a.pagoEm ?? a.dataCriacao ?? 0).getTime();
-      const tb = new Date(b.pagoEm ?? b.dataCriacao ?? 0).getTime();
+      const ta = new Date(a.dataPagamento ?? a.dataCriacao ?? 0).getTime();
+      const tb = new Date(b.dataPagamento ?? b.dataCriacao ?? 0).getTime();
       return tb - ta;
     })
     .slice(0, 6);
 }
 
 function pedidoStatusPill(p: PedidoView) {
-  const status = p.status ?? "PENDENTE";
+  const status = p.statusPagamento ?? "PENDENTE";
   if (status === "PAGO")
     return { label: "PAGO", bg: C.successBg, color: C.successText };
   if (status === "REEMBOLSADO" || status === "FALHA")
@@ -891,12 +891,12 @@ function ResumoExecutivoPage({ data }: { data: RelatorioVendasReportData }) {
 
 function AprovacaoConversaoPage({ data }: { data: RelatorioVendasReportData }) {
   const total = data.pedidos.length;
-  const pagos = data.pedidos.filter((p) => p.status === "PAGO").length;
-  const pendentes = data.pedidos.filter((p) => p.status === "PENDENTE").length;
-  const falhas = data.pedidos.filter((p) => p.status === "FALHA").length;
-  const reembolsados = data.pedidos.filter((p) => p.status === "REEMBOLSADO").length;
+  const pagos = data.pedidos.filter((p) => p.statusPagamento === "PAGO").length;
+  const pendentes = data.pedidos.filter((p) => p.statusPagamento === "PENDENTE").length;
+  const falhas = data.pedidos.filter((p) => p.statusPagamento === "FALHA").length;
+  const reembolsados = data.pedidos.filter((p) => p.statusPagamento === "REEMBOLSADO").length;
   const abandonados = data.pedidos.filter(
-    (p) => p.status === "CARRINHO_ABANDONADO",
+    (p) => p.statusPagamento === "CARRINHO_ABANDONADO",
   ).length;
 
   const pct = (n: number, d: number) => (d > 0 ? (n / d) * 100 : 0);
@@ -1035,7 +1035,7 @@ function StatusPedidosPage({ data }: { data: RelatorioVendasReportData }) {
         ) : (
           ultimas.map((p) => {
             const pill = pedidoStatusPill(p);
-            const date = new Date(p.pagoEm ?? p.dataCriacao ?? 0);
+            const date = new Date(p.dataPagamento ?? p.dataCriacao ?? 0);
             const numero = p.numeroPedido ?? `#${p.id.slice(0, 6)}`;
             return (
               <View key={p.id} style={s.tableRow}>
