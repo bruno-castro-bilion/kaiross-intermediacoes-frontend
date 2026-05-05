@@ -59,7 +59,7 @@ export function SortableHeader<K extends string>({
         display: "inline-flex",
         alignItems: "center",
         justifyContent: justify,
-        gap: 4,
+        gap: 6,
         background: "transparent",
         border: 0,
         padding: 0,
@@ -79,7 +79,22 @@ export function SortableHeader<K extends string>({
       }
     >
       <span>{label}</span>
-      <Icon size={12} style={{ flexShrink: 0, opacity: isActive ? 1 : 0.55 }} />
+      <span
+        style={{
+          display: "inline-flex",
+          alignItems: "center",
+          justifyContent: "center",
+          width: 18,
+          height: 18,
+          borderRadius: 4,
+          background: isActive ? "var(--kai-orange-50, #FFF1E6)" : "var(--ink-100, #F1EEE9)",
+          color: isActive ? "var(--kai-orange)" : "var(--ink-600, #5C5650)",
+          flexShrink: 0,
+          transition: "background .12s, color .12s",
+        }}
+      >
+        <Icon size={14} strokeWidth={2.4} />
+      </span>
     </button>
   );
 }
