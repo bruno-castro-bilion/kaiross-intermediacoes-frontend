@@ -19,6 +19,7 @@ import {
   Activity,
   CreditCard,
   Send,
+  CheckCircle2,
 } from "lucide-react";
 import { StatusBadge } from "@/components/status-badge";
 import { ConfirmDialog } from "@/components/confirm-dialog";
@@ -951,37 +952,48 @@ export default function PedidoDetail() {
                 Histórico de integração com fornecedor
               </h3>
               <div style={{ display: "flex", gap: 8 }}>
-                {pedido.statusPagamento === "PAGO" && (
-                  <button
-                    onClick={handleForcarEnvioFornecedor}
-                    disabled={notificarFornecedor.isPending}
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 6,
-                      height: 30,
-                      padding: "0 10px",
-                      borderRadius: "var(--r-md)",
-                      border: "1px solid var(--kai-orange)",
-                      background: "var(--kai-orange)",
-                      color: "white",
-                      fontSize: 12,
-                      fontWeight: 600,
-                      cursor: notificarFornecedor.isPending
-                        ? "not-allowed"
-                        : "pointer",
-                      fontFamily: "inherit",
-                      opacity: notificarFornecedor.isPending ? 0.7 : 1,
-                    }}
-                  >
-                    {notificarFornecedor.isPending ? (
-                      <Loader2 size={12} className="animate-spin" />
-                    ) : (
-                      <Send size={12} />
-                    )}
-                    Forçar envio
-                  </button>
-                )}
+                {pedido.statusPagamento === "PAGO" && (() => {
+                  const jaIntegrado = pedido.integrado === true;
+                  const desabilitado = jaIntegrado || notificarFornecedor.isPending;
+                  return (
+                    <button
+                      onClick={handleForcarEnvioFornecedor}
+                      disabled={desabilitado}
+                      title={
+                        jaIntegrado
+                          ? "Pedido já foi enviado ao fornecedor com sucesso — reenvio bloqueado"
+                          : undefined
+                      }
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 6,
+                        height: 30,
+                        padding: "0 10px",
+                        borderRadius: "var(--r-md)",
+                        border: jaIntegrado
+                          ? "1px solid var(--ink-200)"
+                          : "1px solid var(--kai-orange)",
+                        background: jaIntegrado ? "var(--ink-50)" : "var(--kai-orange)",
+                        color: jaIntegrado ? "var(--ink-500)" : "white",
+                        fontSize: 12,
+                        fontWeight: 600,
+                        cursor: desabilitado ? "not-allowed" : "pointer",
+                        fontFamily: "inherit",
+                        opacity: notificarFornecedor.isPending ? 0.7 : 1,
+                      }}
+                    >
+                      {notificarFornecedor.isPending ? (
+                        <Loader2 size={12} className="animate-spin" />
+                      ) : jaIntegrado ? (
+                        <CheckCircle2 size={12} />
+                      ) : (
+                        <Send size={12} />
+                      )}
+                      {jaIntegrado ? "Já enviado" : "Forçar envio"}
+                    </button>
+                  );
+                })()}
                 <button
                   onClick={() => historico.refetch()}
                   disabled={historico.isFetching}
