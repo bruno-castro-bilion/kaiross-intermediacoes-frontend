@@ -23,6 +23,8 @@ import {
 import { StatCard } from "@/components/stat-card";
 import { PageHeader } from "@/components/page-header";
 import { ConfirmDialog } from "@/components/confirm-dialog";
+import { SortableHeader } from "@/components/sortable-header";
+import { useTableSort } from "@/lib/use-table-sort";
 import { useAuthStore } from "@/lib/store/auth-store";
 import {
   useListPedidosVendedor,
@@ -134,26 +136,26 @@ export default function RelatoriosEstornos() {
       });
   }, [reembolsadosPeriodo]);
 
-  const lista = useMemo(() => {
-    return [...reembolsadosPeriodo].sort((a, b) => {
-      const ta = pedidoTimestamp(a) ?? 0;
-      const tb = pedidoTimestamp(b) ?? 0;
-      return tb - ta;
-    });
-  }, [reembolsadosPeriodo]);
+  type EstornoSortKey = "pedido" | "cliente" | "produto" | "valor" | "data";
+  const estornoComparators = useMemo<Record<EstornoSortKey, (a: PedidoView, b: PedidoView) => number>>(() => ({
+    pedido:  (a, b) => (a.numeroPedido ?? "").localeCompare(b.numeroPedido ?? ""),
+    cliente: (a, b) => (a.clienteNome ?? "").localeCompare(b.clienteNome ?? ""),
+    produto: (a, b) => (a.itens?.[0]?.produtoNome ?? "").localeCompare(b.itens?.[0]?.produtoNome ?? ""),
+    valor:   (a, b) => (a.valorTotal ?? 0) - (b.valorTotal ?? 0),
+    data:    (a, b) => (pedidoTimestamp(a) ?? 0) - (pedidoTimestamp(b) ?? 0),
+  }), []);
+  const { sorted: lista, sort: estornoSort, setSort: setEstornoSort } =
+    useTableSort<PedidoView, EstornoSortKey>(reembolsadosPeriodo, estornoComparators, { key: "data", dir: "desc" });
 
   // Pedidos PAGOS no período que ainda podem ser reembolsados — mostramos
   // como bloco separado já que essa é uma ação real do vendedor (POST
   // /api/vendas/pedidos/{id}/reembolsar).
-  const pagosReembolsaveis = useMemo(() => {
-    return [...pagosPeriodo]
-      .sort((a, b) => {
-        const ta = pedidoTimestamp(a) ?? 0;
-        const tb = pedidoTimestamp(b) ?? 0;
-        return tb - ta;
-      })
-      .slice(0, 10);
-  }, [pagosPeriodo]);
+  const { sorted: pagosOrdenados, sort: pagosSort, setSort: setPagosSort } =
+    useTableSort<PedidoView, EstornoSortKey>(pagosPeriodo, estornoComparators, { key: "data", dir: "desc" });
+  const pagosReembolsaveis = useMemo(
+    () => pagosOrdenados.slice(0, 10),
+    [pagosOrdenados],
+  );
 
   const handleReembolsar = (pedido: PedidoView) => {
     if (!pedido.id) return;
@@ -422,11 +424,11 @@ export default function RelatoriosEstornos() {
                 borderBottom: "1px solid var(--ink-200)",
               }}
             >
-              <div>Pedido</div>
-              <div>Cliente</div>
-              <div>Produto</div>
-              <div>Valor</div>
-              <div>Data</div>
+              <SortableHeader label="Pedido"  sortKey="pedido"  current={estornoSort} onChange={setEstornoSort} />
+              <SortableHeader label="Cliente" sortKey="cliente" current={estornoSort} onChange={setEstornoSort} />
+              <SortableHeader label="Produto" sortKey="produto" current={estornoSort} onChange={setEstornoSort} />
+              <SortableHeader label="Valor"   sortKey="valor"   current={estornoSort} onChange={setEstornoSort} />
+              <SortableHeader label="Data"    sortKey="data"    current={estornoSort} onChange={setEstornoSort} />
             </div>
             {lista.length === 0 ? (
               <div
@@ -574,11 +576,11 @@ export default function RelatoriosEstornos() {
                 borderBottom: "1px solid var(--ink-200)",
               }}
             >
-              <div>Pedido</div>
-              <div>Cliente</div>
-              <div>Produto</div>
-              <div>Valor</div>
-              <div>Pago em</div>
+              <SortableHeader label="Pedido"  sortKey="pedido"  current={pagosSort} onChange={setPagosSort} />
+              <SortableHeader label="Cliente" sortKey="cliente" current={pagosSort} onChange={setPagosSort} />
+              <SortableHeader label="Produto" sortKey="produto" current={pagosSort} onChange={setPagosSort} />
+              <SortableHeader label="Valor"   sortKey="valor"   current={pagosSort} onChange={setPagosSort} />
+              <SortableHeader label="Pago em" sortKey="data"    current={pagosSort} onChange={setPagosSort} />
               <div />
             </div>
             {pagosReembolsaveis.length === 0 ? (

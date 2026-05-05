@@ -21,6 +21,8 @@ import { StatCard } from "@/components/stat-card";
 import { PageHeader } from "@/components/page-header";
 import { Pagination } from "@/components/pagination";
 import { StatusBadge } from "@/components/status-badge";
+import { SortableHeader } from "@/components/sortable-header";
+import { useTableSort } from "@/lib/use-table-sort";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import {
   useListMeusProdutos,
@@ -363,9 +365,21 @@ export default function MeusProdutos() {
     return list;
   }, [items, search, tab]);
 
-  const total = filtered.length;
+  type ProdutoSortKey = "produto" | "precoVenda" | "sugerido" | "margem" | "status";
+  const comparators = useMemo<Record<ProdutoSortKey, (a: typeof items[number], b: typeof items[number]) => number>>(() => ({
+    produto:    (a, b) => (a.produto?.nome ?? "").localeCompare(b.produto?.nome ?? ""),
+    precoVenda: (a, b) => (a.precoVenda ?? 0) - (b.precoVenda ?? 0),
+    sugerido:   (a, b) => (a.produto?.precoSugerido ?? 0) - (b.produto?.precoSugerido ?? 0),
+    margem:     (a, b) =>
+      ((a.precoVenda ?? 0) - (a.produto?.precoSugerido ?? 0)) -
+      ((b.precoVenda ?? 0) - (b.produto?.precoSugerido ?? 0)),
+    status:     (a, b) => Number(a.ativo === false) - Number(b.ativo === false),
+  }), []);
+  const { sorted, sort, setSort } = useTableSort(filtered, comparators);
+
+  const total = sorted.length;
   const totalPages = Math.max(1, Math.ceil(total / perPage));
-  const slice = filtered.slice((page - 1) * perPage, page * perPage);
+  const slice = sorted.slice((page - 1) * perPage, page * perPage);
 
   const tabs = useMemo(
     () =>
@@ -663,11 +677,11 @@ export default function MeusProdutos() {
                 borderBottom: "1px solid var(--ink-200)",
               }}
             >
-              <div>Produto</div>
-              <div>Preço de venda</div>
-              <div>Sugerido</div>
-              <div>Margem</div>
-              <div>Status</div>
+              <SortableHeader label="Produto"        sortKey="produto"    current={sort} onChange={setSort} />
+              <SortableHeader label="Preço de venda" sortKey="precoVenda" current={sort} onChange={setSort} />
+              <SortableHeader label="Sugerido"       sortKey="sugerido"   current={sort} onChange={setSort} />
+              <SortableHeader label="Margem"         sortKey="margem"     current={sort} onChange={setSort} />
+              <SortableHeader label="Status"         sortKey="status"     current={sort} onChange={setSort} />
               <div />
             </div>
 

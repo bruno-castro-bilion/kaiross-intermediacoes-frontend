@@ -17,6 +17,8 @@ import { StatCard } from "@/components/stat-card";
 import { PageHeader } from "@/components/page-header";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { StatusBadge } from "@/components/status-badge";
+import { SortableHeader } from "@/components/sortable-header";
+import { useTableSort } from "@/lib/use-table-sort";
 import {
   useMarketingStore,
   type OrderBump,
@@ -49,11 +51,25 @@ export default function OrderBumpPage() {
     discountValue: 20,
   });
 
-  const visible = useMemo(() => {
+  const filteredBumps = useMemo(() => {
     if (filter === "ativos") return orderBumps.filter((b) => b.active);
     if (filter === "pausados") return orderBumps.filter((b) => !b.active);
     return orderBumps;
   }, [orderBumps, filter]);
+
+  type BumpSortKey = "bump" | "desconto" | "aceite" | "status";
+  const bumpComparators = useMemo<Record<BumpSortKey, (a: OrderBump, b: OrderBump) => number>>(() => ({
+    bump:     (a, b) => (a.title ?? "").localeCompare(b.title ?? ""),
+    desconto: (a, b) => (a.discountValue ?? 0) - (b.discountValue ?? 0),
+    aceite:   (a, b) => {
+      const ra = a.views ? a.accepts / a.views : 0;
+      const rb = b.views ? b.accepts / b.views : 0;
+      return ra - rb;
+    },
+    status:   (a, b) => Number(b.active) - Number(a.active),
+  }), []);
+  const { sorted: visible, sort: bumpSort, setSort: setBumpSort } =
+    useTableSort(filteredBumps, bumpComparators);
 
   const totals = useMemo(() => {
     const totalRevenue = orderBumps.reduce((s, b) => s + b.revenue, 0);
@@ -557,11 +573,11 @@ export default function OrderBumpPage() {
             borderBottom: "1px solid var(--ink-200)",
           }}
         >
-          <div>Bump</div>
+          <SortableHeader label="Bump"     sortKey="bump"     current={bumpSort} onChange={setBumpSort} />
           <div>Produtos</div>
-          <div>Desconto</div>
-          <div>Aceite</div>
-          <div>Status</div>
+          <SortableHeader label="Desconto" sortKey="desconto" current={bumpSort} onChange={setBumpSort} />
+          <SortableHeader label="Aceite"   sortKey="aceite"   current={bumpSort} onChange={setBumpSort} />
+          <SortableHeader label="Status"   sortKey="status"   current={bumpSort} onChange={setBumpSort} />
           <div />
         </div>
 

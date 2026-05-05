@@ -18,6 +18,8 @@ import { StatCard } from "@/components/stat-card";
 import { PageHeader } from "@/components/page-header";
 import { Pagination } from "@/components/pagination";
 import { StatusBadge } from "@/components/status-badge";
+import { SortableHeader } from "@/components/sortable-header";
+import { useTableSort } from "@/lib/use-table-sort";
 import { useAuthStore } from "@/lib/store/auth-store";
 import { useListPedidosVendedor } from "@/app/api/vendas/queries";
 import type { PedidoView } from "@/app/api/vendas/types";
@@ -217,26 +219,44 @@ export default function Pedidos() {
 
   const filtered = useMemo(() => {
     const q = search.toLowerCase().trim();
-    return enriched
-      .filter((row) => {
-        const matchTab = tab === "todos" || row.ui === tab;
-        if (!matchTab) return false;
-        if (!q) return true;
-        const p = row.pedido;
-        return (
-          (p.numeroPedido ?? "").toLowerCase().includes(q) ||
-          (p.clienteNome ?? "").toLowerCase().includes(q) ||
-          (p.itens?.[0]?.produtoNome ?? "").toLowerCase().includes(q) ||
-          (p.codigoRastreio ?? "").toLowerCase().includes(q) ||
-          p.id.toLowerCase().includes(q)
-        );
-      })
-      .sort((a, b) => (b.ts ?? 0) - (a.ts ?? 0));
+    return enriched.filter((row) => {
+      const matchTab = tab === "todos" || row.ui === tab;
+      if (!matchTab) return false;
+      if (!q) return true;
+      const p = row.pedido;
+      return (
+        (p.numeroPedido ?? "").toLowerCase().includes(q) ||
+        (p.clienteNome ?? "").toLowerCase().includes(q) ||
+        (p.itens?.[0]?.produtoNome ?? "").toLowerCase().includes(q) ||
+        (p.codigoRastreio ?? "").toLowerCase().includes(q) ||
+        p.id.toLowerCase().includes(q)
+      );
+    });
   }, [enriched, tab, search]);
 
-  const total = filtered.length;
+  type PedidoSortKey =
+    | "numero" | "data" | "cliente" | "pagamento" | "total"
+    | "status" | "itens" | "integrado";
+  const comparators = useMemo<Record<PedidoSortKey, (a: typeof enriched[number], b: typeof enriched[number]) => number>>(() => ({
+    numero:    (a, b) => (a.pedido.numeroPedido ?? "").localeCompare(b.pedido.numeroPedido ?? ""),
+    data:      (a, b) => (a.ts ?? 0) - (b.ts ?? 0),
+    cliente:   (a, b) => (a.pedido.clienteNome ?? "").localeCompare(b.pedido.clienteNome ?? ""),
+    pagamento: (a, b) => (a.pedido.formaPagamento ?? "").localeCompare(b.pedido.formaPagamento ?? ""),
+    total:     (a, b) => (a.pedido.valorTotal ?? 0) - (b.pedido.valorTotal ?? 0),
+    status:    (a, b) => a.ui.localeCompare(b.ui),
+    itens:     (a, b) => (a.pedido.quantidadeTotal ?? 0) - (b.pedido.quantidadeTotal ?? 0),
+    integrado: (a, b) => Number(b.pedido.integrado === true) - Number(a.pedido.integrado === true),
+  }), []);
+
+  // Default: data desc (mantém comportamento anterior — pedidos mais
+  // recentes no topo até o usuário tocar em alguma coluna).
+  const { sorted, sort, setSort } = useTableSort<typeof enriched[number], PedidoSortKey>(
+    filtered, comparators, { key: "data", dir: "desc" },
+  );
+
+  const total = sorted.length;
   const totalPages = Math.max(1, Math.ceil(total / perPage));
-  const slice = filtered.slice((page - 1) * perPage, page * perPage);
+  const slice = sorted.slice((page - 1) * perPage, page * perPage);
 
   const stats = useMemo(() => {
     const startMonth = new Date();
@@ -520,14 +540,14 @@ export default function Pedidos() {
                 borderBottom: "1px solid var(--ink-200)",
               }}
             >
-              <div>Pedido</div>
-              <div>Data</div>
-              <div>Cliente</div>
-              <div>Pagamento</div>
-              <div>Total</div>
-              <div>Status</div>
-              <div>Itens</div>
-              <div>Enviado ao Fornecedor</div>
+              <SortableHeader label="Pedido"     sortKey="numero"    current={sort} onChange={setSort} />
+              <SortableHeader label="Data"       sortKey="data"      current={sort} onChange={setSort} />
+              <SortableHeader label="Cliente"    sortKey="cliente"   current={sort} onChange={setSort} />
+              <SortableHeader label="Pagamento"  sortKey="pagamento" current={sort} onChange={setSort} />
+              <SortableHeader label="Total"      sortKey="total"     current={sort} onChange={setSort} />
+              <SortableHeader label="Status"     sortKey="status"    current={sort} onChange={setSort} />
+              <SortableHeader label="Itens"      sortKey="itens"     current={sort} onChange={setSort} />
+              <SortableHeader label="Enviado ao Fornecedor" sortKey="integrado" current={sort} onChange={setSort} />
               <div>Ações</div>
             </div>
 

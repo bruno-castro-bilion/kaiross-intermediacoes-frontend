@@ -21,6 +21,8 @@ import {
 } from "lucide-react";
 import { StatCard } from "@/components/stat-card";
 import { PageHeader } from "@/components/page-header";
+import { SortableHeader } from "@/components/sortable-header";
+import { useTableSort } from "@/lib/use-table-sort";
 import { useAuthStore } from "@/lib/store/auth-store";
 import {
   useListPedidosVendedor,
@@ -141,15 +143,17 @@ export default function RelatoriosAbandono() {
       });
   }, [allInPeriodo]);
 
-  const recent = useMemo(() => {
-    return [...abandonadosPeriodo]
-      .sort((a, b) => {
-        const ta = pedidoTimestamp(a) ?? 0;
-        const tb = pedidoTimestamp(b) ?? 0;
-        return tb - ta;
-      })
-      .slice(0, 25);
-  }, [abandonadosPeriodo]);
+  type AbandonoSortKey = "cliente" | "produto" | "valor" | "quantidade" | "quando";
+  const abandonoComparators = useMemo<Record<AbandonoSortKey, (a: PedidoView, b: PedidoView) => number>>(() => ({
+    cliente:    (a, b) => (a.clienteNome ?? "").localeCompare(b.clienteNome ?? ""),
+    produto:    (a, b) => (a.itens?.[0]?.produtoNome ?? "").localeCompare(b.itens?.[0]?.produtoNome ?? ""),
+    valor:      (a, b) => (a.valorTotal ?? 0) - (b.valorTotal ?? 0),
+    quantidade: (a, b) => (a.quantidadeTotal ?? 0) - (b.quantidadeTotal ?? 0),
+    quando:     (a, b) => (pedidoTimestamp(a) ?? 0) - (pedidoTimestamp(b) ?? 0),
+  }), []);
+  const { sorted: recentSorted, sort: abandonoSort, setSort: setAbandonoSort } =
+    useTableSort<PedidoView, AbandonoSortKey>(abandonadosPeriodo, abandonoComparators, { key: "quando", dir: "desc" });
+  const recent = useMemo(() => recentSorted.slice(0, 25), [recentSorted]);
 
   return (
     <motion.div
@@ -392,11 +396,11 @@ export default function RelatoriosAbandono() {
                 borderBottom: "1px solid var(--ink-200)",
               }}
             >
-              <div>Cliente</div>
-              <div>Produto</div>
-              <div>Valor</div>
-              <div>Quantidade</div>
-              <div>Quando</div>
+              <SortableHeader label="Cliente"    sortKey="cliente"    current={abandonoSort} onChange={setAbandonoSort} />
+              <SortableHeader label="Produto"    sortKey="produto"    current={abandonoSort} onChange={setAbandonoSort} />
+              <SortableHeader label="Valor"      sortKey="valor"      current={abandonoSort} onChange={setAbandonoSort} />
+              <SortableHeader label="Quantidade" sortKey="quantidade" current={abandonoSort} onChange={setAbandonoSort} />
+              <SortableHeader label="Quando"     sortKey="quando"     current={abandonoSort} onChange={setAbandonoSort} />
             </div>
             {recent.length === 0 ? (
               <div

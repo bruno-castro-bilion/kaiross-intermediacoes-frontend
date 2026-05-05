@@ -23,6 +23,8 @@ import {
 import { toast } from "sonner";
 import { StatCard } from "@/components/stat-card";
 import { PageHeader } from "@/components/page-header";
+import { SortableHeader } from "@/components/sortable-header";
+import { useTableSort } from "@/lib/use-table-sort";
 import { useAuthStore } from "@/lib/store/auth-store";
 import {
   useListPedidosVendedor,
@@ -221,9 +223,18 @@ export default function RelatoriosVendas() {
         revenue: v.revenue,
         ticket: v.sales > 0 ? v.revenue / v.sales : 0,
       }))
-      .sort((a, b) => b.revenue - a.revenue)
       .slice(0, 20);
   }, [pedidosPagosNoPeriodo]);
+
+  type ProdutoSortKey = "produto" | "unidades" | "receita" | "ticket";
+  const produtoComparators = useMemo<Record<ProdutoSortKey, (a: typeof performancePorProduto[number], b: typeof performancePorProduto[number]) => number>>(() => ({
+    produto:  (a, b) => a.prod.localeCompare(b.prod),
+    unidades: (a, b) => a.sales - b.sales,
+    receita:  (a, b) => a.revenue - b.revenue,
+    ticket:   (a, b) => a.ticket - b.ticket,
+  }), []);
+  const { sorted: performanceOrdenado, sort: produtoSort, setSort: setProdutoSort } =
+    useTableSort<typeof performancePorProduto[number], ProdutoSortKey>(performancePorProduto, produtoComparators, { key: "receita", dir: "desc" });
 
   return (
     <motion.div
@@ -528,12 +539,12 @@ export default function RelatoriosVendas() {
                 borderBottom: "1px solid var(--ink-200)",
               }}
             >
-              <div>Produto</div>
-              <div>Unidades</div>
-              <div>Receita</div>
-              <div>Preço médio</div>
+              <SortableHeader label="Produto"     sortKey="produto"  current={produtoSort} onChange={setProdutoSort} />
+              <SortableHeader label="Unidades"    sortKey="unidades" current={produtoSort} onChange={setProdutoSort} />
+              <SortableHeader label="Receita"     sortKey="receita"  current={produtoSort} onChange={setProdutoSort} />
+              <SortableHeader label="Preço médio" sortKey="ticket"   current={produtoSort} onChange={setProdutoSort} />
             </div>
-            {performancePorProduto.length === 0 ? (
+            {performanceOrdenado.length === 0 ? (
               <div
                 style={{
                   padding: 40,
@@ -545,7 +556,7 @@ export default function RelatoriosVendas() {
                 Sem dados de produtos vendidos no período.
               </div>
             ) : (
-              performancePorProduto.map((row) => (
+              performanceOrdenado.map((row) => (
                 <div
                   key={row.prod}
                   style={{
